@@ -705,7 +705,7 @@ $('ozReset').onclick=()=>{if(!confirm('Сбросить все изменени�
 // Слой логотипа расположен непосредственно в body, вне любых ограничивающих контейнеров.
 const logoOriginal=$('brandIcon');
 // Custom logo asset takes priority over legacy solid-background images.
-window.OZ_LOGO=window.EMBEDDED_ASSETS['logo.webp'];
+window.OZ_LOGO='/ozerskiy-header-logo.png';
 const staleLogo=$('ozFreeLogo');if(staleLogo)staleLogo.remove();
 const freeLogo=document.createElement('div');freeLogo.id='ozFreeLogo';freeLogo.setAttribute('aria-label','Перемещаемый логотип');
 const freeImg=document.createElement('img');freeImg.alt='Озерский питомник';freeImg.draggable=false;freeLogo.appendChild(freeImg);
@@ -724,7 +724,7 @@ if(!state.logoEmbeddedInHeaderV1){
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
-function renderFree(){const f=state.freeLogo;freeLogo.style.left=f.x+'px';freeLogo.style.top=f.y+'px';freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||window.OZ_LOGO;if(freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
+function renderFree(){const f=state.freeLogo;freeLogo.style.left=f.x+'px';freeLogo.style.top=f.y+'px';freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=window.OZ_LOGO;if(freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
 renderFree();
 $('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'✥ Перемещать логотип'};
 $('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round(window.scrollX+(innerWidth-state.freeLogo.size)/2);state.freeLogo.y=Math.round(window.scrollY+innerHeight/2-state.freeLogo.size*.3);renderFree();save()};
