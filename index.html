@@ -729,7 +729,8 @@ const staleLogo=$('ozFreeLogo');if(staleLogo)staleLogo.remove();
 const freeLogo=document.createElement('div');freeLogo.id='ozFreeLogo';freeLogo.setAttribute('aria-label','Перемещаемый логотип');
 const freeImg=document.createElement('img');freeImg.alt='Озерский питомник';freeImg.draggable=false;freeLogo.appendChild(freeImg);
 const nativePosition=logoOriginal.getBoundingClientRect();
-document.body.appendChild(freeLogo);
+if(!state.headerLogoCoordinatesV2){state.freeLogo.x=Math.max(0,Math.round((document.querySelector('.header .header-in').clientWidth-(state.freeLogo.size||180))/2));state.freeLogo.y=0;state.headerLogoCoordinatesV2=true;save();}
+document.querySelector('.header .header-in').appendChild(freeLogo);
 // The visible free-positioned logo, not the hidden original header logo, handles refresh.
 freeLogo.setAttribute('role','button');
 freeLogo.setAttribute('tabindex','0');
@@ -744,10 +745,10 @@ freeLogo.addEventListener('keydown',function(event){
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
-function renderFree(){const f=state.freeLogo;freeLogo.style.left=f.x+'px';freeLogo.style.top=f.y+'px';freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.setProperty('display',currentSrc?'block':'none','important');if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
+function renderFree(){const f=state.freeLogo;const host=freeLogo.parentElement;const maxX=Math.max(0,host.clientWidth-Math.min(f.size,host.clientWidth));f.x=Math.max(0,Math.min(maxX,Number(f.x)||0));f.y=Math.max(0,Math.min(Math.max(0,host.clientHeight-35),Number(f.y)||0));freeLogo.style.setProperty('left',f.x+'px','important');freeLogo.style.setProperty('top',f.y+'px','important');freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.setProperty('display',currentSrc?'block':'none','important');if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
 renderFree();
 $('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'Перетаскивайте логотип мышью'};
-$('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round(window.scrollX+(innerWidth-state.freeLogo.size)/2);state.freeLogo.y=Math.round(window.scrollY+innerHeight/2-state.freeLogo.size*.3);renderFree();save()};
+$('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round((freeLogo.parentElement.clientWidth-state.freeLogo.size)/2);state.freeLogo.y=0;renderFree();save()};
 $('ozLogoHome').onclick=()=>{const r=document.querySelector('.header-in').getBoundingClientRect();state.freeLogo.x=Math.round(r.left+window.scrollX);state.freeLogo.y=Math.round(r.top+window.scrollY+(r.height-state.freeLogo.size*.64)/2);renderFree();save()};
 document.querySelectorAll('[data-oz-free]').forEach(el=>el.addEventListener('input',()=>{state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]]=Number(el.value);renderFree();save()}));
 let moving=null;
@@ -1169,4 +1170,11 @@ html body #ozFreeLogo,html body.oz-open #ozFreeLogo,html body.oz-free-logo-activ
 html body #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-width:none!important;max-height:none!important;object-fit:contain!important}
 html body.oz-open #ozFreeLogo{cursor:grab!important}
 html body.oz-open #ozFreeLogo:active{cursor:grabbing!important}
+</style><style id="oz-header-only-logo-v2">
+.header .header-in{position:relative!important}
+html body #ozFreeLogo,html body.oz-open #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{
+ position:absolute!important;right:auto!important;bottom:auto!important;transform:none!important;
+ max-width:none!important;max-height:none!important;min-width:0!important;z-index:100!important;
+}
+.header #ozFreeLogo img{width:100%!important;height:auto!important;max-width:100%!important;pointer-events:none!important}
 </style></body></html>
