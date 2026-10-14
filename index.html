@@ -501,6 +501,7 @@ try{
    delete state.images.logo;
    localStorage.removeItem(KEY+'_img_logo');
    localStorage.setItem('ozersky_remove_legacy_logo_v3','yes');
+   state.freeLogo={x:90,y:115,size:180};
    localStorage.setItem(KEY,JSON.stringify({...state,images:{...state.images,logo:undefined}}));
  }
 }catch(e){}
@@ -753,7 +754,7 @@ freeLogo.addEventListener('keydown',function(event){
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
-function renderFree(){const f=state.freeLogo;freeLogo.style.left=f.x+'px';freeLogo.style.top=f.y+'px';freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.display=currentSrc?'block':'none';if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
+function renderFree(){const f=state.freeLogo;freeLogo.style.left=f.x+'px';freeLogo.style.top=f.y+'px';freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.setProperty('display',currentSrc?'block':'none','important');if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
 renderFree();
 $('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'Перетаскивайте логотип мышью'};
 $('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round(window.scrollX+(innerWidth-state.freeLogo.size)/2);state.freeLogo.y=Math.round(window.scrollY+innerHeight/2-state.freeLogo.size*.3);renderFree();save()};
