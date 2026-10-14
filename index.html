@@ -1105,4 +1105,8 @@ body.oz-cart-dragging #cartOpen{cursor:grabbing!important}
  document.addEventListener('click',function(e){var closeBtn=e.target.closest&&e.target.closest('#ozClose');var launch=e.target.closest&&e.target.closest('#ozEditorLauncher');if(closeBtn||launch){e.preventDefault();e.stopImmediatePropagation();if(closeBtn)close();else open()}},true);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('oz-open'))close()},true);
 })();
-</script></body></html>
+</script><style id="oz-header-scroll-with-page">
+/* Navigation, logo, top info strip and its contents scroll with the document. */
+html body .header,html body.oz-open .header{position:relative!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important}
+html body .topbar,html body.oz-open .topbar{position:relative!important;top:auto!important}
+</style></body></html>
