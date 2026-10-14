@@ -1144,12 +1144,15 @@ html body #ozCombinedHeader>.topbar,html body #ozCombinedHeader>.header{position
  if(logo){logo.classList.remove('unlocked');logo.style.cursor='pointer';}
 })();
 </script><script src="/botanical-editor.js" defer></script><style id="oz-menu-independent-alignment">
-/* Five genuine clickable navigation items, no visual-only translated hitboxes. */
-html body #ozCombinedHeader .header #mainNav{display:grid!important;grid-template-columns:max-content max-content max-content max-content max-content!important;align-items:center!important;justify-content:space-between!important;gap:clamp(10px,1.6vw,26px)!important;position:relative!important;flex:1 1 auto!important;min-width:0!important;margin:0!important;padding:0 14px!important}
-html body #ozCombinedHeader .header #mainNav a{position:relative!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;top:auto!important;left:auto!important;margin:0!important;padding:12px 3px!important;min-height:58px!important;line-height:1.15!important;white-space:nowrap!important;transform-origin:center!important;cursor:pointer!important;touch-action:manipulation!important;user-select:auto!important;font-size:20px!important;text-decoration:none!important;transition:color .16s ease!important}
-html body #ozCombinedHeader .header #mainNav a:nth-child(3){margin-left:clamp(100px,13vw,220px)!important}
+html body #ozCombinedHeader .header .header-in{position:relative!important}
+html body #ozCombinedHeader .header #mainNav{display:grid!important;grid-template-columns:repeat(2,max-content) minmax(190px,1fr) repeat(3,max-content)!important;column-gap:clamp(12px,2vw,30px)!important;align-items:center!important;justify-content:center!important;flex:1 1 auto!important;min-width:0!important;padding:0 12px!important;margin:0!important}
+html body #ozCombinedHeader .header #mainNav a{transform:none!important;position:relative!important;top:auto!important;left:auto!important;margin:0!important;padding:10px 2px!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:50px!important;white-space:nowrap!important;line-height:1.2!important;font-size:clamp(13px,1.45vw,21px)!important;cursor:pointer!important;touch-action:manipulation!important}
+html body #ozCombinedHeader .header #mainNav a:nth-child(1){grid-column:1}
+html body #ozCombinedHeader .header #mainNav a:nth-child(2){grid-column:2}
+html body #ozCombinedHeader .header #mainNav a:nth-child(3){grid-column:4;margin-left:0!important}
+html body #ozCombinedHeader .header #mainNav a:nth-child(4){grid-column:5}
+html body #ozCombinedHeader .header #mainNav a:nth-child(5){grid-column:6}
 html body #ozCombinedHeader .header #mainNav a:hover{color:#4c9363!important}
-@media(max-width:1300px){html body #ozCombinedHeader .header #mainNav a{font-size:clamp(13px,1.4vw,20px)!important}html body #ozCombinedHeader .header #mainNav a:nth-child(3){margin-left:clamp(65px,8vw,130px)!important}}
-@media(max-width:900px){html body #ozCombinedHeader .header #mainNav{gap:7px!important;padding:0 5px!important}html body #ozCombinedHeader .header #mainNav a:nth-child(3){margin-left:40px!important}}
-@media(max-width:580px){html body #ozCombinedHeader .header #mainNav{display:none!important}}
+@media(max-width:1050px){html body #ozCombinedHeader .header #mainNav{grid-template-columns:repeat(2,max-content) minmax(95px,1fr) repeat(3,max-content)!important;column-gap:10px!important}}
+@media(max-width:700px){html body #ozCombinedHeader .header #mainNav{display:none!important}}
 </style></body></html>
