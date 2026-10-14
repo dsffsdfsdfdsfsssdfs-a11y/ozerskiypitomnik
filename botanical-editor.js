@@ -29,6 +29,16 @@ for(const sel of ['#bst-bg-a','#bst-bg-b'])$(sel,bgPanel).addEventListener('inpu
 function updateGradient(){const angle=$('#bst-bg-angle',bgPanel).value,a=$('#bst-bg-a',bgPanel).value,b=$('#bst-bg-b',bgPanel).value;setBackground(`linear-gradient(${angle}deg,${a},${b})`)}
 $('#bst-bg-apply',bgPanel).addEventListener('click',updateGradient);
 $('#bst-bg-reset',bgPanel).addEventListener('click',()=>{localStorage.removeItem(BGKEY);bgStyle.textContent='' });const panel=$('.bst-panel',root),outline=$('.bst-outline',root);
+// Compact adjustable inspector, draggable by its title bar.
+const resizeGrip=document.createElement('div');resizeGrip.className='bst-resize-grip';resizeGrip.title='Изменить ширину редактора';panel.appendChild(resizeGrip);
+const panelTitle=$('.bst-title',panel);let panelMove=null,panelResize=null;
+panelTitle.addEventListener('pointerdown',e=>{if(e.target.closest('button')||e.button!==0)return;const r=panel.getBoundingClientRect();panelMove={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top};panelTitle.setPointerCapture(e.pointerId)});
+panelTitle.addEventListener('pointermove',e=>{if(!panelMove||e.pointerId!==panelMove.id)return;panel.style.left=Math.max(4,Math.min(innerWidth-panel.offsetWidth-4,panelMove.left+e.clientX-panelMove.x))+'px';panel.style.top=Math.max(4,Math.min(innerHeight-90,panelMove.top+e.clientY-panelMove.y))+'px'});
+panelTitle.addEventListener('pointerup',()=>panelMove=null);panelTitle.addEventListener('pointercancel',()=>panelMove=null);
+resizeGrip.addEventListener('pointerdown',e=>{e.preventDefault();const r=panel.getBoundingClientRect();panelResize={id:e.pointerId,x:e.clientX,width:r.width};resizeGrip.setPointerCapture(e.pointerId)});
+resizeGrip.addEventListener('pointermove',e=>{if(!panelResize||e.pointerId!==panelResize.id)return;panel.style.width=Math.max(265,Math.min(650,panelResize.width+e.clientX-panelResize.x))+'px'});
+resizeGrip.addEventListener('pointerup',()=>panelResize=null);resizeGrip.addEventListener('pointercancel',()=>panelResize=null);
+
 let moveMode=false;
 function renderOutline(){if(root.classList.contains('bst-inactive')||!active||!active.isConnected){outline.style.display='none';return}const r=active.getBoundingClientRect();Object.assign(outline.style,{display:'block',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px'})}
 function pick(el){if(!editable(el))return;active=el;$('#bst-selected',root).textContent=el.tagName.toLowerCase()+(el.id?' #'+el.id:'')+(el.className&&typeof el.className==='string'?' · '+el.className.slice(0,40):'');
