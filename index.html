@@ -46,7 +46,7 @@ body.oz-logo-dragging #ozFreeLogo{cursor:grabbing;outline:2px dashed #62bb83;out
 body.oz-logo-unlocked #ozFreeLogo{outline:1px dashed rgba(59,153,96,.75);outline-offset:7px}
 body.oz-logo-unlocked #ozFreeLogo:hover{outline:2px solid #56b37e}
 body.oz-free-logo-active .header .brand{width:0!important;min-width:0!important;max-width:0!important;overflow:hidden;gap:0!important;pointer-events:none}
-#ozFreeLogo:not(.unlocked){cursor:default;pointer-events:none}
+#ozFreeLogo:not(.unlocked){cursor:pointer;pointer-events:auto}
 .oz-logo-hint{background:#eff7ee;border:1px solid #d8e9d4;border-radius:12px;padding:12px 13px;color:#345642;font-size:12px;line-height:1.6;margin:12px 0}
 .oz-free-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.oz-free-actions button{border:1px solid #d1ded2;background:white;color:#2a4b39;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:700}.oz-free-actions button.active{background:#174c32;color:#fff}
 .oz-field input[type=range][data-oz-free]{width:100%;accent-color:#398c63;cursor:ew-resize}
@@ -706,6 +706,17 @@ const freeLogo=document.createElement('div');freeLogo.id='ozFreeLogo';freeLogo.s
 const freeImg=document.createElement('img');freeImg.alt='Озерский питомник';freeImg.draggable=false;freeLogo.appendChild(freeImg);
 const nativePosition=logoOriginal.getBoundingClientRect();
 document.body.appendChild(freeLogo);
+// The visible free-positioned logo, not the hidden original header logo, handles refresh.
+freeLogo.setAttribute('role','button');
+freeLogo.setAttribute('tabindex','0');
+freeLogo.setAttribute('title','Обновить сайт');
+freeLogo.addEventListener('click',function(event){
+  if(document.body.classList.contains('oz-open')||freeLogo.classList.contains('unlocked')||document.body.classList.contains('oz-logo-dragging'))return;
+  event.preventDefault();event.stopPropagation();window.location.reload();
+});
+freeLogo.addEventListener('keydown',function(event){
+ if(event.key==='Enter'||event.key===' '){event.preventDefault();freeLogo.click()}
+});
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
