@@ -433,7 +433,7 @@ init();
 <div class="oz-tabs"><button class="oz-tab active" data-oz-tab="style">Дизайн</button><button class="oz-tab" data-oz-tab="content">Тексты</button><button class="oz-tab" data-oz-tab="media">Фото</button><button class="oz-tab" data-oz-tab="layout">Блоки</button></div>
 <div class="oz-body"><div class="oz-page active" id="oz-page-style">
 <div class="oz-section-title">Фирменные цвета</div><div class="oz-field"><label>Основной цвет</label><input data-oz-css="--deep" type="color" value="#12372c"></div><div class="oz-field"><label>Акцентный цвет</label><input data-oz-css="--accent" type="color" value="#bed6a7"></div><div class="oz-field"><label>Цвет текста</label><input data-oz-css="--ink" type="color" value="#17372e"></div>
-<div class="oz-section-title">Шапка и логотип</div><div class="oz-field"><label>Высота шапки <output data-for="headerHeight">86 px</output></label><input data-oz-name="headerHeight" data-oz-var="--oz-header-height" data-unit="px" max="260" min="70" style="--pct: 20.58823529411765%;" type="range" value="92"></div><div class="oz-field"><label>Размер логотипа <output data-for="freeSize">177 px</output></label><input data-oz-free="freeSize" max="700" min="60" style="--pct: 11.810344827586206%;" type="range" value="155"></div>
+<div class="oz-section-title">Шапка и логотип</div><div class="oz-field"><label>Высота шапки <output data-for="headerHeight">86 px</output></label><input data-oz-name="headerHeight" data-oz-var="--oz-header-height" data-unit="px" max="260" min="70" style="--pct: 20.58823529411765%;" type="range" value="92"></div><div class="oz-field"><label>Размер логотипа <output data-for="freeSize">177 px</output></label><input data-oz-free="freeSize" max="900" min="50" style="--pct: 11.810344827586206%;" type="range" value="155"></div>
 
 <div class="oz-section-title">Кнопка «Корзина»</div>
 <div class="oz-field">
@@ -745,14 +745,14 @@ freeLogo.addEventListener('keydown',function(event){
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
-function renderFree(){const f=state.freeLogo;const host=freeLogo.parentElement;const maxX=Math.max(0,host.clientWidth-Math.min(f.size,host.clientWidth));f.x=Math.max(0,Math.min(maxX,Number(f.x)||0));f.y=Math.max(0,Math.min(Math.max(0,host.clientHeight-35),Number(f.y)||0));freeLogo.style.setProperty('left',f.x+'px','important');freeLogo.style.setProperty('top',f.y+'px','important');freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.setProperty('display',currentSrc?'block':'none','important');if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
+function renderFree(){const f=state.freeLogo;const host=freeLogo.parentElement;const maxX=Math.max(0,host.clientWidth-(Number(f.size)||180));f.x=Math.max(0,Math.min(maxX,Number(f.x)||0));f.y=Math.max(0,Math.min(Math.max(0,host.clientHeight-((Number(f.size)||180)*(freeImg.naturalHeight||1)/(freeImg.naturalWidth||2))),Number(f.y)||0));freeLogo.style.setProperty('left',f.x+'px','important');freeLogo.style.setProperty('top',f.y+'px','important');freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.setProperty('display',currentSrc?'block':'none','important');if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
 renderFree();
 $('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'Перетаскивайте логотип мышью'};
 $('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round((freeLogo.parentElement.clientWidth-state.freeLogo.size)/2);state.freeLogo.y=0;renderFree();save()};
 $('ozLogoHome').onclick=()=>{const r=document.querySelector('.header-in').getBoundingClientRect();state.freeLogo.x=Math.round(r.left+window.scrollX);state.freeLogo.y=Math.round(r.top+window.scrollY+(r.height-state.freeLogo.size*.64)/2);renderFree();save()};
 document.querySelectorAll('[data-oz-free]').forEach(el=>el.addEventListener('input',()=>{state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]]=Number(el.value);renderFree();save()}));
 let moving=null;
-freeLogo.addEventListener('pointerdown',e=>{if(!(freeUnlocked||document.body.classList.contains('oz-open'))||e.button!==0)return;e.preventDefault();moving={id:e.pointerId,x:e.clientX,y:e.clientY,left:state.freeLogo.x,top:state.freeLogo.y};freeLogo.setPointerCapture(e.pointerId);document.body.classList.add('oz-logo-dragging')});
+freeLogo.addEventListener('pointerdown',e=>{if(!document.body.classList.contains('oz-open')||e.button!==0)return;e.preventDefault();moving={id:e.pointerId,x:e.clientX,y:e.clientY,left:state.freeLogo.x,top:state.freeLogo.y};freeLogo.setPointerCapture(e.pointerId);document.body.classList.add('oz-logo-dragging')});
 freeLogo.addEventListener('pointermove',e=>{if(!moving||moving.id!==e.pointerId)return;state.freeLogo.x=Math.round(moving.left+e.clientX-moving.x);state.freeLogo.y=Math.round(moving.top+e.clientY-moving.y);renderFree()});
 function endLogoDrag(e){if(!moving||moving.id!==e.pointerId)return;moving=null;document.body.classList.remove('oz-logo-dragging');save()}
 freeLogo.addEventListener('pointerup',endLogoDrag);freeLogo.addEventListener('pointercancel',endLogoDrag);
@@ -1178,18 +1178,10 @@ html body #ozFreeLogo,html body.oz-open #ozFreeLogo,html body.oz-free-logo-activ
 }
 .header #ozFreeLogo img{width:100%!important;height:auto!important;max-width:100%!important;pointer-events:none!important}
 </style><style id="oz-logo-contained-in-pill">
-/* Independent header height and logo width; same geometry in editing/viewing. */
-.header::before{height:var(--oz-header-height,92px)!important}
-.header .header-in{height:var(--oz-header-height,92px)!important;min-height:var(--oz-header-height,92px)!important}
-html body .header .header-in #ozFreeLogo,
-html body.oz-open .header .header-in #ozFreeLogo,
-html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{
- top:50%!important;transform:translateY(-50%)!important;height:auto!important;
- max-height:calc(var(--oz-header-height,92px) - 12px)!important;
- display:flex!important;align-items:center!important;justify-content:center!important;
+.header .header-in{position:relative!important}
+html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{
+ position:absolute!important;top:0;left:0;transform:none!important;height:auto!important;max-height:none!important;
+ display:block;overflow:visible!important;touch-action:none!important;
 }
-html body .header .header-in #ozFreeLogo img{
- width:100%!important;height:auto!important;max-height:calc(var(--oz-header-height,92px) - 12px)!important;
- object-fit:contain!important;
-}
+html body .header .header-in #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;max-width:none!important;object-fit:contain!important}
 </style></body></html>
