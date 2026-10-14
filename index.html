@@ -305,7 +305,7 @@ body.oz-open .header .header-phone.oz-phone-selected{outline:2px solid #38875f}
     var a=e.target.closest&&e.target.closest('a.brand');
     if(!a||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
     e.preventDefault();e.stopImmediatePropagation();
-    window.location.reload();
+    window.location.assign(window.location.pathname + window.location.search);
   },true);
 })();
 </script>
@@ -319,7 +319,16 @@ body.oz-open .header .header-phone.oz-phone-selected{outline:2px solid #38875f}
 #ozStudio.oz-studio-v2 .oz-actions{display:flex;flex-direction:column;gap:10px}
 #ozStudio.oz-studio-v2 #ozExportHtml{background:#1e513b;color:white}
 #ozStudio.oz-studio-v2 #ozDownloadHtml{background:white;color:#235440;border:1px solid #cadfd1}
-</style></head>
+</style><style id="oz-viewport-boundary-fix">
+/* Keep the document inside its viewport on all four edges. */
+html { width:100%; max-width:100%; overflow-x:hidden; overscroll-behavior:none!important; }
+body { width:100%; max-width:100%; margin:0; overflow-x:clip; overscroll-behavior:none!important; }
+@supports not (overflow:clip) { body {overflow-x:hidden} }
+html,body { min-height:100%; }
+/* Internal drawers and the editor remain independently scrollable. */
+#ozStudio,.cart-drawer { overscroll-behavior:contain; }
+</style>
+</head>
 <body class="oz-free-logo-active">
 <svg aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg"><symbol id="i-bag" viewBox="0 0 24 24"><path d="M4.5 8.5h15l-1 12h-13zM9 9V6a3 3 0 0 1 6 0v3"></path></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="m6 3 4 3-2.5 3a15 15 0 0 0 7.5 7.5L18 14l3 4c-1 3-3 4-5 3A21 21 0 0 1 3 8C2 6 3 4 6 3Z"></path></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"></path></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></symbol><symbol id="i-leaf" viewBox="0 0 24 24"><path d="M21 3C11 2 4 8 4 16c0 3 2 5 5 5 8 0 14-7 12-18ZM3 21l12-12"></path></symbol></svg>
 <div class="topbar"><div class="wrap topbar-in"><span><i class="top-dot"></i>Озерск · Челябинская область</span><span class="topbar-right"><span>Растения для сада и дома</span><a href="tel:">Позвонить</a></span></div></div>
@@ -1087,4 +1096,4 @@ body.oz-cart-dragging #cartOpen{cursor:grabbing!important}
 })();
 </script>
 
-<script>document.querySelectorAll("a.brand").forEach(function(a){a.addEventListener("click",function(e){if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();location.reload()})})</script></body></html>
+</body></html>
