@@ -433,7 +433,7 @@ init();
 <div class="oz-tabs"><button class="oz-tab active" data-oz-tab="style">Дизайн</button><button class="oz-tab" data-oz-tab="content">Тексты</button><button class="oz-tab" data-oz-tab="media">Фото</button><button class="oz-tab" data-oz-tab="layout">Блоки</button></div>
 <div class="oz-body"><div class="oz-page active" id="oz-page-style">
 <div class="oz-section-title">Фирменные цвета</div><div class="oz-field"><label>Основной цвет</label><input data-oz-css="--deep" type="color" value="#12372c"></div><div class="oz-field"><label>Акцентный цвет</label><input data-oz-css="--accent" type="color" value="#bed6a7"></div><div class="oz-field"><label>Цвет текста</label><input data-oz-css="--ink" type="color" value="#17372e"></div>
-<div class="oz-section-title">Шапка и логотип</div><div class="oz-field"><label>Высота шапки <output data-for="headerHeight">86 px</output></label><input data-oz-name="headerHeight" data-oz-var="--oz-header-height" data-unit="px" max="260" min="70" style="--pct: 20.58823529411765%;" type="range" value="92"></div><div class="oz-field"><label>Размер логотипа <output data-for="freeSize">177 px</output></label><input data-oz-free="freeSize" max="900" min="50" style="--pct: 11.810344827586206%;" type="range" value="155"></div>
+<div class="oz-section-title">Шапка и логотип</div><div class="oz-field"><label>Высота шапки <output data-for="headerHeight">86 px</output></label><input data-oz-name="headerHeight" data-oz-var="--oz-header-height" data-unit="px" max="260" min="70" style="--pct: 20.58823529411765%;" type="range" value="92"></div><div class="oz-field"><label>Размер логотипа <output data-for="freeSize">177 px</output></label><input data-oz-free="freeSize" max="5000" min="1" style="--pct: 11.810344827586206%;" type="range" value="155"><label style="display:block;margin-top:10px">Точный размер, px <input id="ozLogoSizeExact" type="number" min="1" step="1" placeholder="Любой размер" style="width:100%;padding:10px;border:1px solid #cadacf;border-radius:9px"></label></div>
 
 <div class="oz-section-title">Кнопка «Корзина»</div>
 <div class="oz-field">
@@ -751,8 +751,7 @@ function renderFree(){
  if(src&&freeImg.getAttribute('src')!==src){freeImg.src=src;freeImg.onload=()=>renderFree()}
  const box=host.getBoundingClientRect();
  const ratio=freeImg.naturalWidth>0&&freeImg.naturalHeight>0?freeImg.naturalHeight/freeImg.naturalWidth:0.6;
- const maxWidth=Math.max(40,Math.min(box.width, (box.height-12)/ratio));
- f.size=Math.max(40,Math.min(Number(f.size)||180,maxWidth));
+ f.size=Math.max(1,Number(f.size)||180);
  const actualHeight=f.size*ratio;
  f.x=Math.max(0,Math.min(Math.max(0,box.width-f.size),Number(f.x)||0));
  f.y=Math.max(0,Math.min(Math.max(0,box.height-actualHeight),Number(f.y)||0));
@@ -761,9 +760,14 @@ function renderFree(){
  freeLogo.style.setProperty('width',f.size+'px','important');
  freeLogo.style.setProperty('height',actualHeight+'px','important');
  freeLogo.style.setProperty('display',src?'block':'none','important');
- document.body.classList.add('oz-free-logo-active');syncFreeControls();
+ document.body.classList.add('oz-free-logo-active');syncFreeControls();if(typeof exactLogoSize!=='undefined'&&exactLogoSize)exactLogoSize.value=Math.round(f.size);
 }
 renderFree();
+const exactLogoSize=document.getElementById('ozLogoSizeExact');
+if(exactLogoSize){
+ exactLogoSize.value=Math.round(state.freeLogo.size);
+ exactLogoSize.addEventListener('change',()=>{const n=Number(exactLogoSize.value);if(!Number.isFinite(n)||n<=0)return;state.freeLogo.size=n;renderFree();save()});
+}
 $('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'Перетаскивайте логотип мышью'};
 $('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round((freeLogo.parentElement.clientWidth-state.freeLogo.size)/2);state.freeLogo.y=0;renderFree();save()};
 $('ozLogoHome').onclick=()=>{const r=document.querySelector('.header-in').getBoundingClientRect();state.freeLogo.x=Math.round(r.left+window.scrollX);state.freeLogo.y=Math.round(r.top+window.scrollY+(r.height-state.freeLogo.size*.64)/2);renderFree();save()};
@@ -1203,6 +1207,6 @@ html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #o
 html body .header .header-in #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;max-width:none!important;object-fit:contain!important}
 </style><style id="oz-logo-hard-boundaries">
 .header .header-in{position:relative!important}
-html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{position:absolute!important;transform:none!important;max-height:none!important;overflow:hidden!important}
+html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{position:absolute!important;transform:none!important;max-height:none!important;overflow:visible!important}
 html body .header .header-in #ozFreeLogo img{width:100%!important;height:100%!important;object-fit:contain!important;max-height:100%!important}
 </style></body></html>
