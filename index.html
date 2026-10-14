@@ -336,6 +336,16 @@ html{scroll-padding-top:calc(var(--oz-header-height,86px) + 16px)}
 main section[id],footer[id]{scroll-margin-top:calc(var(--oz-header-height,86px) + 16px)}
 /* The editable floating logo must move with the pinned menu, not overlap the info strip. */
 body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{position:fixed!important;top:var(--oz-sticky-logo-top,43px)!important;left:50%!important;width:min(150px,20vw)!important;transform:translateX(-50%)!important;z-index:901!important}
+</style><style id="oz-logo-inside-header-fix">
+/* The visible logo belongs to the sticky navigation itself, not a floating body layer. */
+.header .header-in{position:relative!important}
+body.oz-free-logo-active:not(.oz-open) .header .brand,
+.header .brand{display:flex!important;position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;align-items:center!important;justify-content:center!important;width:150px!important;min-width:150px!important;max-width:150px!important;height:calc(var(--oz-header-height,86px) - 20px)!important;overflow:visible!important;pointer-events:auto!important;z-index:20!important}
+.header .brand img{display:block!important;max-width:100%!important;max-height:100%!important;width:100%!important;height:100%!important;object-fit:contain!important}
+body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{display:none!important}
+body.oz-open #ozFreeLogo{display:block!important}
+body.oz-open .header .brand{visibility:hidden!important;pointer-events:none!important}
+@media(max-width:850px){.header .brand{width:100px!important;min-width:100px!important;max-width:100px!important}}
 </style></head>
 <body class="oz-free-logo-active">
 <svg aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg"><symbol id="i-bag" viewBox="0 0 24 24"><path d="M4.5 8.5h15l-1 12h-13zM9 9V6a3 3 0 0 1 6 0v3"></path></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="m6 3 4 3-2.5 3a15 15 0 0 0 7.5 7.5L18 14l3 4c-1 3-3 4-5 3A21 21 0 0 1 3 8C2 6 3 4 6 3Z"></path></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"></path></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></symbol><symbol id="i-leaf" viewBox="0 0 24 24"><path d="M21 3C11 2 4 8 4 16c0 3 2 5 5 5 8 0 14-7 12-18ZM3 21l12-12"></path></symbol></svg>
