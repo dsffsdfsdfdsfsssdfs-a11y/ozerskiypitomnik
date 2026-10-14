@@ -287,6 +287,28 @@ body.oz-open .header .header-phone.oz-phone-selected{outline:2px solid #38875f}
 }
 </style>
 
+<style id="oz-coherent-load-style">html.oz-preparing body{opacity:0!important}body{transition:opacity .16s ease}</style>
+<script id="oz-coherent-load">
+(function(){
+  document.documentElement.classList.add('oz-preparing');
+  var finished=false;
+  function reveal(){if(finished)return;finished=true;document.documentElement.classList.remove('oz-preparing')}
+  var timeout=setTimeout(reveal,7000);
+  window.addEventListener('load',function(){
+    var logo=document.getElementById('brandIcon');
+    if(!logo){clearTimeout(timeout);reveal();return}
+    var done=function(){clearTimeout(timeout);reveal()};
+    if(logo.decode){logo.decode().then(done,done)}
+    else if(logo.complete)done();else{logo.addEventListener('load',done,{once:true});logo.addEventListener('error',done,{once:true})}
+  },{once:true});
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a.brand');
+    if(!a||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    window.location.reload();
+  },true);
+})();
+</script>
 </head>
 <body class="oz-free-logo-active">
 <svg aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg"><symbol id="i-bag" viewBox="0 0 24 24"><path d="M4.5 8.5h15l-1 12h-13zM9 9V6a3 3 0 0 1 6 0v3"></path></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="m6 3 4 3-2.5 3a15 15 0 0 0 7.5 7.5L18 14l3 4c-1 3-3 4-5 3A21 21 0 0 1 3 8C2 6 3 4 6 3Z"></path></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"></path></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></symbol><symbol id="i-leaf" viewBox="0 0 24 24"><path d="M21 3C11 2 4 8 4 16c0 3 2 5 5 5 8 0 14-7 12-18ZM3 21l12-12"></path></symbol></svg>
