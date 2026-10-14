@@ -306,7 +306,7 @@ body.oz-open .header .header-phone.oz-phone-selected{outline:2px solid #38875f}
     var a=e.target.closest&&e.target.closest('a.brand');
     if(!a||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
     e.preventDefault();e.stopImmediatePropagation();
-    window.location.assign(window.location.pathname + window.location.search);
+    window.location.reload();
   },true);
 })();
 </script>
@@ -706,6 +706,7 @@ window.OZ_LOGO=window.EMBEDDED_ASSETS['logo.webp'];
 const staleLogo=$('ozFreeLogo');if(staleLogo)staleLogo.remove();
 const freeLogo=document.createElement('div');freeLogo.id='ozFreeLogo';freeLogo.setAttribute('aria-label','Перемещаемый логотип');
 const freeImg=document.createElement('img');freeImg.alt='Озерский питомник';freeImg.draggable=false;freeLogo.appendChild(freeImg);
+freeLogo.addEventListener('click',function(e){if(document.body.classList.contains('oz-open')||document.body.classList.contains('oz-logo-dragging')||freeLogo.classList.contains('unlocked'))return;e.preventDefault();e.stopPropagation();window.location.reload();});
 const nativePosition=logoOriginal.getBoundingClientRect();
 const logoHost=document.querySelector('.header .header-in');
 logoHost.appendChild(freeLogo);
