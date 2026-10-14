@@ -1134,4 +1134,25 @@ body.oz-cart-dragging #cartOpen{cursor:grabbing!important}
  function request(){if(scheduled)return;scheduled=true;requestAnimationFrame(sync)}
  window.addEventListener('scroll',request,{passive:true});window.addEventListener('resize',request,{passive:true});sync();
 })();
+</script><style id="oz-header-editor-final-repair">
+/* One visible logo inside the real header in both viewing and editing modes. */
+body #ozFreeLogo{display:none!important;pointer-events:none!important}
+body .header .brand,body.oz-free-logo-active .header .brand,body.oz-open .header .brand{display:flex!important;visibility:visible!important;pointer-events:auto!important;position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:220px!important;min-width:220px!important;max-width:220px!important;height:calc(var(--oz-header-height,86px) - 6px)!important;overflow:visible!important;z-index:30!important}
+body .header .brand img{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+/* Editor is a stable on-screen side panel, never draggable off-screen. */
+#ozStudio,#ozStudio.oz-moved{position:fixed!important;inset:12px 12px 12px auto!important;left:auto!important;right:12px!important;top:12px!important;bottom:12px!important;width:min(420px,calc(100vw - 24px))!important;height:calc(100dvh - 24px)!important;max-height:calc(100dvh - 24px)!important;transform:translateX(calc(100% + 28px))!important;transition:transform .22s ease!important;z-index:2147483500!important;overflow:hidden!important;border-radius:20px!important}
+body.oz-open #ozStudio,body.oz-open #ozStudio.oz-moved{transform:translateX(0)!important}
+#ozStudio .oz-head{cursor:default!important;touch-action:auto!important}
+#ozStudio #ozClose{display:grid!important;place-items:center!important;width:42px!important;height:42px!important;border-radius:12px!important;cursor:pointer!important;font-size:26px!important;z-index:5!important}
+#ozEditorLauncher{display:flex!important}
+body.oz-open #ozEditorLauncher{display:none!important}
+@media(max-width:850px){body .header .brand,body.oz-free-logo-active .header .brand,body.oz-open .header .brand{width:135px!important;min-width:135px!important;max-width:135px!important}}
+</style>
+<script id="oz-editor-toggle-final-repair">
+(function(){
+ function close(){document.body.classList.remove('oz-open');var panel=document.getElementById('ozStudio');if(panel){panel.classList.remove('oz-moved','oz-dragging');panel.removeAttribute('style')}window.dispatchEvent(new Event('oz-editor-close'))}
+ function open(){var panel=document.getElementById('ozStudio');if(panel){panel.classList.remove('oz-moved','oz-dragging');panel.removeAttribute('style')}document.body.classList.add('oz-open');window.dispatchEvent(new Event('oz-editor-open'))}
+ document.addEventListener('click',function(e){var closeBtn=e.target.closest&&e.target.closest('#ozClose');var launch=e.target.closest&&e.target.closest('#ozEditorLauncher');if(closeBtn||launch){e.preventDefault();e.stopImmediatePropagation();if(closeBtn)close();else open()}},true);
+ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('oz-open'))close()},true);
+})();
 </script></body></html>
