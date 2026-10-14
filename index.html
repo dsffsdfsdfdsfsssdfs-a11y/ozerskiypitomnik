@@ -522,7 +522,8 @@ function applyCart(){
  state.cart=c;
  const btn=$('cartOpen');
  if(btn){
-   btn.style.setProperty('transform',`translate(${Number(c.x)||0}px, ${Number(c.y)||0}px) scale(${(Number(c.scale)||100)/100})`,'important');
+   if(btn.classList.contains('oz-round-v12')) btn.style.removeProperty('transform');
+   else btn.style.setProperty('transform',`translate(${Number(c.x)||0}px, ${Number(c.y)||0}px) scale(${(Number(c.scale)||100)/100})`,'important');
    btn.style.setProperty('transform-origin','center center','important');
  }
  setCartLabel(c.text);
