@@ -1,0 +1,24 @@
+{
+  "name": "ozerskiy-pitomnik-github",
+  "version": "1.0.0",
+  "description": "Статический сайт питомника. Публичная версия без визуального редактора.",
+  "main": "botanical-editor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsffsdfsdfdsfsssdfs-a11y/ozerskiypitomnik.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dsffsdfsdfdsfsssdfs-a11y/ozerskiypitomnik/issues"
+  },
+  "homepage": "https://github.com/dsffsdfsdfdsfsssdfs-a11y/ozerskiypitomnik#readme",
+  "dependencies": {
+    "@vercel/blob": "^2.8.2"
+  }
+}
