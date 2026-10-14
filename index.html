@@ -295,8 +295,9 @@ body.oz-open .header .header-phone.oz-phone-selected{outline:2px solid #38875f}
   function reveal(){if(finished)return;finished=true;document.documentElement.classList.remove('oz-preparing')}
   var timeout=setTimeout(reveal,7000);
   window.addEventListener('load',function(){
-    var logo=document.getElementById('brandIcon');
-    if(!logo){clearTimeout(timeout);reveal();return}
+    // The visible user-editable logo, not the hidden fallback, must finish decoding first.
+    var logo=document.querySelector('#ozFreeLogo img');
+    if(!logo||!logo.getAttribute('src')){clearTimeout(timeout);reveal();return}
     var done=function(){clearTimeout(timeout);reveal()};
     if(logo.decode){logo.decode().then(done,done)}
     else if(logo.complete)done();else{logo.addEventListener('load',done,{once:true});logo.addEventListener('error',done,{once:true})}
