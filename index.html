@@ -803,31 +803,7 @@ padding:9px 12px;border-radius:15px;gap:9px;align-items:center;box-shadow:0 12px
 #ozNavScaleBox button{border:0;color:#143e30;background:white;border-radius:9px;min-width:34px;height:31px;font-weight:bold;cursor:pointer}
 #ozNavScaleBox .caption{font-weight:650;max-width:120px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
 </style>
-<script id="oz-nav-v7">
-(()=>{
- const nav=document.querySelector('.header #mainNav');if(!nav)return;
- const links=[...nav.querySelectorAll('a')];const BUILD=document.documentElement.dataset.ozBuild||'base';const KEY='oz_menu_positions_'+BUILD;
- let saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(_){}
- let chosen=null,drag=null;
- const panel=document.createElement('div');panel.id='ozNavScaleBox';
- panel.innerHTML='<span id="ozPickedName">Текст</span><button data-do="minus">−</button><span id="ozPickedSize">100%</span><button data-do="plus">+</button><button data-do="reset">Сброс</button><button data-do="close">×</button>';
- document.body.appendChild(panel);
- const open=()=>document.body.classList.contains('oz-open');
- const index=el=>links.indexOf(el);const props=el=>{const i=index(el);if(saved[i])return saved[i];const m=(el.style.transform||'').match(/translate\(\s*(-?[\d.]+)px\s*,\s*(-?[\d.]+)px\s*\)\s*scale\(\s*([\d.]+)\s*\)/);return saved[i]=m?{x:Number(m[1])||0,y:Number(m[2])||0,scale:Number(m[3])||1}:{x:0,y:0,scale:1}};
- const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}};
- const paint=el=>{let v=props(el);el.style.setProperty('transform',`translate(${v.x}px,${v.y}px) scale(${v.scale})`,'important');el.style.transformOrigin='center center'};
- const locate=()=>{if(!chosen)return;const r=chosen.getBoundingClientRect();panel.style.left=Math.min(innerWidth-panel.offsetWidth-8,Math.max(8,r.left))+'px';panel.style.top=Math.max(8,r.top-panel.offsetHeight-12)+'px'};
- const choose=el=>{if(chosen)chosen.classList.remove('oz-link-picked');chosen=el;panel.classList.toggle('visible',!!el);if(el){el.classList.add('oz-link-picked');document.getElementById('ozPickedName').textContent=el.textContent.trim();document.getElementById('ozPickedSize').textContent=Math.round(props(el).scale*100)+'%';locate()}};
- links.forEach(paint);
- document.addEventListener('pointerdown',e=>{const el=e.target.closest?.('.header #mainNav a');if(!el||!open()||e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();choose(el);const p=props(el);drag={el,id:e.pointerId,sx:e.clientX,sy:e.clientY,x:p.x,y:p.y};try{el.setPointerCapture(e.pointerId)}catch(_){}},true);
- document.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();const p=props(drag.el);p.x=Math.round(drag.x+e.clientX-drag.sx);p.y=Math.round(drag.y+e.clientY-drag.sy);paint(drag.el);locate()},true);
- function end(e){if(!drag||e.pointerId!==drag.id)return;e.stopImmediatePropagation();drag=null;persist()}
- document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
- panel.addEventListener('click',e=>{const action=e.target.closest('button')?.dataset.do;if(!chosen||!action)return;const p=props(chosen);if(action==='plus')p.scale=Math.min(3,+(p.scale+.1).toFixed(2));if(action==='minus')p.scale=Math.max(.4,+(p.scale-.1).toFixed(2));if(action==='reset'){p.x=0;p.y=0;p.scale=1}if(action==='close'){choose(null);return}paint(chosen);persist();choose(chosen)});
- document.addEventListener('click',e=>{if(!open())return;const el=e.target.closest?.('.header #mainNav a');if(el){e.preventDefault();e.stopImmediatePropagation();choose(el)}else if(!e.target.closest('#ozNavScaleBox'))choose(null)},true);
- window.addEventListener('oz-editor-close',()=>choose(null));
-})();
-</script><script id="oz-movable-studio-script">
+<script id="oz-movable-studio-script">
 (()=>{
  const panel=document.getElementById('ozStudio');if(!panel)return;
  const handle=panel.querySelector('.oz-head');if(!handle)return;
