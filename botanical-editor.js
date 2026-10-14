@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const KEY='oz_simple_editor_v1_'+location.pathname;
 const root=document.createElement('div');root.id='simpleEdit';root.innerHTML=`<button id="seLaunch" type="button">✎ Редактор</button><div id="sePanel"><div class="seHead"><b>Редактор логотипа и текста</b><span class="seHeadButtons"><button id="seMin" type="button" title="Свернуть">−</button><button id="seClose" type="button" title="Закрыть">×</button></span></div><p>Нажми на надпись или логотип. Перетаскивай выбранное мышью.</p><div id="seSelected">Выбери элемент на сайте</div><label>Размер <input id="seSize" type="range" min="8" max="240" value="30"><output id="seSizeValue">30</output></label><label>По горизонтали (px)<input id="seX" type="number" value="0"></label><label>По вертикали (px)<input id="seY" type="number" value="0"></label><label>Текст<textarea id="seText" rows="2" placeholder="Выбери текст"></textarea></label><button id="seSave" type="button">Опубликовать для всех</button><div id="seStatus">Черновик сохраняется в браузере. Нажмите «Опубликовать для всех», чтобы обновить сайт.</div></div>`;document.body.appendChild(root);
-const logoTools=document.createElement('div');logoTools.id='seLogoTools';logoTools.innerHTML='<label style="display:block;margin:12px 0 7px">Логотип сайта</label><input type="file" id="seLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="max-width:100%;margin-bottom:8px"><button type="button" id="seLogoRemove">Удалить логотип</button><button type="button" id="seLogoRestore">Вернуть исходный</button><small style="display:block;margin-top:8px">PNG, JPG, WebP или SVG, до 350 КБ. Нажмите «Опубликовать для всех», чтобы изменения увидели посетители.</small>';
+const logoTools=document.createElement('div');logoTools.id='seLogoTools';logoTools.innerHTML='<label style="display:block;margin:12px 0 7px">Логотип сайта</label><input type="file" id="seLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="max-width:100%;margin-bottom:8px"><button type="button" id="seLogoRemove">Удалить логотип</button><button type="button" id="seLogoRestore">Вернуть исходный</button><small style="display:block;margin-top:8px">PNG, JPG, WebP или SVG, до 15 МБ. Размер автоматически оптимизируется. Нажмите «Опубликовать для всех», чтобы изменения увидели посетители.</small>';
 root.querySelector('#seSave').before(logoTools);
 const $=id=>document.getElementById(id),panel=$('sePanel');let open=false,active=null,drag=null,records={},localDraft={},adminKey=null,logoAsset=null;
 try{localDraft=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{}
@@ -21,8 +21,23 @@ const applyLogo=()=>{window.OZ_PUBLIC_LOGO_OVERRIDE=logoAsset;const e=document.q
 };
 const applyRecords=()=>{for(const [key,d] of Object.entries(records))applyOne(key,d);applyLogo()};
 $('seLogoFile').addEventListener('change',async ev=>{const file=ev.target.files?.[0];if(!file)return;
- if(!['image/png','image/jpeg','image/webp','image/svg+xml'].includes(file.type)||file.size>350000){$('seStatus').textContent='Нужен PNG, JPG, WebP или SVG размером до 350 КБ';ev.target.value='';return;}
- const reader=new FileReader();reader.onload=()=>{logoAsset=String(reader.result||'');applyLogo();$('seStatus').textContent='Новый логотип выбран. Нажми «Опубликовать для всех».'};reader.readAsDataURL(file);
+ if(!['image/png','image/jpeg','image/webp','image/svg+xml'].includes(file.type)||file.size>15000000){$('seStatus').textContent='Выберите PNG, JPG, WebP или SVG до 15 МБ';ev.target.value='';return;}
+ $('seStatus').textContent='Подготавливаю логотип...';
+ try{
+  const image=await createImageBitmap(file);
+  const canvas=document.createElement('canvas');
+  let maxSide=1400,quality=.86,encoded='';
+  for(let i=0;i<9;i++){
+   const ratio=Math.min(1,maxSide/Math.max(image.width,image.height));canvas.width=Math.max(1,Math.round(image.width*ratio));canvas.height=Math.max(1,Math.round(image.height*ratio));
+   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
+   encoded=canvas.toDataURL('image/webp',quality);
+   if(encoded.length<450000)break;
+   if(quality>.68)quality-=.09;else maxSide=Math.max(400,Math.round(maxSide*.75));
+  }
+  image.close();
+  if(encoded.length>=450000)throw Error('Не удалось уменьшить изображение для публикации');
+  logoAsset=encoded;applyLogo();$('seStatus').textContent='✓ Логотип установлен для предпросмотра. Нажмите «Опубликовать для всех».';
+ }catch(err){$('seStatus').textContent='Ошибка загрузки: '+err.message}
 });
 $('seLogoRemove').onclick=()=>{logoAsset='hidden';applyLogo();$('seStatus').textContent='Логотип скрыт. Для сохранения нажми «Опубликовать для всех».'};
 $('seLogoRestore').onclick=()=>{logoAsset=null;applyLogo();$('seStatus').textContent='Исходный логотип восстановлен. Нажми «Опубликовать для всех».'};
