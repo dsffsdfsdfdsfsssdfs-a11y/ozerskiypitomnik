@@ -336,16 +336,6 @@ html{scroll-padding-top:calc(var(--oz-header-height,86px) + 16px)}
 main section[id],footer[id]{scroll-margin-top:calc(var(--oz-header-height,86px) + 16px)}
 /* The editable floating logo must move with the pinned menu, not overlap the info strip. */
 body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{position:fixed!important;top:var(--oz-sticky-logo-top,43px)!important;left:50%!important;width:min(150px,20vw)!important;transform:translateX(-50%)!important;z-index:901!important}
-</style><style id="oz-logo-inside-header-fix">
-/* The visible logo belongs to the sticky navigation itself, not a floating body layer. */
-.header .header-in{position:relative!important}
-body.oz-free-logo-active:not(.oz-open) .header .brand,
-.header .brand{display:flex!important;position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important;align-items:center!important;justify-content:center!important;width:150px!important;min-width:150px!important;max-width:150px!important;height:calc(var(--oz-header-height,86px) - 20px)!important;overflow:visible!important;pointer-events:auto!important;z-index:20!important}
-.header .brand img{display:block!important;max-width:100%!important;max-height:100%!important;width:100%!important;height:100%!important;object-fit:contain!important}
-body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{display:none!important}
-body.oz-open #ozFreeLogo{display:block!important}
-body.oz-open .header .brand{visibility:hidden!important;pointer-events:none!important}
-@media(max-width:850px){.header .brand{width:100px!important;min-width:100px!important;max-width:100px!important}}
 </style><style id="oz-final-upload-only-logo">
 .header .brand,body .header .brand,body.oz-open .header .brand,body.oz-free-logo-active .header .brand,footer .brand,footer .footer-brand {display:none!important;visibility:hidden!important;pointer-events:none!important}
 #ozFreeLogo,body #ozFreeLogo,body.oz-open #ozFreeLogo,body.oz-free-logo-active:not(.oz-open) #ozFreeLogo {position:absolute!important;left:0;top:0;transform:none!important;z-index:1000!important;max-width:none!important;max-height:none!important;height:auto!important;cursor:pointer!important;pointer-events:auto!important;visibility:visible!important}
@@ -1150,12 +1140,7 @@ body.oz-cart-dragging #cartOpen{cursor:grabbing!important}
  function request(){if(scheduled)return;scheduled=true;requestAnimationFrame(sync)}
  window.addEventListener('scroll',request,{passive:true});window.addEventListener('resize',request,{passive:true});sync();
 })();
-</script><style id="oz-header-editor-final-repair">
-/* One visible logo inside the real header in both viewing and editing modes. */
-body #ozFreeLogo{display:none!important;pointer-events:none!important}
-body .header .brand,body.oz-free-logo-active .header .brand,body.oz-open .header .brand{display:flex!important;visibility:visible!important;pointer-events:auto!important;position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:220px!important;min-width:220px!important;max-width:220px!important;height:calc(var(--oz-header-height,86px) - 6px)!important;overflow:visible!important;z-index:30!important}
-body .header .brand img{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
-/* Editor is a stable on-screen side panel, never draggable off-screen. */
+</script><style id="oz-header-editor-final-repair">/* Editor is a stable on-screen side panel, never draggable off-screen. */
 #ozStudio,#ozStudio.oz-moved{position:fixed!important;inset:12px 12px 12px auto!important;left:auto!important;right:12px!important;top:12px!important;bottom:12px!important;width:min(420px,calc(100vw - 24px))!important;height:calc(100dvh - 24px)!important;max-height:calc(100dvh - 24px)!important;transform:translateX(calc(100% + 28px))!important;transition:transform .22s ease!important;z-index:2147483500!important;overflow:hidden!important;border-radius:20px!important}
 body.oz-open #ozStudio,body.oz-open #ozStudio.oz-moved{transform:translateX(0)!important}
 #ozStudio .oz-head{cursor:default!important;touch-action:auto!important}
@@ -1171,4 +1156,17 @@ body.oz-open #ozEditorLauncher{display:none!important}
  document.addEventListener('click',function(e){var closeBtn=e.target.closest&&e.target.closest('#ozClose');var launch=e.target.closest&&e.target.closest('#ozEditorLauncher');if(closeBtn||launch){e.preventDefault();e.stopImmediatePropagation();if(closeBtn)close();else open()}},true);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('oz-open'))close()},true);
 })();
-</script></body></html>
+</script><style id="oz-logo-canonical-final">
+/* Never show any legacy / baked-in logo. */
+html body .header .brand, html body.oz-open .header .brand, html body.oz-free-logo-active .header .brand,
+html body footer .brand,html body footer .footer-brand{display:none!important;visibility:hidden!important;pointer-events:none!important}
+/* Identical absolute coordinates and actual pixel width in both modes. */
+html body #ozFreeLogo,html body.oz-open #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{
+ position:absolute!important;top:0;left:0;right:auto!important;bottom:auto!important;transform:none!important;
+ max-width:none!important;max-height:none!important;height:auto!important;min-width:0!important;
+ z-index:1100!important;pointer-events:auto!important;visibility:visible!important;
+}
+html body #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-width:none!important;max-height:none!important;object-fit:contain!important}
+html body.oz-open #ozFreeLogo{cursor:grab!important}
+html body.oz-open #ozFreeLogo:active{cursor:grabbing!important}
+</style></body></html>
