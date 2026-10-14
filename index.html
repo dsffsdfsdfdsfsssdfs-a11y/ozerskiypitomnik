@@ -745,7 +745,24 @@ freeLogo.addEventListener('keydown',function(event){
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
-function renderFree(){const f=state.freeLogo;const host=freeLogo.parentElement;const maxX=Math.max(0,host.clientWidth-(Number(f.size)||180));f.x=Math.max(0,Math.min(maxX,Number(f.x)||0));f.y=Math.max(0,Math.min(Math.max(0,host.clientHeight-((Number(f.size)||180)*(freeImg.naturalHeight||1)/(freeImg.naturalWidth||2))),Number(f.y)||0));freeLogo.style.setProperty('left',f.x+'px','important');freeLogo.style.setProperty('top',f.y+'px','important');freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||'';freeLogo.style.setProperty('display',currentSrc?'block':'none','important');if(currentSrc&&freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
+function renderFree(){
+ const f=state.freeLogo,host=freeLogo.parentElement;
+ const src=state.images?.logo||'';
+ if(src&&freeImg.getAttribute('src')!==src){freeImg.src=src;freeImg.onload=()=>renderFree()}
+ const box=host.getBoundingClientRect();
+ const ratio=freeImg.naturalWidth>0&&freeImg.naturalHeight>0?freeImg.naturalHeight/freeImg.naturalWidth:0.6;
+ const maxWidth=Math.max(40,Math.min(box.width, (box.height-12)/ratio));
+ f.size=Math.max(40,Math.min(Number(f.size)||180,maxWidth));
+ const actualHeight=f.size*ratio;
+ f.x=Math.max(0,Math.min(Math.max(0,box.width-f.size),Number(f.x)||0));
+ f.y=Math.max(0,Math.min(Math.max(0,box.height-actualHeight),Number(f.y)||0));
+ freeLogo.style.setProperty('left',f.x+'px','important');
+ freeLogo.style.setProperty('top',f.y+'px','important');
+ freeLogo.style.setProperty('width',f.size+'px','important');
+ freeLogo.style.setProperty('height',actualHeight+'px','important');
+ freeLogo.style.setProperty('display',src?'block':'none','important');
+ document.body.classList.add('oz-free-logo-active');syncFreeControls();
+}
 renderFree();
 $('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'Перетаскивайте логотип мышью'};
 $('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round((freeLogo.parentElement.clientWidth-state.freeLogo.size)/2);state.freeLogo.y=0;renderFree();save()};
@@ -1184,4 +1201,8 @@ html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #o
  display:block;overflow:visible!important;touch-action:none!important;
 }
 html body .header .header-in #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;max-width:none!important;object-fit:contain!important}
+</style><style id="oz-logo-hard-boundaries">
+.header .header-in{position:relative!important}
+html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{position:absolute!important;transform:none!important;max-height:none!important;overflow:hidden!important}
+html body .header .header-in #ozFreeLogo img{width:100%!important;height:100%!important;object-fit:contain!important;max-height:100%!important}
 </style></body></html>
