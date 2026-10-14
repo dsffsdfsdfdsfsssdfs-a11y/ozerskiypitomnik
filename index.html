@@ -328,22 +328,7 @@ html,body { min-height:100%; }
 /* Internal drawers and the editor remain independently scrollable. */
 #ozStudio,.cart-drawer { overscroll-behavior:contain; }
 </style>
-<style id="oz-persistent-header">
-/* Keep the informational strip in normal flow and pin only the navigation. */
-.header{position:sticky!important;top:0!important;left:auto!important;right:auto!important;width:100%!important;z-index:900!important}
-body{padding-top:0!important}
-html{scroll-padding-top:calc(var(--oz-header-height,86px) + 16px)}
-main section[id],footer[id]{scroll-margin-top:calc(var(--oz-header-height,86px) + 16px)}
-/* The editable floating logo must move with the pinned menu, not overlap the info strip. */
-body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{position:fixed!important;top:var(--oz-sticky-logo-top,43px)!important;left:50%!important;width:min(150px,20vw)!important;transform:translateX(-50%)!important;z-index:901!important}
-</style><style id="oz-final-upload-only-logo">
-.header .brand,body .header .brand,body.oz-open .header .brand,body.oz-free-logo-active .header .brand,footer .brand,footer .footer-brand {display:none!important;visibility:hidden!important;pointer-events:none!important}
-#ozFreeLogo,body #ozFreeLogo,body.oz-open #ozFreeLogo,body.oz-free-logo-active:not(.oz-open) #ozFreeLogo {position:absolute!important;left:0;top:0;transform:none!important;z-index:1000!important;max-width:none!important;max-height:none!important;height:auto!important;cursor:pointer!important;pointer-events:auto!important;visibility:visible!important}
-body #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-width:none!important;max-height:none!important;object-fit:contain!important;pointer-events:none!important}
-body.oz-open #ozFreeLogo{cursor:grab!important;outline:1px dashed #7fbc97;outline-offset:5px}
-body.oz-open #ozFreeLogo:active{cursor:grabbing!important}
-#ozLogoDragToggle{display:none!important}
-</style></head>
+</head>
 <body class="oz-free-logo-active">
 <svg aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg"><symbol id="i-bag" viewBox="0 0 24 24"><path d="M4.5 8.5h15l-1 12h-13zM9 9V6a3 3 0 0 1 6 0v3"></path></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="m6 3 4 3-2.5 3a15 15 0 0 0 7.5 7.5L18 14l3 4c-1 3-3 4-5 3A21 21 0 0 1 3 8C2 6 3 4 6 3Z"></path></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"></path></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></symbol><symbol id="i-leaf" viewBox="0 0 24 24"><path d="M21 3C11 2 4 8 4 16c0 3 2 5 5 5 8 0 14-7 12-18ZM3 21l12-12"></path></symbol></svg>
 <div class="topbar"><div class="wrap topbar-in"><span><i class="top-dot"></i>Озерск · Челябинская область</span><span class="topbar-right"><span>Растения для сада и дома</span><a href="tel:">Позвонить</a></span></div></div>
@@ -433,7 +418,7 @@ init();
 <div class="oz-tabs"><button class="oz-tab active" data-oz-tab="style">Дизайн</button><button class="oz-tab" data-oz-tab="content">Тексты</button><button class="oz-tab" data-oz-tab="media">Фото</button><button class="oz-tab" data-oz-tab="layout">Блоки</button></div>
 <div class="oz-body"><div class="oz-page active" id="oz-page-style">
 <div class="oz-section-title">Фирменные цвета</div><div class="oz-field"><label>Основной цвет</label><input data-oz-css="--deep" type="color" value="#12372c"></div><div class="oz-field"><label>Акцентный цвет</label><input data-oz-css="--accent" type="color" value="#bed6a7"></div><div class="oz-field"><label>Цвет текста</label><input data-oz-css="--ink" type="color" value="#17372e"></div>
-<div class="oz-section-title">Шапка и логотип</div><div class="oz-field"><label>Высота шапки <output data-for="headerHeight">86 px</output></label><input data-oz-name="headerHeight" data-oz-var="--oz-header-height" data-unit="px" max="260" min="70" style="--pct: 20.58823529411765%;" type="range" value="92"></div><div class="oz-field"><label>Размер логотипа <output data-for="freeSize">177 px</output></label><input data-oz-free="freeSize" max="5000" min="1" style="--pct: 11.810344827586206%;" type="range" value="155"><label style="display:block;margin-top:10px">Точный размер, px <input id="ozLogoSizeExact" type="number" min="1" step="1" placeholder="Любой размер" style="width:100%;padding:10px;border:1px solid #cadacf;border-radius:9px"></label></div>
+<div class="oz-section-title">Шапка и логотип</div><div class="oz-field"><label>Высота шапки <output data-for="headerHeight">86 px</output></label><input data-oz-name="headerHeight" data-oz-var="--oz-header-height" data-unit="px" max="260" min="70" style="--pct: 20.58823529411765%;" type="range" value="92"></div><div class="oz-field"><label>Размер логотипа <output data-for="freeSize">177 px</output></label><input data-oz-free="freeSize" max="1200" min="40" style="--pct: 11.810344827586206%;" type="range" value="155"></div>
 
 <div class="oz-section-title">Кнопка «Корзина»</div>
 <div class="oz-field">
@@ -456,13 +441,13 @@ init();
 <div class="oz-logo-hint">Меняется именно текущая кнопка варианта 13. Редактор не создаёт вторую корзину.</div>
 <div class="oz-logo-hint" style="background:#e8f4e9;border-color:#c6dfc8"><b>Исправлено:</b> новый логотип, его размер и координаты сохраняются вместе. После F5 старый логотип не должен возвращаться.</div><div class="oz-section-title">Свободное положение логотипа</div>
 <div class="oz-logo-hint">Нажмите «Перемещать», затем зажмите логотип мышью и тащите по всей странице. Ни шапка, ни контейнеры его не ограничивают. Для перемещения далеко вниз прокрутите страницу.</div>
-<div class="oz-free-actions"><button id="ozLogoDragToggle" type="button">Перетаскивайте логотип мышью</button><button id="ozLogoCenter" type="button">В центр экрана</button><button id="ozLogoHome" type="button">В шапку</button></div>
+<div class="oz-free-actions"><button id="ozLogoDragToggle" type="button">✥ Перемещать логотип</button><button id="ozLogoCenter" type="button">В центр экрана</button><button id="ozLogoHome" type="button">В шапку</button></div>
 <div class="oz-logo-hint" style="margin-top:10px">Размер меняется сразу при движении ползунка выше. Логотип можно перетаскивать мышкой.</div>
 <div class="oz-field"><label>Положение по горизонтали <output data-for="freeX">563 px</output></label><input data-oz-free="freeX" max="4000" min="-1500" step="1" style="--pct: 37.50909090909091%;" type="range" value="0"></div>
 <div class="oz-field"><label>Положение по вертикали <output data-for="freeY">-24 px</output></label><input data-oz-free="freeY" max="10000" min="-1500" step="1" style="--pct: 12.834782608695653%;" type="range" value="0"></div>
 <div class="oz-section-title">Форма и типографика</div><div class="oz-field"><label>Скругление карточек <output data-for="radius">21 px</output></label><input data-oz-name="radius" data-oz-var="--oz-card-radius" data-unit="px" max="48" min="0" style="--pct: 43.75%;" type="range" value="21"></div><div class="oz-field"><label>Размер заголовков <output data-for="titleScale">100 %</output></label><input data-oz-name="titleScale" data-oz-var="--oz-title-scale" data-unit="percent" max="140" min="70" style="--pct: 42.857142857142854%;" type="range" value="100"></div><div class="oz-field"><label>Отступы между разделами <output data-for="sectionGap">92 px</output></label><input data-oz-name="sectionGap" data-oz-var="--oz-section-gap" data-unit="px" max="140" min="36" style="--pct: 53.84615384615385%;" type="range" value="92"></div>
 </div><div class="oz-page" id="oz-page-content"><div class="oz-section-title">Редактирование текста</div><p class="oz-hint">Включите редактирование, нажмите на любой выделенный текст прямо на сайте и измените его. Результат сохраняется автоматически.</p><button class="oz-action primary" id="ozEditToggle" style="width:100%">Включить редактирование</button><div class="oz-section-title">Главная страница</div><div class="oz-field"><label>Заголовок</label><textarea id="ozHeroTitle"></textarea></div><div class="oz-field"><label>Описание</label><textarea id="ozHeroDesc"></textarea></div></div>
-<div class="oz-page" id="oz-page-media"><div class="oz-section-title">Логотип</div><p class="oz-hint">Загрузите PNG, SVG, JPG или WebP. Логотип появится на странице. Зажмите его мышью и перетащите куда нужно.</p><input accept="image/*" id="ozLogoUpload" type="file"><button class="oz-action" id="ozLogoReset" style="margin-top:9px;width:100%">Удалить логотип</button><div class="oz-section-title">Главные фотографии</div><p class="oz-hint">Можно менять основную фотографию, два дополнительных изображения и фото раздела «О питомнике».</p><div class="oz-field"><label>Главное фото</label><input accept="image/*" data-oz-upload="heroMain" type="file"></div><div class="oz-field"><label>Фото справа сверху</label><input accept="image/*" data-oz-upload="heroSecond" type="file"></div><div class="oz-field"><label>Фото справа снизу</label><input accept="image/*" data-oz-upload="heroThird" type="file"></div><div class="oz-field"><label>Фото о питомнике</label><input accept="image/*" data-oz-upload="aboutPhoto" type="file"></div><p class="oz-hint">Фотографии каталога и галереи остаются из материалов питомника.</p></div>
+<div class="oz-page" id="oz-page-media"><div class="oz-section-title">Логотип</div><p class="oz-hint">Загрузите PNG, SVG, JPG или WebP. Логотип появится целиком в шапке и подвале.</p><input accept="image/*" id="ozLogoUpload" type="file"><button class="oz-action" id="ozLogoReset" style="margin-top:9px;width:100%">Вернуть исходный логотип</button><div class="oz-section-title">Главные фотографии</div><p class="oz-hint">Можно менять основную фотографию, два дополнительных изображения и фото раздела «О питомнике».</p><div class="oz-field"><label>Главное фото</label><input accept="image/*" data-oz-upload="heroMain" type="file"></div><div class="oz-field"><label>Фото справа сверху</label><input accept="image/*" data-oz-upload="heroSecond" type="file"></div><div class="oz-field"><label>Фото справа снизу</label><input accept="image/*" data-oz-upload="heroThird" type="file"></div><div class="oz-field"><label>Фото о питомнике</label><input accept="image/*" data-oz-upload="aboutPhoto" type="file"></div><p class="oz-hint">Фотографии каталога и галереи остаются из материалов питомника.</p></div>
 <div class="oz-page" id="oz-page-layout"><div class="oz-section-title">Видимость и порядок разделов</div><p class="oz-hint">Скрывайте разделы и перемещайте их кнопками ↑ и ↓. Верхний экран закреплён первым.</p><div id="ozSectionList"><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Главный экран</span><button title="Переместить" disabled="">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Категории</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Каталог</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>О питомнике</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Галерея</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Видео</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Призыв к заказу</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Вопросы</span><button title="Переместить">↑</button><button title="Переместить">↓</button></div><div class="oz-section-row"><input type="checkbox" title="Показывать раздел"><span>Контакты</span><button title="Переместить">↑</button><button title="Переместить" disabled="">↓</button></div></div></div></div>
 <div class="oz-actions"><div class="oz-split"><button class="oz-action" id="ozReset">Сбросить</button><button class="oz-action" id="ozExportJson">Скачать настройки JSON</button></div><button class="oz-action primary" id="ozExportHtml">✓ Сохранить изменения</button><button class="oz-action" id="ozDownloadHtml" type="button">↓ Скачать HTML для публикации</button><div class="oz-status" id="ozStatus">Настройки хранятся в этом браузере. Для всех посетителей нужен выпуск новой версии сайта.</div></div></aside>
 
@@ -486,15 +471,7 @@ try{
     if(v)state.images[k]=v;
   });
 }catch(e){}
-try{
- if(localStorage.getItem('ozersky_remove_legacy_logo_v3')!=='yes'){
-   delete state.images.logo;
-   localStorage.removeItem(KEY+'_img_logo');
-   localStorage.setItem('ozersky_remove_legacy_logo_v3','yes');
-   state.freeLogo={x:90,y:115,size:180};
-   localStorage.setItem(KEY,JSON.stringify({...state,images:{...state.images,logo:undefined}}));
- }
-}catch(e){}
+
 state.cart=Object.assign({},defaults.cart,state.cart||{});
 state.freeLogo=Object.assign({x:40,y:40,size:155},(embedded&&embedded.freeLogo)||{},state.freeLogo||{});
 if(!embedded && !saved){
@@ -729,51 +706,18 @@ const staleLogo=$('ozFreeLogo');if(staleLogo)staleLogo.remove();
 const freeLogo=document.createElement('div');freeLogo.id='ozFreeLogo';freeLogo.setAttribute('aria-label','Перемещаемый логотип');
 const freeImg=document.createElement('img');freeImg.alt='Озерский питомник';freeImg.draggable=false;freeLogo.appendChild(freeImg);
 const nativePosition=logoOriginal.getBoundingClientRect();
-if(!state.headerLogoCoordinatesV2){state.freeLogo.x=Math.max(0,Math.round((document.querySelector('.header .header-in').clientWidth-(state.freeLogo.size||180))/2));state.freeLogo.y=0;state.headerLogoCoordinatesV2=true;save();}
-document.querySelector('.header .header-in').appendChild(freeLogo);
-// The visible free-positioned logo, not the hidden original header logo, handles refresh.
-freeLogo.setAttribute('role','button');
-freeLogo.setAttribute('tabindex','0');
-freeLogo.setAttribute('title','Обновить сайт');
-freeLogo.addEventListener('click',function(event){
-  if(document.body.classList.contains('oz-open')||freeLogo.classList.contains('unlocked')||document.body.classList.contains('oz-logo-dragging'))return;
-  event.preventDefault();event.stopPropagation();window.location.reload();
-});
-freeLogo.addEventListener('keydown',function(event){
- if(event.key==='Enter'||event.key===' '){event.preventDefault();freeLogo.click()}
-});
+document.body.appendChild(freeLogo);
 if(!state.freeLogo){state.freeLogo={x:Math.round(nativePosition.left+window.scrollX),y:Math.round(nativePosition.top+window.scrollY),size:155}}
 let freeUnlocked=false;
 function syncFreeControls(){document.querySelectorAll('[data-oz-free]').forEach(el=>{let v=state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]];el.value=v;let o=document.querySelector('[data-for="'+el.dataset.ozFree+'"]');if(o)o.textContent=Math.round(v)+' px'})}
-function renderFree(){
- const f=state.freeLogo,host=freeLogo.parentElement;
- const src=state.images?.logo||'';
- if(src&&freeImg.getAttribute('src')!==src){freeImg.src=src;freeImg.onload=()=>renderFree()}
- const box=host.getBoundingClientRect();
- const ratio=freeImg.naturalWidth>0&&freeImg.naturalHeight>0?freeImg.naturalHeight/freeImg.naturalWidth:0.6;
- f.size=Math.max(1,Number(f.size)||180);
- const actualHeight=f.size*ratio;
- f.x=Math.max(0,Math.min(Math.max(0,box.width-f.size),Number(f.x)||0));
- f.y=Math.max(0,Math.min(Math.max(0,box.height-actualHeight),Number(f.y)||0));
- freeLogo.style.setProperty('left',f.x+'px','important');
- freeLogo.style.setProperty('top',f.y+'px','important');
- freeLogo.style.setProperty('width',f.size+'px','important');
- freeLogo.style.setProperty('height',actualHeight+'px','important');
- freeLogo.style.setProperty('display',src?'block':'none','important');
- document.body.classList.add('oz-free-logo-active');syncFreeControls();if(typeof exactLogoSize!=='undefined'&&exactLogoSize)exactLogoSize.value=Math.round(f.size);
-}
+function renderFree(){const f=state.freeLogo;freeLogo.style.left=f.x+'px';freeLogo.style.top=f.y+'px';freeLogo.style.setProperty('width',f.size+'px','important');freeImg.style.width='100%';const currentSrc=state.images?.logo||window.OZ_LOGO;if(freeImg.getAttribute('src')!==currentSrc)freeImg.src=currentSrc;document.body.classList.add('oz-free-logo-active');syncFreeControls()}
 renderFree();
-const exactLogoSize=document.getElementById('ozLogoSizeExact');
-if(exactLogoSize){
- exactLogoSize.value=Math.round(state.freeLogo.size);
- exactLogoSize.addEventListener('change',()=>{const n=Number(exactLogoSize.value);if(!Number.isFinite(n)||n<=0)return;state.freeLogo.size=n;renderFree();save()});
-}
-$('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'Перетаскивайте логотип мышью'};
-$('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round((freeLogo.parentElement.clientWidth-state.freeLogo.size)/2);state.freeLogo.y=0;renderFree();save()};
+$('ozLogoDragToggle').onclick=()=>{freeUnlocked=!freeUnlocked;freeLogo.classList.toggle('unlocked',freeUnlocked);document.body.classList.toggle('oz-logo-unlocked',freeUnlocked);$('ozLogoDragToggle').classList.toggle('active',freeUnlocked);$('ozLogoDragToggle').textContent=freeUnlocked?'✓ Перемещение включено':'✥ Перемещать логотип'};
+$('ozLogoCenter').onclick=()=>{state.freeLogo.x=Math.round(window.scrollX+(innerWidth-state.freeLogo.size)/2);state.freeLogo.y=Math.round(window.scrollY+innerHeight/2-state.freeLogo.size*.3);renderFree();save()};
 $('ozLogoHome').onclick=()=>{const r=document.querySelector('.header-in').getBoundingClientRect();state.freeLogo.x=Math.round(r.left+window.scrollX);state.freeLogo.y=Math.round(r.top+window.scrollY+(r.height-state.freeLogo.size*.64)/2);renderFree();save()};
 document.querySelectorAll('[data-oz-free]').forEach(el=>el.addEventListener('input',()=>{state.freeLogo[({freeSize:'size',freeX:'x',freeY:'y'})[el.dataset.ozFree]]=Number(el.value);renderFree();save()}));
 let moving=null;
-freeLogo.addEventListener('pointerdown',e=>{if(!document.body.classList.contains('oz-open')||e.button!==0)return;e.preventDefault();moving={id:e.pointerId,x:e.clientX,y:e.clientY,left:state.freeLogo.x,top:state.freeLogo.y};freeLogo.setPointerCapture(e.pointerId);document.body.classList.add('oz-logo-dragging')});
+freeLogo.addEventListener('pointerdown',e=>{if(!(freeUnlocked||document.body.classList.contains('oz-open'))||e.button!==0)return;e.preventDefault();moving={id:e.pointerId,x:e.clientX,y:e.clientY,left:state.freeLogo.x,top:state.freeLogo.y};freeLogo.setPointerCapture(e.pointerId);document.body.classList.add('oz-logo-dragging')});
 freeLogo.addEventListener('pointermove',e=>{if(!moving||moving.id!==e.pointerId)return;state.freeLogo.x=Math.round(moving.left+e.clientX-moving.x);state.freeLogo.y=Math.round(moving.top+e.clientY-moving.y);renderFree()});
 function endLogoDrag(e){if(!moving||moving.id!==e.pointerId)return;moving=null;document.body.classList.remove('oz-logo-dragging');save()}
 freeLogo.addEventListener('pointerup',endLogoDrag);freeLogo.addEventListener('pointercancel',endLogoDrag);
@@ -1153,24 +1097,7 @@ body.oz-cart-dragging #cartOpen{cursor:grabbing!important}
 })();
 </script>
 
-<script id="oz-sticky-logo-sync">
-(function(){
- var header=document.querySelector('.header');
- if(!header)return;
- var scheduled=false;
- function sync(){scheduled=false;document.documentElement.style.setProperty('--oz-sticky-logo-top',Math.max(6,Math.round(header.getBoundingClientRect().top+6))+'px')}
- function request(){if(scheduled)return;scheduled=true;requestAnimationFrame(sync)}
- window.addEventListener('scroll',request,{passive:true});window.addEventListener('resize',request,{passive:true});sync();
-})();
-</script><style id="oz-header-editor-final-repair">/* Editor is a stable on-screen side panel, never draggable off-screen. */
-#ozStudio,#ozStudio.oz-moved{position:fixed!important;inset:12px 12px 12px auto!important;left:auto!important;right:12px!important;top:12px!important;bottom:12px!important;width:min(420px,calc(100vw - 24px))!important;height:calc(100dvh - 24px)!important;max-height:calc(100dvh - 24px)!important;transform:translateX(calc(100% + 28px))!important;transition:transform .22s ease!important;z-index:2147483500!important;overflow:hidden!important;border-radius:20px!important}
-body.oz-open #ozStudio,body.oz-open #ozStudio.oz-moved{transform:translateX(0)!important}
-#ozStudio .oz-head{cursor:default!important;touch-action:auto!important}
-#ozStudio #ozClose{display:grid!important;place-items:center!important;width:42px!important;height:42px!important;border-radius:12px!important;cursor:pointer!important;font-size:26px!important;z-index:5!important}
-#ozEditorLauncher{display:flex!important}
-body.oz-open #ozEditorLauncher{display:none!important}
-@media(max-width:850px){body .header .brand,body.oz-free-logo-active .header .brand,body.oz-open .header .brand{width:135px!important;min-width:135px!important;max-width:135px!important}}
-</style>
+
 <script id="oz-editor-toggle-final-repair">
 (function(){
  function close(){document.body.classList.remove('oz-open');var panel=document.getElementById('ozStudio');if(panel){panel.classList.remove('oz-moved','oz-dragging');panel.removeAttribute('style')}window.dispatchEvent(new Event('oz-editor-close'))}
@@ -1178,35 +1105,4 @@ body.oz-open #ozEditorLauncher{display:none!important}
  document.addEventListener('click',function(e){var closeBtn=e.target.closest&&e.target.closest('#ozClose');var launch=e.target.closest&&e.target.closest('#ozEditorLauncher');if(closeBtn||launch){e.preventDefault();e.stopImmediatePropagation();if(closeBtn)close();else open()}},true);
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('oz-open'))close()},true);
 })();
-</script><style id="oz-logo-canonical-final">
-/* Never show any legacy / baked-in logo. */
-html body .header .brand, html body.oz-open .header .brand, html body.oz-free-logo-active .header .brand,
-html body footer .brand,html body footer .footer-brand{display:none!important;visibility:hidden!important;pointer-events:none!important}
-/* Identical absolute coordinates and actual pixel width in both modes. */
-html body #ozFreeLogo,html body.oz-open #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{
- position:absolute!important;top:0;left:0;right:auto!important;bottom:auto!important;transform:none!important;
- max-width:none!important;max-height:none!important;height:auto!important;min-width:0!important;
- z-index:1100!important;pointer-events:auto!important;visibility:visible!important;
-}
-html body #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-width:none!important;max-height:none!important;object-fit:contain!important}
-html body.oz-open #ozFreeLogo{cursor:grab!important}
-html body.oz-open #ozFreeLogo:active{cursor:grabbing!important}
-</style><style id="oz-header-only-logo-v2">
-.header .header-in{position:relative!important}
-html body #ozFreeLogo,html body.oz-open #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) #ozFreeLogo{
- position:absolute!important;right:auto!important;bottom:auto!important;transform:none!important;
- max-width:none!important;max-height:none!important;min-width:0!important;z-index:100!important;
-}
-.header #ozFreeLogo img{width:100%!important;height:auto!important;max-width:100%!important;pointer-events:none!important}
-</style><style id="oz-logo-contained-in-pill">
-.header .header-in{position:relative!important}
-html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{
- position:absolute!important;top:0;left:0;transform:none!important;height:auto!important;max-height:none!important;
- display:block;overflow:visible!important;touch-action:none!important;
-}
-html body .header .header-in #ozFreeLogo img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;max-width:none!important;object-fit:contain!important}
-</style><style id="oz-logo-hard-boundaries">
-.header .header-in{position:relative!important}
-html body .header .header-in #ozFreeLogo,html body.oz-open .header .header-in #ozFreeLogo,html body.oz-free-logo-active:not(.oz-open) .header .header-in #ozFreeLogo{position:absolute!important;transform:none!important;max-height:none!important;overflow:visible!important}
-html body .header .header-in #ozFreeLogo img{width:100%!important;height:100%!important;object-fit:contain!important;max-height:100%!important}
-</style></body></html>
+</script></body></html>
