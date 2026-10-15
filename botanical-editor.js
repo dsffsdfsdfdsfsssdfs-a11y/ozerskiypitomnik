@@ -178,7 +178,44 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  const down=e=>{if(e.button!==0)return;let el=e.target.closest('#ozFreeLogo')||candidates(e.target)||e.target.closest('img,nav,section');if(!el)return;e.preventDefault();e.stopImmediatePropagation();pick(el);dragging={id:e.pointerId,startX:e.clientX,startY:e.clientY,x:Number(record().x||0),y:Number(record().y||0)};try{e.target.setPointerCapture(e.pointerId)}catch{}};
  const move=e=>{if(!dragging||e.pointerId!==dragging.id||!element)return;e.preventDefault();const dx=Math.round(e.clientX-dragging.startX),dy=Math.round(e.clientY-dragging.startY);const x=dragging.x+dx,y=dragging.y+dy;element.style.setProperty('translate',x+'px '+y+'px','important');$m('smX').value=x;$m('smY').value=y};
  const up=e=>{if(!dragging||e.pointerId!==dragging.id)return;dragging=null;commit({x:Number($m('smX').value)||0,y:Number($m('smY').value)||0})};
- const attach=()=>{try{const doc=frame.contentDocument;if(!doc||!doc.body)throw Error('Сайт ещё не загружен');doc.addEventListener('pointerdown',down,true);doc.addEventListener('pointermove',move,true);doc.addEventListener('pointerup',up,true);doc.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);refresh();initialized=true;status('Нажмите на элемент и двигайте его прямо в предпросмотре.')}catch(e){status('Ошибка предпросмотра: '+e.message)}};
+ const installLogoDragSurface=doc=>{
+  const logo=doc.querySelector('#ozFreeLogo');
+  if(!logo)return;
+  const surface=doc.createElement('div');
+  surface.id='ozMobileLogoDragSurface';
+  surface.title='Перетащить логотип';
+  surface.style.cssText='position:absolute;z-index:2147483647;cursor:grab;touch-action:none;background:transparent;pointer-events:auto;';
+  doc.body.appendChild(surface);
+  const sync=()=>{
+    if(!surface.isConnected||!logo.isConnected)return;
+    const rect=logo.getBoundingClientRect();
+    surface.style.left=(rect.left+doc.defaultView.scrollX)+'px';
+    surface.style.top=(rect.top+doc.defaultView.scrollY)+'px';
+    surface.style.width=Math.max(rect.width,50)+'px';
+    surface.style.height=Math.max(rect.height,45)+'px';
+  };
+  surface.addEventListener('pointerdown',e=>{
+    if(e.button!==0)return;e.preventDefault();e.stopPropagation();
+    pick(logo);sync();
+    dragging={id:e.pointerId,startX:e.clientX,startY:e.clientY,x:Number(record().x||0),y:Number(record().y||0)};
+    surface.setPointerCapture(e.pointerId);
+    surface.style.cursor='grabbing';
+  });
+  surface.addEventListener('pointermove',e=>{
+    if(!dragging||dragging.id!==e.pointerId)return;
+    e.preventDefault();e.stopPropagation();
+    const x=Math.round(dragging.x+e.clientX-dragging.startX),y=Math.round(dragging.y+e.clientY-dragging.startY);
+    logo.style.setProperty('translate',x+'px '+y+'px','important');
+    $m('smX').value=x;$m('smY').value=y;
+    sync();
+  });
+  const finish=e=>{if(!dragging||dragging.id!==e.pointerId)return;e.preventDefault();dragging=null;surface.style.cursor='grab';commit({x:Number($m('smX').value)||0,y:Number($m('smY').value)||0});sync()};
+  surface.addEventListener('pointerup',finish);surface.addEventListener('pointercancel',finish);
+  doc.defaultView.addEventListener('scroll',sync,{passive:true});
+  sync();
+  doc.defaultView.requestAnimationFrame(sync);
+ };
+ const attach=()=>{try{const doc=frame.contentDocument;if(!doc||!doc.body)throw Error('Сайт ещё не загружен');doc.addEventListener('pointerdown',down,true);doc.addEventListener('pointermove',move,true);doc.addEventListener('pointerup',up,true);doc.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);refresh();installLogoDragSurface(doc);initialized=true;status('Нажмите на элемент и двигайте его прямо в предпросмотре.')}catch(e){status('Ошибка предпросмотра: '+e.message)}};
  const loadPreview=()=>{
  initialized=false;element=null;selected=null;
  status('Загружаю мобильную версию…');
