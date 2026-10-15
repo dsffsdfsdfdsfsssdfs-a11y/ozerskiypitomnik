@@ -87,12 +87,7 @@ const applyMobileDirect=(doc,data)=>{
    }else el.style.setProperty('font-size',n+'px','important');
   }
   if(d.width!=null)el.style.setProperty('width',Math.max(20,Math.min(600,Number(d.width)))+'px','important');
-  if(el.id==='ozFreeLogo'){
-   el.style.setProperty('position','absolute','important');
-   el.style.setProperty('left','calc(50% + '+Number(d.x||0)+'px)','important');
-   el.style.setProperty('top','calc(50% + '+Number(d.y||0)+'px)','important');
-   el.style.setProperty('translate','none','important');
-  }else if(d.x!=null||d.y!=null)el.style.setProperty('translate',Number(d.x||0)+'px '+Number(d.y||0)+'px','important');
+  if(d.x!=null||d.y!=null)el.style.setProperty('translate',Number(d.x||0)+'px '+Number(d.y||0)+'px','important');
   if(d.hidden===true)el.style.setProperty('display','none','important');
   if(d.text!=null&&!el.children.length&&el.textContent!==String(d.text))el.textContent=String(d.text);
  }
