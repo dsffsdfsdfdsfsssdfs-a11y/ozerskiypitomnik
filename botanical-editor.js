@@ -146,7 +146,16 @@ head.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('butto
 head.addEventListener('pointermove',e=>{if(!panelPos||panelPos.id!==e.pointerId)return;const x=Math.max(4,Math.min(innerWidth-panel.offsetWidth-4,e.clientX-panelPos.dx));const y=Math.max(4,Math.min(innerHeight-42,e.clientY-panelPos.dy));panel.style.left=x+'px';panel.style.top=y+'px';panel.style.right='auto'});
 head.addEventListener('pointerup',()=>panelPos=null);
 $('seMin').onclick=()=>{root.classList.toggle('seCollapsed');$('seMin').textContent=root.classList.contains('seCollapsed')?'+':'−'};
-const applyLater=()=>{if(innerWidth<=900)return;for(const [key,d] of Object.entries(records)){if(key!=='#ozV13Cart'&&key!=='#ozHelperToggle'&&!key.includes('ozDottedActions'))continue;try{const el=document.querySelector(key);if(!el||!isAction(el)||!d.size)continue;setActionSize(el,d.size);setPos(el,d.x||0,d.y||0)}catch{}}};new MutationObserver(()=>{applyLater();applyMobileDirect(document,records)}).observe(document.body,{childList:true,subtree:true});applyLater();applyMobileDirect(document,records);
+const applyLater=()=>{if(innerWidth<=900)return;for(const [key,d] of Object.entries(records)){if(key!=='#ozV13Cart'&&key!=='#ozHelperToggle'&&!key.includes('ozDottedActions'))continue;try{const el=document.querySelector(key);if(!el||!isAction(el)||!d.size)continue;setActionSize(el,d.size);setPos(el,d.x||0,d.y||0)}catch{}}};new MutationObserver(()=>{applyLater();applyMobileDirect(document,records)}).observe(document.body,{childList:true,subtree:true});
+applyLater();applyMobileDirect(document,records);
+if(innerWidth<=900&&!OZ_MOBILE_PREVIEW){
+ let previousWidth=innerWidth;
+ const reapply=()=>{if(innerWidth>900)return;applyMobileDirect(document,records);if(innerWidth!==previousWidth){previousWidth=innerWidth;installMobileCss(document,records)}};
+ window.addEventListener('pageshow',reapply);
+ window.addEventListener('resize',reapply,{passive:true});
+ window.addEventListener('orientationchange',reapply,{passive:true});
+ setTimeout(reapply,500);setTimeout(reapply,1600);setTimeout(reapply,3500);
+}
 $('seLaunch').onclick=()=>{open=true;root.classList.add('seOpen');if(Object.keys(localDraft).length && !Object.keys(records).length){$('seStatus').textContent='Есть старый неопубликованный черновик в этом браузере. Он не заменяет текущую публичную версию.'}};$('seClose').onclick=()=>{open=false;root.classList.remove('seOpen');document.querySelectorAll('.sePicked').forEach(e=>e.classList.remove('sePicked'))};
 $('seSize').oninput=e=>{if(!active)return;const n=e.target.value;if(isAction(active)){setActionSize(active,n)}else if(isLogo(active))active.style.setProperty('width',n+'px','important');else active.style.setProperty('font-size',n+'px','important');$('seSizeValue').textContent=n+' px';save()};
 for(const axis of ['X','Y'])$('se'+axis).oninput=()=>{if(!active)return;setPos(active,Number($('seX').value)||0,Number($('seY').value)||0);save()};
