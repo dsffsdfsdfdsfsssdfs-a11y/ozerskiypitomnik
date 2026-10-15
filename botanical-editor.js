@@ -1,6 +1,9 @@
 (()=>{'use strict';
 const OZ_MOBILE_PREVIEW=new URLSearchParams(location.search).has('oz-mobile-preview');
 const KEY='oz_simple_editor_v1_'+location.pathname;
+// Temporarily disable all editor controls; retain public published styling and settings.
+const OZ_EDITOR_DISABLED=true;
+if(OZ_EDITOR_DISABLED){const off=document.createElement('style');off.id='oz-editor-temporarily-disabled';off.textContent='#simpleEdit,#seLaunch,#sePanel,#seMobileDrawer,#seMobileMode,#seLogoTools{display:none!important;visibility:hidden!important;pointer-events:none!important}';document.head.appendChild(off)}
 // The original inline editor restores per-browser layouts (including old logos).
 // Preserve its drafts as backups and stop them from overriding the public site.
 try{
