@@ -21,7 +21,14 @@ module.exports = async function handler(req,res){
    if(![x,y,size].every(n=>Number.isFinite(n)&&Math.abs(n)<5000))return res.status(400).json({error:'Неверный размер или позиция'});
    const t=value.text==null?null:String(value.text);
    if(t!==null&&t.length>2000)return res.status(400).json({error:'Слишком длинный текст'});
-   records[key]={x,y,size,text:t};
+   const isMobile=key.startsWith('mobile::');
+   if(isMobile){
+    const kind=['text','box','image'].includes(value.kind)?value.kind:'text';
+    const hidden=value.hidden===true;
+    const width=value.width==null?undefined:Number(value.width);
+    if(width!==undefined&&(!Number.isFinite(width)||width<0||width>5000))return res.status(400).json({error:'Неверная ширина мобильного элемента'});
+    records[key]={x,y,size,text:t,kind,hidden,...(width===undefined?{}:{width})};
+   }else records[key]={x,y,size,text:t};
   }
   const logo=body.logo??null;
   if(logo!==null&&logo!=='hidden'&&(typeof logo!=='string'||logo.length>475000||!/^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(logo)))return res.status(400).json({error:'Некорректный формат логотипа'});
