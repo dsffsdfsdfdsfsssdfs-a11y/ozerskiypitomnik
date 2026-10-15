@@ -1,5 +1,23 @@
 (()=>{'use strict';
 const KEY='oz_simple_editor_v1_'+location.pathname;
+// The original inline editor restores per-browser layouts (including old logos).
+// Preserve its drafts as backups and stop them from overriding the public site.
+try{
+ const migration='oz_canonical_public_migration_20261015_v2';
+ if(!localStorage.getItem(migration)){
+  const build=document.documentElement.dataset.ozBuild||'base';
+  const prefixes=['ozersky_studio_'+build,'oz_menu_positions_'+build,'oz_phone_edit_'+build,'oz_floating_panel_location_'+build];
+  const keys=Object.keys(localStorage).filter(k=>prefixes.some(p=>k===p||k.startsWith(p+'_')));
+  for(const k of keys){
+   const value=localStorage.getItem(k);
+   if(value!==null)localStorage.setItem('oz_legacy_backup_20261015_'+k,value);
+   localStorage.removeItem(k);
+  }
+  localStorage.setItem(migration,'1');
+  if(keys.length){location.reload();return}
+ }
+}catch(e){console.warn('Legacy layout migration:',e)}
+
 const loadingStyle=document.createElement('style');
 loadingStyle.textContent='html.oz-loading-public-settings body{visibility:hidden!important}';
 document.head.appendChild(loadingStyle);
