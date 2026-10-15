@@ -18,12 +18,9 @@ try{
  }
 }catch(e){console.warn('Legacy layout migration:',e)}
 
-const loadingStyle=document.createElement('style');
-loadingStyle.textContent='html.oz-loading-public-settings body{visibility:hidden!important}';
-document.head.appendChild(loadingStyle);
-document.documentElement.classList.add('oz-loading-public-settings');
+document.documentElement.classList.remove('oz-public-ready');
 let finished=false;
-const finishLoading=()=>{if(finished)return;finished=true;document.documentElement.classList.remove('oz-loading-public-settings');loadingStyle.remove()};
+const finishLoading=()=>{if(finished)return;finished=true;document.documentElement.classList.add('oz-public-ready')};
 setTimeout(finishLoading,4500);
 // The original full nursery logo (with the name) is bundled in the page.
 // The former pinned file contained only the greenhouse pictogram.
