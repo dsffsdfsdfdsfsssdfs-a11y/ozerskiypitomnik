@@ -62,7 +62,7 @@ const mobileCss=(data)=>Object.entries(data||{}).filter(([k,v])=>k.startsWith('m
    }else css.push('font-size:'+n+'px!important');
  }
  if(v.width!=null)css.push('width:'+Math.max(20,Math.min(600,Number(v.width)||120))+'px!important');
- if(v.x!=null||v.y!=null)css.push('translate:'+Number(v.x||0)+'px '+Number(v.y||0)+'px!important');
+ /* Coordinates are applied identically via placeMobileElement in preview and public site. */
  if(v.hidden)css.push('display:none!important');
  const children=(v.size!=null&&/ozFreeLogo/i.test(sel))?target+' img{width:100%!important;height:auto!important;max-width:none!important}':'';
  return target+'{'+css.join(';')+'}'+children;
@@ -81,6 +81,20 @@ const renderMobileLogo=(doc)=>{
  el.style.setProperty('width',size+'px','important');
  el.style.setProperty('transform','translate(-50%,-50%)','important');
  el.style.setProperty('translate',Number(d.x||0)+'px '+Number(d.y||0)+'px','important');
+};
+const placeMobileElement=(el,x,y)=>{
+ if(!el)return;
+ x=Number(x)||0;y=Number(y)||0;
+ if(el.id==='ozCustomMobileLogo'){
+  el.style.setProperty('translate',x+'px '+y+'px','important');return;
+ }
+ if(!el.hasAttribute('data-oz-mobile-base-transform')){
+  const baseline=el.ownerDocument.defaultView.getComputedStyle(el).transform;
+  el.setAttribute('data-oz-mobile-base-transform',baseline==='none'?'':baseline);
+ }
+ const base=el.getAttribute('data-oz-mobile-base-transform')||'';
+ el.style.setProperty('translate','none','important');
+ el.style.setProperty('transform',(base?base+' ':'')+'translate3d('+x+'px,'+y+'px,0px)','important');
 };
 const applyMobileDirect=(doc,data)=>{
  if(!doc?.body||!doc.defaultView||doc.defaultView.innerWidth>900)return;
@@ -103,7 +117,7 @@ const applyMobileDirect=(doc,data)=>{
    }else el.style.setProperty('font-size',n+'px','important');
   }
   if(d.width!=null)el.style.setProperty('width',Math.max(20,Math.min(600,Number(d.width)))+'px','important');
-  if(d.x!=null||d.y!=null)el.style.setProperty('translate',Number(d.x||0)+'px '+Number(d.y||0)+'px','important');
+  if(d.x!=null||d.y!=null)placeMobileElement(el,d.x,d.y);
   if(d.hidden===true)el.style.setProperty('display','none','important');
   if(d.text!=null&&!el.children.length&&el.textContent!==String(d.text))el.textContent=String(d.text);
  }
@@ -209,7 +223,7 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  const pick=el=>{if(el?.closest?.('#ozFreeLogo'))el=el.closest('#ozFreeLogo');if(element)element.classList.remove('smPicked');element=el;selected=selector(el);element.classList.add('smPicked');const d=record(),size=d.size??(isAction(el)||isLogo(el)?el.getBoundingClientRect().width:parseFloat(frame.contentWindow.getComputedStyle(el).fontSize));$m('smPicked').textContent='Выбрано: '+(el.alt||el.textContent||el.tagName).trim().slice(0,65);$m('smSize').value=Math.min(240,Math.max(8,Math.round(size)));$m('smSizeOut').textContent=$m('smSize').value+' px';$m('smX').value=d.x||0;$m('smY').value=d.y||0;$m('smHidden').checked=!!d.hidden;$m('smText').disabled=!!el.children.length||isLogo(el)||isAction(el);$m('smText').value=d.text??(el.textContent||'')};
  const commit=(patch)=>{if(!selected)return;records['mobile::'+selected]={...record(),...patch};refresh();status('Изменения готовы. Нажмите «Опубликовать для всех».')};
  const down=e=>{if(e.button!==0)return;let el=e.target.closest('#ozCustomMobileLogo')||e.target.closest('#ozFreeLogo')||candidates(e.target)||e.target.closest('img,nav,section');if(!el)return;e.preventDefault();e.stopImmediatePropagation();pick(el);dragging={id:e.pointerId,startX:e.clientX,startY:e.clientY,x:Number(record().x||0),y:Number(record().y||0)};try{e.target.setPointerCapture(e.pointerId)}catch{}};
- const move=e=>{if(!dragging||e.pointerId!==dragging.id||!element)return;e.preventDefault();const dx=Math.round(e.clientX-dragging.startX),dy=Math.round(e.clientY-dragging.startY);const x=dragging.x+dx,y=dragging.y+dy;element.style.setProperty('translate',x+'px '+y+'px','important');$m('smX').value=x;$m('smY').value=y};
+ const move=e=>{if(!dragging||e.pointerId!==dragging.id||!element)return;e.preventDefault();const dx=Math.round(e.clientX-dragging.startX),dy=Math.round(e.clientY-dragging.startY);const x=dragging.x+dx,y=dragging.y+dy;placeMobileElement(element,x,y);$m('smX').value=x;$m('smY').value=y};
  const up=e=>{if(!dragging||e.pointerId!==dragging.id)return;dragging=null;commit({x:Number($m('smX').value)||0,y:Number($m('smY').value)||0})};
  const installLogoDragSurface=doc=>{
   const logo=doc.querySelector('#ozFreeLogo');
