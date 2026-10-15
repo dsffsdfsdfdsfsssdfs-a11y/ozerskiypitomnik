@@ -1,5 +1,5 @@
 (()=>{'use strict';
-if(new URLSearchParams(location.search).has('oz-mobile-preview'))return;
+const OZ_MOBILE_PREVIEW=new URLSearchParams(location.search).has('oz-mobile-preview');
 const KEY='oz_simple_editor_v1_'+location.pathname;
 // The original inline editor restores per-browser layouts (including old logos).
 // Preserve its drafts as backups and stop them from overriding the public site.
@@ -31,7 +31,7 @@ if(fullNurseryLogo){
  if(current && !window.OZ_PUBLIC_LOGO_OVERRIDE) current.src=fullNurseryLogo;
 }
 
-const root=document.createElement('div');root.id='simpleEdit';root.innerHTML=`<button id="seLaunch" type="button">✎ Редактор</button><div id="sePanel"><div class="seHead"><b>Редактор логотипа и текста</b><span class="seHeadButtons"><button id="seMin" type="button" title="Свернуть">−</button><button id="seClose" type="button" title="Закрыть">×</button></span></div><p>Нажми на надпись или логотип. Перетаскивай выбранное мышью.</p><div id="seSelected">Выбери элемент на сайте</div><label>Размер <input id="seSize" type="range" min="8" max="240" value="30"><output id="seSizeValue">30</output></label><label>По горизонтали (px)<input id="seX" type="number" value="0"></label><label>По вертикали (px)<input id="seY" type="number" value="0"></label><label>Текст<textarea id="seText" rows="2" placeholder="Выбери текст"></textarea></label><button id="seSave" type="button">Опубликовать для всех</button><div id="seStatus">Черновик сохраняется в браузере. Нажмите «Опубликовать для всех», чтобы обновить сайт.</div></div>`;document.body.appendChild(root);
+const root=document.createElement('div');root.id='simpleEdit';root.innerHTML=`<button id="seLaunch" type="button">✎ Редактор</button><div id="sePanel"><div class="seHead"><b>Редактор логотипа и текста</b><span class="seHeadButtons"><button id="seMin" type="button" title="Свернуть">−</button><button id="seClose" type="button" title="Закрыть">×</button></span></div><p>Нажми на надпись или логотип. Перетаскивай выбранное мышью.</p><div id="seSelected">Выбери элемент на сайте</div><label>Размер <input id="seSize" type="range" min="8" max="240" value="30"><output id="seSizeValue">30</output></label><label>По горизонтали (px)<input id="seX" type="number" value="0"></label><label>По вертикали (px)<input id="seY" type="number" value="0"></label><label>Текст<textarea id="seText" rows="2" placeholder="Выбери текст"></textarea></label><button id="seSave" type="button">Опубликовать для всех</button><div id="seStatus">Черновик сохраняется в браузере. Нажмите «Опубликовать для всех», чтобы обновить сайт.</div></div>`;document.body.appendChild(root);if(OZ_MOBILE_PREVIEW)root.style.display='none';
 const logoTools=document.createElement('div');logoTools.id='seLogoTools';logoTools.innerHTML='<label style="display:block;margin:12px 0 7px">Логотип сайта</label><input type="file" id="seLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="max-width:100%;margin-bottom:8px"><button type="button" id="seLogoRemove">Удалить логотип</button><button type="button" id="seLogoRestore">Вернуть исходный</button><small style="display:block;margin-top:8px">PNG, JPG, WebP или SVG, до 15 МБ. Размер автоматически оптимизируется. Нажмите «Опубликовать для всех», чтобы изменения увидели посетители.</small>';
 root.querySelector('#seSave').before(logoTools);
 const $=id=>document.getElementById(id),panel=$('sePanel');let open=false,active=null,drag=null,records={},localDraft={},adminKey=null,logoAsset=null;
@@ -136,8 +136,8 @@ for(const axis of ['X','Y'])$('se'+axis).oninput=()=>{if(!active)return;setPos(a
 $('seText').oninput=e=>{if(active&&!e.target.disabled){active.textContent=e.target.value;save()}};
 $('seSave').onclick=async()=>{if(active)save();if(!adminKey){adminKey=prompt('Ключ владельца из файла Ozerskiy-editor-admin-key.txt на Рабочем столе Mac:');if(!adminKey)return;}try{$('seStatus').textContent='Публикую для всех посетителей...';let res=await fetch('/api/site-settings',{method:'POST',headers:{'Content-Type':'application/json','x-editor-key':adminKey},body:JSON.stringify({records,logo:logoAsset})});let data=await res.json();if(!res.ok){if(res.status===401)adminKey=null;throw Error(data.error||'Ошибка '+res.status)}$('seStatus').textContent='✓ Опубликовано для всех! Обычный режим и инкогнито увидят правки.';localDraft={};try{localStorage.removeItem(KEY)}catch{}}catch(err){$('seStatus').textContent='Не опубликовано: '+err.message}};
 // Capture input before any existing site handlers. Navigation never fires while editing.
-for(const type of ['click','auxclick','dblclick','submit'])document.addEventListener(type,e=>{if(!open||root.contains(e.target)||document.getElementById('seMobileDrawer')?.contains(e.target))return;e.preventDefault();e.stopImmediatePropagation()},true);
-document.addEventListener('pointerdown',e=>{if(!open||root.contains(e.target)||document.getElementById('seMobileDrawer')?.contains(e.target)||e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();let target=candidates(e.target);if(!target)return;select(target);drag={id:e.pointerId,e:target,x:e.clientX,y:e.clientY,ox:Number(target.dataset.seX||0),oy:Number(target.dataset.seY||0)}},true);
+for(const type of ['click','auxclick','dblclick','submit'])document.addEventListener(type,e=>{if(OZ_MOBILE_PREVIEW||!open||root.contains(e.target)||document.getElementById('seMobileDrawer')?.contains(e.target))return;e.preventDefault();e.stopImmediatePropagation()},true);
+document.addEventListener('pointerdown',e=>{if(OZ_MOBILE_PREVIEW||!open||root.contains(e.target)||document.getElementById('seMobileDrawer')?.contains(e.target)||e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();let target=candidates(e.target);if(!target)return;select(target);drag={id:e.pointerId,e:target,x:e.clientX,y:e.clientY,ox:Number(target.dataset.seX||0),oy:Number(target.dataset.seY||0)}},true);
 document.addEventListener('pointermove',e=>{if(!drag||!open||document.getElementById('seMobileDrawer')?.contains(e.target)||e.pointerId!==drag.id)return;e.preventDefault();e.stopImmediatePropagation();const x=Math.round(drag.ox+e.clientX-drag.x),y=Math.round(drag.oy+e.clientY-drag.y);setPos(drag.e,x,y);$('seX').value=x;$('seY').value=y},true);
 document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save();drag=null}},true);
 
@@ -145,7 +145,7 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  const trigger=document.createElement('button');trigger.id='seMobileMode';trigger.type='button';trigger.textContent='📱 Редактировать мобильную версию';root.querySelector('#seSelected').before(trigger);
  const drawer=document.createElement('div');drawer.id='seMobileDrawer';
  drawer.innerHTML=`<header class="smHead"><strong>📱 Мобильная версия</strong><div><select id="smDevice"><option value="375">375 px</option><option value="390" selected>390 px</option><option value="430">430 px</option><option value="768">768 px</option></select><button id="smClose">Закрыть ✕</button></div></header><div class="smArea"><div class="smPhone"><iframe id="smFrame" title="Редактирование мобильной версии"></iframe></div><section class="smPanel"><h3>Редактор элементов</h3><p id="smPicked">Нажмите на текст, логотип или кнопку прямо на экране телефона, затем перетаскивайте.</p><label>Размер элемента <input id="smSize" type="range" min="8" max="240" value="30"><output id="smSizeOut">30 px</output></label><label>По горизонтали (px)<input id="smX" type="number" value="0"></label><label>По вертикали (px)<input id="smY" type="number" value="0"></label><label>Текст<textarea id="smText" rows="3" placeholder="Выберите текст"></textarea></label><label><input id="smHidden" type="checkbox"> Скрыть на мобильной</label><button id="smReset">Сбросить элемент</button><button id="smPublish" class="smPrimary">Опубликовать для всех</button><p id="smState">Редактирование мобильной версии не затрагивает компьютерную.</p></section></div>`;
- document.body.appendChild(drawer);
+ if(!OZ_MOBILE_PREVIEW)document.body.appendChild(drawer);
  const style=document.createElement('style');style.textContent=`
  #seMobileMode{display:block;width:100%;margin:12px 0;padding:12px;border-radius:12px;border:1px solid #a4cbaa;background:#e4f5e9;color:#184e2e;font-weight:700;cursor:pointer}
  #seMobileDrawer{display:none;position:fixed;inset:8px;z-index:2147483645;border-radius:20px;background:#f4f7f2;box-shadow:0 20px 90px #0007;color:#193928;overflow:auto;font:14px system-ui,sans-serif}
@@ -178,23 +178,13 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  const move=e=>{if(!dragging||e.pointerId!==dragging.id||!element)return;e.preventDefault();const dx=Math.round(e.clientX-dragging.startX),dy=Math.round(e.clientY-dragging.startY);const x=dragging.x+dx,y=dragging.y+dy;element.style.setProperty('translate',x+'px '+y+'px','important');$m('smX').value=x;$m('smY').value=y};
  const up=e=>{if(!dragging||e.pointerId!==dragging.id)return;dragging=null;commit({x:Number($m('smX').value)||0,y:Number($m('smY').value)||0})};
  const attach=()=>{try{const doc=frame.contentDocument;if(!doc||!doc.body)throw Error('Сайт ещё не загружен');doc.addEventListener('pointerdown',down,true);doc.addEventListener('pointermove',move,true);doc.addEventListener('pointerup',up,true);doc.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);refresh();initialized=true;status('Нажмите на элемент и двигайте его прямо в предпросмотре.')}catch(e){status('Ошибка предпросмотра: '+e.message)}};
- const previewHTML=()=>{
-   // Clone the rendered public site rather than reopening the page. A second
-   // navigation can be blocked or show an empty shell before site hydration.
-   const clone=document.documentElement.cloneNode(true);
-   clone.querySelectorAll('#simpleEdit,#seMobileDrawer,#seLogoTools,#seLaunch,#sePanel,.sePicked,script,iframe').forEach(el=>el.remove());
-   clone.classList.add('oz-public-ready');
-   clone.classList.remove('seOpen','seCollapsed');
-   const head=clone.querySelector('head');
-   if(head){const base=document.createElement('base');base.href=location.href;head.prepend(base)}
-   return '<!doctype html>'+clone.outerHTML;
- };
  const loadPreview=()=>{
-   initialized=false;element=null;selected=null;
-   status('Загружаю предпросмотр сайта…');
-   frame.removeAttribute('src');
-   frame.setAttribute('sandbox','allow-same-origin');
-   frame.srcdoc=previewHTML();
+  initialized=false;element=null;selected=null;
+  status('Загружаю настоящую мобильную версию сайта…');
+  frame.removeAttribute('srcdoc');
+  frame.setAttribute('sandbox','allow-same-origin allow-scripts');
+  const url=new URL(location.href);url.searchParams.set('oz-mobile-preview','1');url.searchParams.set('v',String(Date.now()));
+  frame.src=url.href;
  };
  frame.addEventListener('load',attach);
  trigger.onclick=()=>{drawer.classList.add('smVisible');phone.style.width=$m('smDevice').value+'px';loadPreview()};
