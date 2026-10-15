@@ -1,4 +1,5 @@
 (()=>{'use strict';
+if(new URLSearchParams(location.search).has('oz-mobile-preview'))return;
 const KEY='oz_simple_editor_v1_'+location.pathname;
 // The original inline editor restores per-browser layouts (including old logos).
 // Preserve its drafts as backups and stop them from overriding the public site.
@@ -52,13 +53,13 @@ const applyLogo=()=>{window.OZ_PUBLIC_LOGO_OVERRIDE=logoAsset;const e=document.q
 
 const mobileCss=(data)=>Object.entries(data||{}).filter(([k,v])=>k.startsWith('mobile::')&&v&&typeof v==='object').map(([k,v])=>{
  const sel=k.slice(8);if(!sel||sel.length>400||/[{}]/.test(sel))return '';
- const css=[];if(v.size!=null)css.push('font-size:'+Math.max(8,Math.min(240,Number(v.size)||16))+'px!important');
+ const css=[];if(v.size!=null){const n=Math.max(8,Math.min(240,Number(v.size)||16));css.push('font-size:'+n+'px!important');if(/Logo|Cart|Helper|oz-v13/.test(sel))css.push('width:'+n+'px!important','height:'+n+'px!important');}
  if(v.width!=null)css.push('width:'+Math.max(20,Math.min(600,Number(v.width)||120))+'px!important');
  if(v.x!=null||v.y!=null)css.push('translate:'+Number(v.x||0)+'px '+Number(v.y||0)+'px!important');
  if(v.hidden)css.push('display:none!important');
  return sel+'{'+css.join(';')+'}';
 }).join('\n');
-const installMobileCss=(doc,data,id='ozPublishedMobileOverrides')=>{try{let st=doc.getElementById(id);if(!st){st=doc.createElement('style');st.id=id;doc.head.appendChild(st)}st.textContent='@media(max-width:900px){'+mobileCss(data)+'}'}catch(e){console.warn('Mobile CSS:',e)}};
+const installMobileCss=(doc,data,id='ozPublishedMobileOverrides')=>{try{let st=doc.getElementById(id);if(!st){st=doc.createElement('style');st.id=id;doc.head.appendChild(st)}st.textContent='@media(max-width:900px){'+mobileCss(data)+'}';for(const [key,d] of Object.entries(data||{})){if(!key.startsWith('mobile::')||d.text===undefined)continue;const el=doc.querySelector(key.slice(8));if(el&&!el.children.length&&doc.defaultView.innerWidth<=900)el.textContent=d.text}}catch(e){console.warn('Mobile CSS:',e)}};
 
 const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.startsWith('mobile::'))applyOne(key,d);applyLogo();installMobileCss(document,records)};
 $('seLogoFile').addEventListener('change',async ev=>{const file=ev.target.files?.[0];if(!file)return;
@@ -103,46 +104,53 @@ document.addEventListener('pointermove',e=>{if(!drag||!open||e.pointerId!==drag.
 document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save();drag=null}},true);
 
 (()=> {
- const trigger=document.createElement('button');trigger.id='seMobileMode';trigger.type='button';trigger.textContent='📱 Мобильная версия';root.querySelector('#seSelected').before(trigger);
- const drawer=document.createElement('div');drawer.id='seMobileDrawer';drawer.innerHTML=`<div class="seMobileTop"><strong>Мобильный редактор</strong><button id="seMobileClose" type="button">✕</button></div><div class="seMobileTools"><label>Экран <select id="seMobileScreen"><option value="375">iPhone · 375px</option><option value="390" selected>iPhone · 390px</option><option value="430">Большой телефон · 430px</option><option value="768">Планшет · 768px</option></select></label><button id="seMobileReload" type="button">↻ Обновить окно</button></div><div class="seMobileLayout"><div class="seMobilePhone"><iframe id="seMobileFrame" title="Предпросмотр мобильной версии сайта"></iframe></div><aside class="seMobileProps"><b id="seMobilePicked">Нажмите на элемент в экране телефона</b><label>Размер текста (px)<input id="seMobileFont" type="number" min="8" max="240" placeholder="Не изменять"></label><label>Ширина элемента (px)<input id="seMobileWidth" type="number" min="20" max="600" placeholder="Не изменять"></label><label>Сдвиг вправо (px)<input id="seMobileX" type="number" value="0"></label><label>Сдвиг вниз (px)<input id="seMobileY" type="number" value="0"></label><label class="seMobileCheck"><input id="seMobileHide" type="checkbox"> Скрыть только на мобильном</label><button id="seMobileReset" type="button">Сбросить настройки элемента</button><p>Правки действуют только на экранах до 900px. Для публикации нажмите «Опубликовать для всех» в основном редакторе.</p></aside></div>`;
+ const trigger=document.createElement('button');trigger.id='seMobileMode';trigger.type='button';trigger.textContent='📱 Редактировать мобильную версию';root.querySelector('#seSelected').before(trigger);
+ const drawer=document.createElement('div');drawer.id='seMobileDrawer';
+ drawer.innerHTML=`<header class="smHead"><strong>📱 Мобильная версия</strong><div><select id="smDevice"><option value="375">375 px</option><option value="390" selected>390 px</option><option value="430">430 px</option><option value="768">768 px</option></select><button id="smClose">Закрыть ✕</button></div></header><div class="smArea"><div class="smPhone"><iframe id="smFrame" title="Редактирование мобильной версии"></iframe></div><section class="smPanel"><h3>Редактор элементов</h3><p id="smPicked">Нажмите на текст, логотип или кнопку прямо на экране телефона, затем перетаскивайте.</p><label>Размер элемента <input id="smSize" type="range" min="8" max="240" value="30"><output id="smSizeOut">30 px</output></label><label>По горизонтали (px)<input id="smX" type="number" value="0"></label><label>По вертикали (px)<input id="smY" type="number" value="0"></label><label>Текст<textarea id="smText" rows="3" placeholder="Выберите текст"></textarea></label><label><input id="smHidden" type="checkbox"> Скрыть на мобильной</label><button id="smReset">Сбросить элемент</button><button id="smPublish" class="smPrimary">Опубликовать для всех</button><p id="smState">Редактирование мобильной версии не затрагивает компьютерную.</p></section></div>`;
  document.body.appendChild(drawer);
- const css=document.createElement('style');css.textContent=`
- #seMobileMode{display:block;width:100%;border:1px solid #a7cbb0;background:#e9f8ec;border-radius:11px;color:#174b2c;padding:11px;margin:12px 0;font-weight:700;cursor:pointer}
- #seMobileDrawer{display:none;position:fixed;inset:12px;z-index:2147483640;background:#f5f8f4;color:#183a26;border:1px solid #cbd9ce;border-radius:20px;box-shadow:0 22px 75px #0005;overflow:auto;font:14px system-ui,sans-serif}
- #seMobileDrawer.visible{display:block}
- .seMobileTop{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid #d7e4d9;font-size:19px}
- #seMobileDrawer button{cursor:pointer;border:1px solid #b4d3b9;border-radius:9px;padding:8px 11px;background:#fff;color:#17452a}
- .seMobileTools{display:flex;gap:12px;align-items:center;padding:10px 20px;flex-wrap:wrap}
- .seMobileTools select{padding:8px;background:white;border:1px solid #a2bfa9;border-radius:8px;margin-left:6px}
- .seMobileLayout{display:flex;gap:20px;align-items:flex-start;justify-content:center;padding:8px 18px 24px;flex-wrap:wrap}
- .seMobilePhone{width:390px;max-width:100%;height:min(720px,calc(100vh - 150px));min-height:380px;border:9px solid #202a24;border-radius:33px;overflow:hidden;background:white;box-shadow:0 10px 25px #183a2630;box-sizing:content-box}
- #seMobileFrame{width:100%;height:100%;border:0;background:#fff}
- .seMobileProps{flex:0 1 270px;background:white;border:1px solid #dce7dc;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:11px}
- .seMobileProps label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#436149}
- .seMobileProps label input{border:1px solid #d0ded3;border-radius:8px;padding:9px;width:100%;box-sizing:border-box;background:white;color:#173922;font-size:14px}
- .seMobileProps label.seMobileCheck{flex-direction:row;align-items:center;font-size:13px}
- .seMobileProps label.seMobileCheck input{width:auto}
- .seMobileProps p{font-size:12px;line-height:1.5;color:#678070}
- @media(max-width:640px){#seMobileDrawer{inset:3px;border-radius:12px}.seMobilePhone{height:55vh;min-height:320px}.seMobileLayout{gap:10px;padding:7px}.seMobileProps{flex:1 1 100%}}`;
- document.head.appendChild(css);
- const frame=drawer.querySelector('#seMobileFrame'),phone=drawer.querySelector('.seMobilePhone');
- const find=id=>drawer.querySelector('#'+id);
- let current=null;
- const updatePreview=()=>{if(!frame.contentDocument)return;installMobileCss(frame.contentDocument,records,'ozMobilePreviewOverride')};
- const showValues=()=>{const d=records['mobile::'+current]||{};find('seMobileFont').value=d.size??'';find('seMobileWidth').value=d.width??'';find('seMobileX').value=d.x??0;find('seMobileY').value=d.y??0;find('seMobileHide').checked=!!d.hidden};
- const pick=(e)=>{e.preventDefault();e.stopImmediatePropagation();const doc=frame.contentDocument;let target=e.target.closest('h1,h2,h3,h4,h5,h6,a,button,p,span,img,nav,section,#ozFreeLogo,#ozDottedActions')||e.target;if(!target||target===doc.body)return;current=selector(target);find('seMobilePicked').textContent='Выбрано: '+(target.alt||target.textContent||target.tagName).trim().slice(0,50);showValues()};
- const activate=()=>{try{frame.contentDocument.addEventListener('click',pick,true);updatePreview()}catch(e){find('seMobilePicked').textContent='Не удалось открыть предпросмотр: '+e.message}};
- const loadFrame=()=>{frame.src=location.pathname+'?oz-mobile-preview='+Date.now()};
- trigger.onclick=()=>{drawer.classList.add('visible');phone.style.width=find('seMobileScreen').value+'px';if(!frame.src)loadFrame();else updatePreview()};
- find('seMobileClose').onclick=()=>drawer.classList.remove('visible');
- find('seMobileReload').onclick=loadFrame;
- find('seMobileScreen').onchange=e=>phone.style.width=e.target.value+'px';
- frame.addEventListener('load',activate);
- for(const [field,id] of [['size','seMobileFont'],['width','seMobileWidth'],['x','seMobileX'],['y','seMobileY'],['hidden','seMobileHide']]){
-  find(id).addEventListener('input',()=>{if(!current)return;const key='mobile::'+current;const d={...(records[key]||{})};const el=find(id);if(field==='hidden')d[field]=el.checked;else if(el.value==='')delete d[field];else d[field]=Number(el.value)||0;records[key]=d;updatePreview();find('seStatus').textContent='Мобильные правки готовы. Нажмите «Опубликовать для всех».'});
- }
- find('seMobileReset').onclick=()=>{if(!current)return;delete records['mobile::'+current];showValues();updatePreview()};
+ const style=document.createElement('style');style.textContent=`
+ #seMobileMode{display:block;width:100%;margin:12px 0;padding:12px;border-radius:12px;border:1px solid #a4cbaa;background:#e4f5e9;color:#184e2e;font-weight:700;cursor:pointer}
+ #seMobileDrawer{display:none;position:fixed;inset:8px;z-index:2147483645;border-radius:20px;background:#f4f7f2;box-shadow:0 20px 90px #0007;color:#193928;overflow:auto;font:14px system-ui,sans-serif}
+ #seMobileDrawer.smVisible{display:block}
+ #seMobileDrawer button,#seMobileDrawer select{border:1px solid #bfd4c4;background:white;color:#245b37;padding:9px 12px;border-radius:9px;cursor:pointer}
+ #seMobileDrawer .smHead{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #d3e1d6;flex-wrap:wrap}
+ #seMobileDrawer .smHead>div{display:flex;gap:10px}
+ #seMobileDrawer .smArea{display:flex;justify-content:center;align-items:flex-start;gap:25px;flex-wrap:wrap;padding:20px}
+ #seMobileDrawer .smPhone{width:390px;height:min(730px,calc(100vh - 135px));min-height:340px;border:9px solid #202b23;border-radius:34px;overflow:hidden;background:white;box-shadow:0 15px 35px #0002;box-sizing:content-box;max-width:calc(100% - 20px)}
+ #smFrame{width:100%;height:100%;border:0;background:white}
+ #seMobileDrawer .smPanel{width:285px;max-width:100%;padding:19px;border:1px solid #d7e5d9;border-radius:16px;background:white;display:flex;flex-direction:column;gap:12px}
+ #seMobileDrawer .smPanel h3{margin:0}
+ #seMobileDrawer .smPanel p{font-size:12px;color:#587563;line-height:1.5}
+ #seMobileDrawer .smPanel label{display:flex;flex-direction:column;gap:6px;font-size:13px}
+ #seMobileDrawer .smPanel input:not([type=checkbox]),#seMobileDrawer .smPanel textarea{width:100%;box-sizing:border-box;border:1px solid #cbd9cf;border-radius:8px;padding:8px;font:inherit}
+ #seMobileDrawer .smPanel input[type=range]{padding:0}
+ #seMobileDrawer .smPanel label:has(input[type=checkbox]){flex-direction:row;align-items:center}
+ #seMobileDrawer .smPrimary{background:#246d42!important;color:white!important;font-weight:700}
+ #smFrame .smPicked{outline:2px dashed #38a862!important;outline-offset:3px}
+ @media(max-width:700px){#seMobileDrawer{inset:2px}#seMobileDrawer .smArea{padding:7px;gap:10px}#seMobileDrawer .smPhone{height:52vh}#seMobileDrawer .smPanel{width:100%}}`;
+ document.head.appendChild(style);
+ const $m=id=>drawer.querySelector('#'+id),frame=$m('smFrame'),phone=drawer.querySelector('.smPhone');
+ let selected=null,element=null,dragging=null,initialized=false;
+ const status=t=>$m('smState').textContent=t;
+ const record=()=>selected?(records['mobile::'+selected]||{}):{};
+ const refresh=()=>{if(frame.contentDocument)installMobileCss(frame.contentDocument,records,'smLiveStyle')};
+ const pick=el=>{if(element)element.classList.remove('smPicked');element=el;selected=selector(el);element.classList.add('smPicked');const d=record(),size=d.size??(isAction(el)||isLogo(el)?el.getBoundingClientRect().width:parseFloat(frame.contentWindow.getComputedStyle(el).fontSize));$m('smPicked').textContent='Выбрано: '+(el.alt||el.textContent||el.tagName).trim().slice(0,65);$m('smSize').value=Math.min(240,Math.max(8,Math.round(size)));$m('smSizeOut').textContent=$m('smSize').value+' px';$m('smX').value=d.x||0;$m('smY').value=d.y||0;$m('smHidden').checked=!!d.hidden;$m('smText').disabled=!!el.children.length||isLogo(el)||isAction(el);$m('smText').value=d.text??(el.textContent||'')};
+ const commit=(patch)=>{if(!selected)return;records['mobile::'+selected]={...record(),...patch};refresh();status('Изменения готовы. Нажмите «Опубликовать для всех».')};
+ const down=e=>{if(e.button!==0)return;let el=candidates(e.target)||e.target.closest('img,nav,section');if(!el)return;e.preventDefault();e.stopImmediatePropagation();pick(el);dragging={id:e.pointerId,startX:e.clientX,startY:e.clientY,x:Number(record().x||0),y:Number(record().y||0)};try{el.setPointerCapture(e.pointerId)}catch{}};
+ const move=e=>{if(!dragging||e.pointerId!==dragging.id||!element)return;e.preventDefault();const dx=Math.round(e.clientX-dragging.startX),dy=Math.round(e.clientY-dragging.startY);const x=dragging.x+dx,y=dragging.y+dy;element.style.setProperty('translate',x+'px '+y+'px','important');$m('smX').value=x;$m('smY').value=y};
+ const up=e=>{if(!dragging||e.pointerId!==dragging.id)return;dragging=null;commit({x:Number($m('smX').value)||0,y:Number($m('smY').value)||0})};
+ const attach=()=>{try{const doc=frame.contentDocument;doc.addEventListener('pointerdown',down,true);doc.addEventListener('pointermove',move,true);doc.addEventListener('pointerup',up,true);doc.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);refresh();initialized=true;status('Нажмите на элемент и двигайте его прямо в предпросмотре.')}catch(e){status('Ошибка предпросмотра: '+e.message)}};
+ frame.addEventListener('load',attach);
+ trigger.onclick=()=>{drawer.classList.add('smVisible');phone.style.width=$m('smDevice').value+'px';if(!initialized)frame.src=location.pathname+'?oz-mobile-preview=1'};
+ $m('smClose').onclick=()=>{drawer.classList.remove('smVisible');if(element)element.classList.remove('smPicked');element=null;selected=null};
+ $m('smDevice').onchange=e=>{phone.style.width=e.target.value+'px';setTimeout(refresh,50)};
+ $m('smSize').oninput=e=>{const size=Number(e.target.value);$m('smSizeOut').textContent=size+' px';commit({size})};
+ $m('smX').oninput=()=>commit({x:Number($m('smX').value)||0});
+ $m('smY').oninput=()=>commit({y:Number($m('smY').value)||0});
+ $m('smText').oninput=e=>commit({text:e.target.value});
+ $m('smHidden').onchange=e=>commit({hidden:e.target.checked});
+ $m('smReset').onclick=()=>{if(!selected)return;delete records['mobile::'+selected];frame.contentWindow.location.reload();selected=null;element=null;status('Настройки элемента сброшены.')};
+ $m('smPublish').onclick=()=>{drawer.classList.remove('smVisible');root.querySelector('#seSave').click()};
 })();
-
 (()=>{const style=document.createElement('style');style.id='oz-mobile-fix-oct2026';style.textContent="\n/* Mobile responsive layout: the public header is assembled at runtime. */\n@media(max-width:900px){\n html,body{max-width:100%!important;overflow-x:clip!important}\n #ozCombinedHeader{width:100%!important;max-width:100vw!important}\n #ozCombinedHeader .header{margin-bottom:54px!important;overflow:visible!important}\n #ozCombinedHeader .header .header-in{width:100%!important;max-width:100%!important;height:82px!important;min-height:82px!important;padding:0 12px!important;gap:0!important;position:relative!important}\n #ozCombinedHeader .header .header-in #ozFreeLogo{position:absolute!important;left:50%!important;top:50%!important;width:clamp(115px,32vw,150px)!important;max-width:38vw!important;transform:translate(-50%,-50%)!important;translate:none!important;z-index:180!important}\n #ozCombinedHeader .header .header-in #ozFreeLogo img{width:100%!important;height:auto!important;object-fit:contain!important}\n #ozCombinedHeader #mainNav{position:absolute!important;display:flex!important;left:0!important;right:0!important;top:calc(100% + 8px)!important;bottom:auto!important;width:100%!important;height:44px!important;min-height:44px!important;align-items:center!important;justify-content:flex-start!important;gap:22px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:0 18px!important;margin:0!important;background:rgba(255,255,255,.94)!important;border-radius:13px!important;box-shadow:0 5px 12px rgba(24,66,42,.07)!important;pointer-events:auto!important;scrollbar-width:none!important;white-space:nowrap!important}\n #ozCombinedHeader #mainNav::-webkit-scrollbar{display:none}\n #ozCombinedHeader #mainNav>a{position:static!important;display:inline-flex!important;align-items:center!important;transform:none!important;translate:none!important;scale:1!important;left:auto!important;top:auto!important;margin:0!important;padding:8px 0!important;font-size:13px!important;line-height:1.2!important;white-space:nowrap!important;flex:0 0 auto!important}\n #ozCombinedHeader .header .header-in .brand,#ozCombinedHeader .header .header-in .header-actions{display:none!important}\n #ozDottedActions{padding:0 7px!important;pointer-events:none!important}\n #ozDottedActions .oz-v13-wrap{flex:0 0 48px!important}\n #ozDottedActions .oz-v13-btn{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}\n #ozDottedActions svg{width:22px!important;height:22px!important}\n #ozHelper13{right:66px!important;top:50%!important;transform:translateY(-50%)!important}\n #ozHelperToggle{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}\n #ozHelper13 .oz-helper-panel{right:-58px!important;max-width:min(350px,calc(100vw - 22px))!important;width:calc(100vw - 22px)!important}\n .hero{padding-top:20px!important}\n .hero h1,.hero .hero-title{font-size:clamp(43px,10vw,68px)!important;line-height:1.07!important;letter-spacing:-.055em!important;max-width:100%!important;overflow-wrap:normal!important}\n .hero p{font-size:clamp(14px,3.65vw,17px)!important;line-height:1.55!important}\n .hero .wrap{width:100%!important;max-width:100%!important;padding-left:18px!important;padding-right:18px!important}\n .hero img{max-width:100%!important;height:auto}\n #seLaunch{right:12px!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;font-size:12px!important;padding:10px 14px!important}\n}\n@media(max-width:480px){\n #ozCombinedHeader .header .header-in #ozFreeLogo{width:135px!important;max-width:35vw!important}\n .hero h1,.hero .hero-title{font-size:clamp(40px,10.2vw,52px)!important}\n .hero .wrap{padding-left:16px!important;padding-right:16px!important}\n}\n";document.head.appendChild(style);})();
 })();
