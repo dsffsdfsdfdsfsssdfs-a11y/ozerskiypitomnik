@@ -1184,4 +1184,4 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #ozCombinedHeader .header .header-in .header-actions{visibility:hidden!important;pointer-events:none!important}
 }
 @media(max-width:900px){#ozCombinedHeader #mainNav>a{transform:none!important}#ozCombinedHeader .header .header-in #ozFreeLogo{left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:min(28vw,145px)!important}}
-</style><script id="oz-header-show-final">(()=>{document.documentElement.classList.add("oz-header-initialized")})();</script></body></html>
+</style><script id="oz-header-show-final">(()=>{const reveal=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.add("oz-header-initialized")));if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",reveal,{once:true});else reveal();})();</script></body></html>
