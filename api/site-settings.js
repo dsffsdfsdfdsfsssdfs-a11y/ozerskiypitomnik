@@ -30,9 +30,11 @@ module.exports = async function handler(req,res){
     records[key]={x,y,size,text:t,kind,hidden,...(width===undefined?{}:{width})};
    }else records[key]={x,y,size,text:t};
   }
+  const mobileLogo=body.mobileLogo??null;
+  if(mobileLogo!==null&&(typeof mobileLogo!=='string'||mobileLogo.length>475000||!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(mobileLogo)))return res.status(400).json({error:'Некорректный мобильный логотип'});
   const logo=body.logo??null;
   if(logo!==null&&logo!=='hidden'&&(typeof logo!=='string'||logo.length>475000||!/^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(logo)))return res.status(400).json({error:'Некорректный формат логотипа'});
-  const data={records,logo,published:true,updatedAt:new Date().toISOString()};
+  const data={records,logo,mobileLogo,published:true,updatedAt:new Date().toISOString()};
   await put(BLOB,JSON.stringify(data),{access:'private',addRandomSuffix:false,allowOverwrite:true,contentType:'application/json'});
   return res.status(200).json({ok:true,updatedAt:data.updatedAt});
  }catch(err){console.error('settings write',err);return res.status(503).json({error:'Не удалось сохранить на сервере'})}
