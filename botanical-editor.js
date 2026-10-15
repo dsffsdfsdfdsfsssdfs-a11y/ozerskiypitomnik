@@ -69,6 +69,7 @@ const mobileCss=(data)=>Object.entries(data||{}).filter(([k,v])=>k.startsWith('m
 }).join('\n');
 const mobileLogoKey='mobile::#ozCustomMobileLogo';
 const renderMobileLogo=(doc)=>{
+ if(OZ_MOBILE_PREVIEW)return;
  if(!doc?.body||doc.defaultView?.innerWidth>900)return;
  let el=doc.getElementById('ozCustomMobileLogo');
  if(!mobileLogoAsset){el?.remove();return}
@@ -193,7 +194,7 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  $m('smLogoUpload').onchange=async e=>{
  const file=e.target.files?.[0];if(!file)return;
  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>15000000){status('Нужен PNG, JPG или WebP до 15 МБ');return}
- try{const bitmap=await createImageBitmap(file);const canvas=document.createElement('canvas');const scale=Math.min(1,850/Math.max(bitmap.width,bitmap.height));canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();let quality=.85,data;do{data=canvas.toDataURL('image/webp',quality);quality-=.1}while(data.length>440000&&quality>.35);if(data.length>475000)throw Error('Файл слишком большой');mobileLogoAsset=data;records[mobileLogoKey]={x:0,y:0,size:140,kind:'image'};refresh();chooseMobileLogo();status('Логотип добавлен. Перемещайте мышью и сохраняйте.')}catch(err){status('Ошибка: '+err.message)}
+ try{const bitmap=await createImageBitmap(file);const canvas=document.createElement('canvas');const scale=Math.min(1,850/Math.max(bitmap.width,bitmap.height));canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();let quality=.85,data;do{data=canvas.toDataURL('image/webp',quality);quality-=.1}while(data.length>440000&&quality>.35);if(data.length>475000)throw Error('Файл слишком большой');mobileLogoAsset=data;records[mobileLogoKey]={x:0,y:0,size:140,kind:'image'};refresh();requestAnimationFrame(()=>{refresh();chooseMobileLogo()});status('Логотип загружен. Теперь его можно перемещать и менять размер.')}catch(err){status('Ошибка: '+err.message)}
  };
  const pick=el=>{if(el?.closest?.('#ozFreeLogo'))el=el.closest('#ozFreeLogo');if(element)element.classList.remove('smPicked');element=el;selected=selector(el);element.classList.add('smPicked');const d=record(),size=d.size??(isAction(el)||isLogo(el)?el.getBoundingClientRect().width:parseFloat(frame.contentWindow.getComputedStyle(el).fontSize));$m('smPicked').textContent='Выбрано: '+(el.alt||el.textContent||el.tagName).trim().slice(0,65);$m('smSize').value=Math.min(240,Math.max(8,Math.round(size)));$m('smSizeOut').textContent=$m('smSize').value+' px';$m('smX').value=d.x||0;$m('smY').value=d.y||0;$m('smHidden').checked=!!d.hidden;$m('smText').disabled=!!el.children.length||isLogo(el)||isAction(el);$m('smText').value=d.text??(el.textContent||'')};
  const commit=(patch)=>{if(!selected)return;records['mobile::'+selected]={...record(),...patch};refresh();status('Изменения готовы. Нажмите «Опубликовать для всех».')};
