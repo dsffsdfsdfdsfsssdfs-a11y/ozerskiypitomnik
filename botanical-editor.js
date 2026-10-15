@@ -310,7 +310,7 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  }catch(err){status('Не удалось сохранить: '+err.message)}
 };
 })();
-(()=>{const install=()=>{
+(()=>{const install=()=>{document.getElementById('ozMobileHelperNav')?.remove();return;
  if(innerWidth>900)return;
  const nav=document.querySelector('#ozCombinedHeader #mainNav')||document.querySelector('#mainNav');
  const helper=document.querySelector('#ozHelper13 .oz-helper-panel');
@@ -333,7 +333,7 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  }
  };
  const style=document.createElement('style');style.id='oz-mobile-helper-navigation';
- style.textContent='@media(max-width:900px){#ozCombinedHeader #mainNav,#mainNav{display:none!important;visibility:hidden!important;pointer-events:none!important}#ozCombinedHeader .header{margin-bottom:10px!important}#ozMobileHelperNav{display:grid!important}}@media(min-width:901px){#ozMobileHelperNav{display:none!important}}';
+ style.textContent='@media(max-width:900px){#ozCombinedHeader #mainNav,#mainNav{display:none!important;visibility:hidden!important;pointer-events:none!important}#ozCombinedHeader .header{margin-bottom:10px!important}#ozMobileHelperNav{display:none!important}}@media(min-width:901px){#ozMobileHelperNav{display:none!important}}';
  document.head.appendChild(style);
  install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true});window.addEventListener('resize',install,{passive:true});
 })();
