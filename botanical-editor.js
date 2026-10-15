@@ -1,5 +1,14 @@
 (()=>{'use strict';
 const KEY='oz_simple_editor_v1_'+location.pathname;
+// The original full nursery logo (with the name) is bundled in the page.
+// The former pinned file contained only the greenhouse pictogram.
+const fullNurseryLogo=window.EMBEDDED_ASSETS?.['logo.webp'];
+if(fullNurseryLogo){
+ window.OZ_LOGO=fullNurseryLogo;
+ const current=document.querySelector('#ozFreeLogo img');
+ if(current && !window.OZ_PUBLIC_LOGO_OVERRIDE) current.src=fullNurseryLogo;
+}
+
 const root=document.createElement('div');root.id='simpleEdit';root.innerHTML=`<button id="seLaunch" type="button">✎ Редактор</button><div id="sePanel"><div class="seHead"><b>Редактор логотипа и текста</b><span class="seHeadButtons"><button id="seMin" type="button" title="Свернуть">−</button><button id="seClose" type="button" title="Закрыть">×</button></span></div><p>Нажми на надпись или логотип. Перетаскивай выбранное мышью.</p><div id="seSelected">Выбери элемент на сайте</div><label>Размер <input id="seSize" type="range" min="8" max="240" value="30"><output id="seSizeValue">30</output></label><label>По горизонтали (px)<input id="seX" type="number" value="0"></label><label>По вертикали (px)<input id="seY" type="number" value="0"></label><label>Текст<textarea id="seText" rows="2" placeholder="Выбери текст"></textarea></label><button id="seSave" type="button">Опубликовать для всех</button><div id="seStatus">Черновик сохраняется в браузере. Нажмите «Опубликовать для всех», чтобы обновить сайт.</div></div>`;document.body.appendChild(root);
 const logoTools=document.createElement('div');logoTools.id='seLogoTools';logoTools.innerHTML='<label style="display:block;margin:12px 0 7px">Логотип сайта</label><input type="file" id="seLogoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="max-width:100%;margin-bottom:8px"><button type="button" id="seLogoRemove">Удалить логотип</button><button type="button" id="seLogoRestore">Вернуть исходный</button><small style="display:block;margin-top:8px">PNG, JPG, WebP или SVG, до 15 МБ. Размер автоматически оптимизируется. Нажмите «Опубликовать для всех», чтобы изменения увидели посетители.</small>';
 root.querySelector('#seSave').before(logoTools);
@@ -17,7 +26,7 @@ const applyOne=(key,d)=>{try{let e=document.querySelector(key);if(!e)return;setP
 const applyLogo=()=>{window.OZ_PUBLIC_LOGO_OVERRIDE=logoAsset;const e=document.querySelector('#ozFreeLogo'),im=e?.querySelector('img');if(!e||!im)return;
  if(logoAsset==='hidden'){e.style.setProperty('display','none','important');return;}
  e.style.removeProperty('display');
- const src=logoAsset||'/ozerskiy-header-logo.png';if(im.getAttribute('src')!==src)im.src=src;
+ const src=logoAsset||(fullNurseryLogo||'/ozerskiy-header-logo.png');if(im.getAttribute('src')!==src)im.src=src;
 };
 const applyRecords=()=>{for(const [key,d] of Object.entries(records))applyOne(key,d);applyLogo()};
 $('seLogoFile').addEventListener('change',async ev=>{const file=ev.target.files?.[0];if(!file)return;
