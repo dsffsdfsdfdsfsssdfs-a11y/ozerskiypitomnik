@@ -66,7 +66,7 @@ const mobileCss=(data)=>Object.entries(data||{}).filter(([k,v])=>k.startsWith('m
  const children=(v.size!=null&&/ozFreeLogo/i.test(sel))?target+' img{width:100%!important;height:auto!important;max-width:none!important}':'';
  return target+'{'+css.join(';')+'}'+children;
 }).join('\n');
-const installMobileCss=(doc,data,id='ozPublishedMobileOverrides')=>{try{let st=doc.getElementById(id);if(!st){st=doc.createElement('style');st.id=id;doc.head.appendChild(st)}st.textContent='@media(max-width:900px){'+mobileCss(data)+'}';for(const [key,d] of Object.entries(data||{})){if(!key.startsWith('mobile::')||d.text===undefined)continue;const el=doc.querySelector(key.slice(8));if(el&&!el.children.length&&doc.defaultView.innerWidth<=900)el.textContent=d.text}}catch(e){console.warn('Mobile CSS:',e)}};
+const installMobileCss=(doc,data,id='ozPublishedMobileOverrides')=>{try{let st=doc.getElementById(id);if(!st){st=doc.createElement('style');st.id=id;doc.head.appendChild(st)}st.textContent='@media(max-width:900px){'+mobileCss(data)+'}';for(const [key,d] of Object.entries(data||{})){if(!key.startsWith('mobile::')||d.text==null)continue;const el=doc.querySelector(key.slice(8));if(el&&!el.children.length&&doc.defaultView.innerWidth<=900)el.textContent=d.text}}catch(e){console.warn('Mobile CSS:',e)}};
 
 const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.startsWith('mobile::'))applyOne(key,d);applyLogo();installMobileCss(document,records)};
 $('seLogoFile').addEventListener('change',async ev=>{const file=ev.target.files?.[0];if(!file)return;
