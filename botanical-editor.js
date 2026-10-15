@@ -69,6 +69,7 @@ const mobileCss=(data)=>Object.entries(data||{}).filter(([k,v])=>k.startsWith('m
 }).join('\n');
 const mobileLogoKey='mobile::#ozCustomMobileLogo';
 const renderMobileLogo=(doc)=>{
+ if(OZ_MOBILE_PREVIEW)return;
  if(!doc?.body||doc.defaultView?.innerWidth>900)return;
  let el=doc.getElementById('ozCustomMobileLogo');
  if(!mobileLogoAsset){el?.remove();return}
