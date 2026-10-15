@@ -21,7 +21,6 @@ try{
 document.documentElement.classList.remove('oz-public-ready');
 let finished=false;
 const finishLoading=()=>{if(finished)return;finished=true;document.documentElement.classList.add('oz-public-ready')};
-setTimeout(finishLoading,4500);
 // The original full nursery logo (with the name) is bundled in the page.
 // The former pinned file contained only the greenhouse pictogram.
 const fullNurseryLogo=window.EMBEDDED_ASSETS?.['logo.webp'];
@@ -72,7 +71,7 @@ $('seLogoFile').addEventListener('change',async ev=>{const file=ev.target.files?
 });
 $('seLogoRemove').onclick=()=>{logoAsset='hidden';applyLogo();$('seStatus').textContent='Логотип скрыт. Для сохранения нажми «Опубликовать для всех».'};
 $('seLogoRestore').onclick=()=>{logoAsset=null;applyLogo();$('seStatus').textContent='Исходный логотип восстановлен. Нажми «Опубликовать для всех».'};
-(async()=>{try{const res=await fetch('/api/site-settings?fresh='+Date.now(),{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const data=await res.json();records=data.records||{};logoAsset=data.logo??null;applyRecords();applyLater();$('seStatus').textContent=data.published?'Опубликованная версия загружена с сервера':'Сервер готов. Публичных правок пока нет.'}catch(err){$('seStatus').textContent='Сервер недоступен: '+err.message}finally{finishLoading()}})();
+(async()=>{try{const res=await fetch('/api/site-settings?fresh='+Date.now(),{cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const data=await res.json();const nextLogo=data.logo??null;if(nextLogo&&nextLogo!=='hidden'){const pre=new Image();pre.src=nextLogo;try{if(pre.decode)await pre.decode();else await new Promise((ok,bad)=>{pre.onload=ok;pre.onerror=bad})}catch{}}records=data.records||{};logoAsset=nextLogo;applyRecords();applyLater();try{if(document.fonts?.ready)await document.fonts.ready}catch{}await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));$('seStatus').textContent=data.published?'Опубликованная версия загружена с сервера':'Сервер готов. Публичных правок пока нет.';finishLoading()}catch(err){$('seStatus').textContent='Сервер недоступен: '+err.message;applyRecords();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));finishLoading()}})();
 for(const [key,d] of Object.entries(records)){try{let e=document.querySelector(key);if(!e)continue;setPos(e,d.x||0,d.y||0);if(d.size){if(isAction(e)){setActionSize(e,d.size)}else if(isLogo(e))e.style.setProperty('width',d.size+'px','important');else e.style.setProperty('font-size',d.size+'px','important')}if(d.text!==null&&d.text!==undefined&&!e.children.length)e.textContent=d.text}catch{}}
 let panelPos=null;
 const head=panel.querySelector('.seHead');
