@@ -310,5 +310,32 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  }catch(err){status('Не удалось сохранить: '+err.message)}
 };
 })();
+(()=>{const install=()=>{
+ if(innerWidth>900)return;
+ const nav=document.querySelector('#ozCombinedHeader #mainNav')||document.querySelector('#mainNav');
+ const helper=document.querySelector('#ozHelper13 .oz-helper-panel');
+ if(!nav||!helper)return;
+ let section=helper.querySelector('#ozMobileHelperNav');
+ if(!section){
+  section=document.createElement('nav');section.id='ozMobileHelperNav';
+  section.setAttribute('aria-label','Разделы сайта');
+  section.style.cssText='display:grid;gap:5px;padding:12px;margin:8px 0;border-top:1px solid rgba(33,83,49,.18);';
+  const title=document.createElement('strong');title.textContent='Разделы сайта';title.style.cssText='font-size:14px;color:#28543b;margin-bottom:4px';section.appendChild(title);
+  helper.appendChild(section);
+ }
+ const links=Array.from(nav.querySelectorAll('a[href]')).filter(a=>a.textContent.trim());
+ for(const a of links){
+  const label=a.textContent.trim(),href=a.getAttribute('href');
+  if(section.querySelector('a[href="'+CSS.escape(href)+'"]'))continue;
+  const copy=document.createElement('a');copy.href=href;copy.textContent=label;
+  copy.style.cssText='display:block;padding:11px 13px;border-radius:11px;background:#f1f7ef;color:#265139;font-weight:650;text-decoration:none;font-size:14px;';
+  section.appendChild(copy);
+ }
+ };
+ const style=document.createElement('style');style.id='oz-mobile-helper-navigation';
+ style.textContent='@media(max-width:900px){#ozCombinedHeader #mainNav,#mainNav{display:none!important;visibility:hidden!important;pointer-events:none!important}#ozCombinedHeader .header{margin-bottom:10px!important}#ozMobileHelperNav{display:grid!important}}@media(min-width:901px){#ozMobileHelperNav{display:none!important}}';
+ document.head.appendChild(style);
+ install();new MutationObserver(install).observe(document.body,{childList:true,subtree:true});window.addEventListener('resize',install,{passive:true});
+})();
 (()=>{const style=document.createElement('style');style.id='oz-mobile-fix-oct2026';style.textContent="\n/* Mobile responsive layout: the public header is assembled at runtime. */\n@media(max-width:900px){\n html,body{max-width:100%!important;overflow-x:clip!important}\n #ozCombinedHeader{width:100%!important;max-width:100vw!important}\n #ozCombinedHeader .header{margin-bottom:54px!important;overflow:visible!important}\n #ozCombinedHeader .header .header-in{width:100%!important;max-width:100%!important;height:82px!important;min-height:82px!important;padding:0 12px!important;gap:0!important;position:relative!important}\n #ozCombinedHeader .header .header-in #ozFreeLogo{position:absolute!important;left:50%!important;top:50%!important;width:clamp(115px,32vw,150px)!important;max-width:38vw!important;transform:translate(-50%,-50%)!important;translate:none!important;z-index:180!important}\n #ozCombinedHeader .header .header-in #ozFreeLogo img{width:100%!important;height:auto!important;object-fit:contain!important}\n #ozCombinedHeader #mainNav{position:absolute!important;display:flex!important;left:0!important;right:0!important;top:calc(100% + 8px)!important;bottom:auto!important;width:100%!important;height:44px!important;min-height:44px!important;align-items:center!important;justify-content:flex-start!important;gap:22px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:0 18px!important;margin:0!important;background:rgba(255,255,255,.94)!important;border-radius:13px!important;box-shadow:0 5px 12px rgba(24,66,42,.07)!important;pointer-events:auto!important;scrollbar-width:none!important;white-space:nowrap!important}\n #ozCombinedHeader #mainNav::-webkit-scrollbar{display:none}\n #ozCombinedHeader #mainNav>a{position:static!important;display:inline-flex!important;align-items:center!important;transform:none!important;translate:none!important;scale:1!important;left:auto!important;top:auto!important;margin:0!important;padding:8px 0!important;font-size:13px!important;line-height:1.2!important;white-space:nowrap!important;flex:0 0 auto!important}\n #ozCombinedHeader .header .header-in .brand,#ozCombinedHeader .header .header-in .header-actions{display:none!important}\n #ozDottedActions{padding:0 7px!important;pointer-events:none!important}\n #ozDottedActions .oz-v13-wrap{flex:0 0 48px!important}\n #ozDottedActions .oz-v13-btn{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}\n #ozDottedActions svg{width:22px!important;height:22px!important}\n #ozHelper13{right:66px!important;top:50%!important;transform:translateY(-50%)!important}\n #ozHelperToggle{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}\n #ozHelper13 .oz-helper-panel{right:-58px!important;max-width:min(350px,calc(100vw - 22px))!important;width:calc(100vw - 22px)!important}\n .hero{padding-top:20px!important}\n .hero h1,.hero .hero-title{font-size:clamp(43px,10vw,68px)!important;line-height:1.07!important;letter-spacing:-.055em!important;max-width:100%!important;overflow-wrap:normal!important}\n .hero p{font-size:clamp(14px,3.65vw,17px)!important;line-height:1.55!important}\n .hero .wrap{width:100%!important;max-width:100%!important;padding-left:18px!important;padding-right:18px!important}\n .hero img{max-width:100%!important;height:auto}\n #seLaunch{right:12px!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;font-size:12px!important;padding:10px 14px!important}\n}\n@media(max-width:480px){\n #ozCombinedHeader .header .header-in #ozFreeLogo{width:135px!important;max-width:35vw!important}\n .hero h1,.hero .hero-title{font-size:clamp(40px,10.2vw,52px)!important}\n .hero .wrap{padding-left:16px!important;padding-right:16px!important}\n}\n";style.textContent+='\n@media(max-width:900px){#ozFreeLogo,#ozCombinedHeader #ozFreeLogo,#ozCombinedHeader .header .header-in #ozFreeLogo{display:none!important;visibility:hidden!important}}';document.head.appendChild(style);applyMobileDirect(document,records);})();
 })();
