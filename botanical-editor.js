@@ -139,9 +139,27 @@ document.addEventListener('pointerup',e=>{if(drag&&e.pointerId===drag.id){save()
  const down=e=>{if(e.button!==0)return;let el=candidates(e.target)||e.target.closest('img,nav,section');if(!el)return;e.preventDefault();e.stopImmediatePropagation();pick(el);dragging={id:e.pointerId,startX:e.clientX,startY:e.clientY,x:Number(record().x||0),y:Number(record().y||0)};try{el.setPointerCapture(e.pointerId)}catch{}};
  const move=e=>{if(!dragging||e.pointerId!==dragging.id||!element)return;e.preventDefault();const dx=Math.round(e.clientX-dragging.startX),dy=Math.round(e.clientY-dragging.startY);const x=dragging.x+dx,y=dragging.y+dy;element.style.setProperty('translate',x+'px '+y+'px','important');$m('smX').value=x;$m('smY').value=y};
  const up=e=>{if(!dragging||e.pointerId!==dragging.id)return;dragging=null;commit({x:Number($m('smX').value)||0,y:Number($m('smY').value)||0})};
- const attach=()=>{try{const doc=frame.contentDocument;doc.addEventListener('pointerdown',down,true);doc.addEventListener('pointermove',move,true);doc.addEventListener('pointerup',up,true);doc.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);refresh();initialized=true;status('Нажмите на элемент и двигайте его прямо в предпросмотре.')}catch(e){status('Ошибка предпросмотра: '+e.message)}};
+ const attach=()=>{try{const doc=frame.contentDocument;if(!doc||!doc.body)throw Error('Сайт ещё не загружен');doc.addEventListener('pointerdown',down,true);doc.addEventListener('pointermove',move,true);doc.addEventListener('pointerup',up,true);doc.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation()},true);refresh();initialized=true;status('Нажмите на элемент и двигайте его прямо в предпросмотре.')}catch(e){status('Ошибка предпросмотра: '+e.message)}};
+ const previewHTML=()=>{
+   // Clone the rendered public site rather than reopening the page. A second
+   // navigation can be blocked or show an empty shell before site hydration.
+   const clone=document.documentElement.cloneNode(true);
+   clone.querySelectorAll('#simpleEdit,#seMobileDrawer,#seLogoTools,#seLaunch,#sePanel,.sePicked,script,iframe').forEach(el=>el.remove());
+   clone.classList.add('oz-public-ready');
+   clone.classList.remove('seOpen','seCollapsed');
+   const head=clone.querySelector('head');
+   if(head){const base=document.createElement('base');base.href=location.href;head.prepend(base)}
+   return '<!doctype html>'+clone.outerHTML;
+ };
+ const loadPreview=()=>{
+   initialized=false;element=null;selected=null;
+   status('Загружаю предпросмотр сайта…');
+   frame.removeAttribute('src');
+   frame.setAttribute('sandbox','allow-same-origin');
+   frame.srcdoc=previewHTML();
+ };
  frame.addEventListener('load',attach);
- trigger.onclick=()=>{drawer.classList.add('smVisible');phone.style.width=$m('smDevice').value+'px';if(!initialized)frame.src=location.pathname+'?oz-mobile-preview=1'};
+ trigger.onclick=()=>{drawer.classList.add('smVisible');phone.style.width=$m('smDevice').value+'px';loadPreview()};
  $m('smClose').onclick=()=>{drawer.classList.remove('smVisible');if(element)element.classList.remove('smPicked');element=null;selected=null};
  $m('smDevice').onchange=e=>{phone.style.width=e.target.value+'px';setTimeout(refresh,50)};
  $m('smSize').oninput=e=>{const size=Number(e.target.value);$m('smSizeOut').textContent=size+' px';commit({size})};
