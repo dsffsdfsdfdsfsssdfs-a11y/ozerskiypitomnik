@@ -1,5 +1,23 @@
 (()=>{'use strict';
 
+// Load the published assistant avatar; site visitors cannot edit it.
+(()=>{
+ const apply=async()=>{
+  try{
+   const response=await fetch('/api/helper-avatar',{cache:'no-store'});
+   if(!response.ok)return;
+   const data=await response.json();
+   if(typeof data.image!=='string'||!data.image.startsWith('data:image/png;base64,'))return;
+   const img=document.querySelector('#ozHelper13 .oz-h-avatar img');
+   if(!img)return;
+   img.src=data.image;img.removeAttribute('srcset');
+  }catch(err){console.warn('Assistant avatar:',err)}
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(apply,0)});
+ else apply();
+})();
+
+
 // Align the nursery assistant avatar precisely in its circular 42px holder.
 (()=>{
  const style=document.createElement('style');
