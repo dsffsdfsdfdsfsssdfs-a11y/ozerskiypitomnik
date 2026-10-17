@@ -1,86 +1,60 @@
 (()=>{'use strict';
 
-// Compact chat layout: keep composer visible, scroll only the answer history.
+
+// Fixed compact help: four questions, answer, contacts and composer all in view.
 (function(){
-const style=document.createElement('style');style.id='oz-compact-chat-fixed';
-style.textContent=String.raw`
-#ozHelper13 .oz-helper-panel{height:min(422px,calc(100dvh - 32px))!important;max-height:min(422px,calc(100dvh - 32px))!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important}
-#ozHelper13 .oz-layout-chat-stage{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
-#ozHelper13 .oz-layout-chat-feed{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin!important}
-#ozHelper13 .oz-q-box{order:99!important;flex:0 0 auto!important;margin:0!important;padding:9px!important;border-radius:0 0 14px 14px!important;border-left:0!important;border-right:0!important;border-bottom:0!important;box-shadow:0 -3px 12px #153d2220!important;background:#f1f5e9!important}
-#ozHelper13 .oz-q-box .oz-q-label{display:none!important}
-#ozHelper13 .oz-q-box .oz-q-row{display:flex!important;align-items:center!important}
-#ozHelper13 .oz-q-box .oz-q-log{display:none!important}
-#ozHelper13 .oz-layout-chat-feed .oz-q-log{display:flex!important;max-height:none!important;overflow:visible!important;margin:6px 0!important;gap:6px!important}
-#ozHelper13 .oz-layout30-contacts{flex:0 0 auto!important;margin:4px auto 7px!important;gap:12px!important}
-#ozHelper13 .oz-layout30-brand{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;flex-basis:36px!important}
-#ozHelper13 .oz-layout30-brand svg{width:20px!important;height:20px!important}
-#ozHelper13 .oz-q-input{height:38px!important}
-`;
-document.head.appendChild(style);
-function layout(){
+const style=document.createElement('style');style.id='oz-compact-one-screen';
+style.textContent=[
+'#ozHelper13 .oz-helper-panel{width:322px!important;max-width:calc(100vw - 22px)!important;height:410px!important;max-height:calc(100dvh - 26px)!important;overflow:hidden!important;box-sizing:border-box!important;padding:0!important}',
+'#ozHelper13 .oz-one-screen{height:100%;width:100%;display:flex;flex-direction:column;gap:7px;padding:12px;box-sizing:border-box;background:white;overflow:hidden}',
+'#ozHelper13 .oz-one-head{display:flex;justify-content:space-between;align-items:center;color:#294d3a;font-size:14px;font-weight:700;flex:none;padding:3px 0 7px;border-bottom:1px solid #dbe9de}',
+'#ozHelper13 .oz-one-head small{font-size:11px;color:#4c8460;font-weight:600}',
+'#ozHelper13 .oz-one-questions{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:none}',
+'#ozHelper13 .oz-one-questions>*{display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;min-height:44px!important;height:44px!important;padding:4px 5px!important;margin:0!important;font-size:11px!important;line-height:1.2!important;box-sizing:border-box!important;border-radius:10px!important;overflow:hidden!important}',
+'#ozHelper13 .oz-one-answer{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}',
+'#ozHelper13 .oz-one-answer .oz-h-reply,#ozHelper13 .oz-one-answer #ozHelperReply{padding:9px!important;margin:0!important;box-sizing:border-box!important;min-height:0!important;flex:1!important;max-height:none!important;overflow-y:auto!important;font-size:12px!important;line-height:1.4!important;border-radius:11px!important}',
+'#ozHelper13 .oz-one-answer .oz-q-log{min-height:0!important;flex:1!important;display:flex!important;flex-direction:column!important;gap:6px!important;overflow-y:auto!important;max-height:none!important;margin:0!important}',
+'#ozHelper13 .oz-one-socials{display:flex;gap:14px;justify-content:center;align-items:center;flex:0 0 34px}',
+'#ozHelper13 .oz-one-socials a{width:34px;height:34px;min-width:34px;min-height:34px;display:grid;place-items:center;border-radius:50%;color:white;font-size:15px;font-weight:800;text-decoration:none;overflow:hidden}',
+'#ozHelper13 .oz-one-socials .oz-vk{background:#0077ff}#ozHelper13 .oz-one-socials .oz-tg{background:#28a8e9}',
+'#ozHelper13 .oz-one-socials svg{width:22px;height:22px;fill:#fff}',
+'#ozHelper13 .oz-one-screen .oz-q-box{margin:0!important;padding:0!important;box-shadow:none!important;border:0!important;background:transparent!important;flex:none!important;order:0!important}',
+'#ozHelper13 .oz-one-screen .oz-q-label{display:none!important}',
+'#ozHelper13 .oz-one-screen .oz-q-row{display:flex!important;gap:6px!important}',
+'#ozHelper13 .oz-one-screen .oz-q-input{height:38px!important;font-size:12px!important}',
+'#ozHelper13 .oz-one-screen .oz-q-button{width:38px!important;height:38px!important;min-width:38px!important;flex:0 0 38px!important;border-radius:50%!important;padding:0!important;display:grid!important;place-items:center!important;font-size:0!important}',
+'#ozHelper13 .oz-one-screen .oz-q-button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
+'#ozHelper13 .oz-one-screen .oz-q-box .oz-q-log{display:none!important}'
+].join('\n');document.head.appendChild(style);
+const names=['Помощь с выбором растений','Как оформить заказ?','Доставка и самовывоз','Связаться с нами'];
+const vk='<svg viewBox="0 0 24 24"><path d="M12.8 17.5h-1.3c-4.2 0-6.6-2.9-7.6-8.6-.1-.5.1-.8.6-.8h2.1c.4 0 .6.2.7.6.8 2.4 1.6 3.9 2.4 4.1.3.1.4-.1.4-.6V9.4c-.1-.7-.4-.9-.7-1-.2 0-.2-.2 0-.4.3-.3.8-.4 1.5-.4h1.7c.5 0 .7.3.7.9v3.8c0 .4.2.5.4.4.8-.4 1.6-1.9 2.2-4.1.1-.3.4-.5.8-.5h2.1c.6 0 .7.3.5.8-.5 1.7-2.1 3.8-2.1 3.8-.2.3-.2.5 0 .8.2.2 1 .9 1.5 1.5.6.7 1.1 1.3 1.2 1.8.1.5-.2.7-.7.7h-2.3c-.4 0-.6-.2-.9-.6-.5-.7-1-1.4-1.5-1.5-.3 0-.4.2-.4.5v1c0 .4-.2.6-.6.6z"/></svg>';
+const tg='<svg viewBox="0 0 24 24"><path d="M21.8 4.2 18.5 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.2L18.2 6c.4-.4-.1-.6-.6-.3L5.9 13.1.9 11.5c-1.1-.4-1.1-1.1.2-1.6L20.4 2.5c.9-.3 1.7.2 1.4 1.7z"/></svg>';
+function apply(){
 const root=document.getElementById('ozHelper13');if(!root)return;
-const panel=root.querySelector('.oz-helper-panel'),composer=root.querySelector('.oz-q-box');
-if(!panel||!composer)return;
-let stage=panel.querySelector('.oz-layout-chat-stage');
-if(!stage){
- stage=document.createElement('div');stage.className='oz-layout-chat-stage';
- const feed=document.createElement('div');feed.className='oz-layout-chat-feed';
- const children=[...panel.children].filter(el=>el!==composer);
- children.forEach(el=>feed.appendChild(el));
- stage.appendChild(feed);panel.insertBefore(stage,composer);
+const panel=root.querySelector('.oz-helper-panel'),box=root.querySelector('.oz-q-box');if(!panel||!box||panel.querySelector('.oz-one-screen'))return;
+const candidates=names.map(name=>[...root.querySelectorAll('button,a,[role="button"],[onclick],div')].filter(el=>el.textContent.trim()===name&&!el.closest('.oz-q-box')).sort((a,b)=>a.querySelectorAll('*').length-b.querySelectorAll('*').length)[0]);
+if(candidates.filter(Boolean).length<3)return;
+const links=[...root.querySelectorAll('a[href]')];const urls=[
+ links.find(el=>/vk\.com|вконтакте/i.test((el.href||'')+' '+el.textContent)),
+ links.find(el=>/t\.me|telegram|телеграм/i.test((el.href||'')+' '+el.textContent))
+];
+const shell=document.createElement('div');shell.className='oz-one-screen';
+const head=document.createElement('div');head.className='oz-one-head';head.innerHTML='<span>Озёрский питомник</span><small>На связи</small>';
+const questions=document.createElement('div');questions.className='oz-one-questions';
+candidates.forEach(el=>{if(el)questions.appendChild(el)});
+const answer=document.createElement('div');answer.className='oz-one-answer';
+const reply=root.querySelector('.oz-h-reply,#ozHelperReply');if(reply)answer.appendChild(reply);
+const log=box.querySelector('.oz-q-log');if(log)answer.appendChild(log);
+const socials=document.createElement('div');socials.className='oz-one-socials';
+urls.forEach((src,i)=>{if(!src)return;const a=document.createElement('a');a.href=src.href;a.target='_blank';a.rel='noopener noreferrer';a.setAttribute('aria-label',i===0?'ВКонтакте':'Telegram');a.className=i===0?'oz-vk':'oz-tg';a.innerHTML=i===0?vk:tg;socials.appendChild(a)});
+const send=box.querySelector('.oz-q-button');if(send)send.innerHTML='<svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4 12h9a7 7 0 0 1 7 7"/></svg>';
+shell.append(head,questions,answer,socials,box);
+[...panel.children].forEach(el=>{el.style.display='none'});
+panel.appendChild(shell);box.style.display='';
 }
-const feed=stage.querySelector('.oz-layout-chat-feed'),log=composer.querySelector('.oz-q-log');
-if(log&&log.parentElement!==feed)feed.appendChild(log);
-if(composer.parentElement!==panel)panel.appendChild(composer);
-}
-function start(){layout();let busy=false;const ob=new MutationObserver(()=>{if(busy)return;busy=true;ob.disconnect();layout();ob.observe(document.body,{subtree:true,childList:true});busy=false});ob.observe(document.body,{subtree:true,childList:true})}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+function begin(){apply();const mo=new MutationObserver(()=>{if(!document.querySelector('#ozHelper13 .oz-one-screen'))apply()});mo.observe(document.body,{subtree:true,childList:true});setInterval(apply,1500)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 })();
-
-
-// Layout #30: compact assistant with circular VK/TG and curved reply button.
-(function(){
-const style=document.createElement('style');style.id='oz-layout-30-style';
-style.textContent=String.raw`
-#ozHelper13 .oz-helper-panel{width:322px!important;max-width:calc(100vw - 20px)!important;box-sizing:border-box!important;max-height:min(422px,calc(100dvh - 40px))!important;overflow-y:auto!important}
-#ozHelper13 .oz-q-box{margin:8px 0 0!important;padding:8px!important;border-radius:12px!important;background:#f1f5e9!important}
-#ozHelper13 .oz-q-label{font-size:11px!important;margin-bottom:5px!important}
-#ozHelper13 .oz-q-row{align-items:center!important}
-#ozHelper13 .oz-q-input{min-height:36px!important;padding:7px 10px!important}
-#ozHelper13 .oz-q-button{height:36px!important;width:36px!important;min-width:36px!important;padding:7px!important;display:grid!important;place-items:center!important;border-radius:50%!important}
-#ozHelper13 .oz-q-button svg{width:20px!important;height:20px!important;fill:none!important;stroke:currentColor!important;stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
-#ozHelper13 .oz-q-log{max-height:126px!important;overflow-y:auto!important;margin-top:6px!important}
-#ozHelper13 .oz-layout30-contacts{display:flex!important;gap:12px!important;justify-content:center!important;align-items:center!important;margin:9px auto 2px!important}
-#ozHelper13 .oz-layout30-brand{display:grid!important;place-items:center!important;flex:0 0 42px!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;max-width:42px!important;max-height:42px!important;aspect-ratio:1/1!important;border-radius:50%!important;overflow:hidden!important;box-shadow:0 2px 6px #193a2222!important}
-#ozHelper13 .oz-layout30-brand.vk{background:#0077ff!important}
-#ozHelper13 .oz-layout30-brand.tg{background:#28a8e9!important}
-#ozHelper13 .oz-layout30-brand svg{display:block!important;width:23px!important;height:23px!important;flex:none!important;fill:#fff!important}
-#ozHelper13 .oz-layout30-hidden{display:none!important}
-`;
-document.head.appendChild(style);
-const vk='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.8 17.5h-1.3c-4.2 0-6.6-2.9-7.6-8.6-.1-.5.1-.8.6-.8h2.1c.4 0 .6.2.7.6.8 2.4 1.6 3.9 2.4 4.1.3.1.4-.1.4-.6V9.4c-.1-.7-.4-.9-.7-1-.2 0-.2-.2 0-.4.3-.3.8-.4 1.5-.4h1.7c.5 0 .7.3.7.9v3.8c0 .4.2.5.4.4.8-.4 1.6-1.9 2.2-4.1.1-.3.4-.5.8-.5h2.1c.6 0 .7.3.5.8-.5 1.7-2.1 3.8-2.1 3.8-.2.3-.2.5 0 .8.2.2 1 .9 1.5 1.5.6.7 1.1 1.3 1.2 1.8.1.5-.2.7-.7.7h-2.3c-.4 0-.6-.2-.9-.6-.5-.7-1-1.4-1.5-1.5-.3 0-.4.2-.4.5v1c0 .4-.2.6-.6.6z"/></svg>';
-const tg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.8 4.2 18.5 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.2L18.2 6c.4-.4-.1-.6-.6-.3L5.9 13.1.9 11.5c-1.1-.4-1.1-1.1.2-1.6L20.4 2.5c.9-.3 1.7.2 1.4 1.7z"/></svg>';
-const reply='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5M4 12h9a7 7 0 0 1 7 7"/></svg>';
-function install(){
-const root=document.getElementById('ozHelper13');if(!root)return;
-const box=root.querySelector('.oz-q-box');const panel=root.querySelector('.oz-helper-panel');if(!box||!panel)return;
-const send=box.querySelector('.oz-q-button');if(send&&!send.dataset.layout30){send.innerHTML=reply;send.dataset.layout30='yes';send.title='Отправить вопрос'}
-if(panel.querySelector('.oz-layout30-contacts'))return;
-const links=[...root.querySelectorAll('a[href]')].filter(a=>!a.closest('.oz-q-box'));
-const find=(kind)=>links.find(a=>{const s=((a.textContent||'')+' '+a.getAttribute('href')+' '+(a.getAttribute('aria-label')||'')+' '+(a.className||'')).toLowerCase();return kind==='vk'?/vk.com|вконтакте|oz.*vk/.test(s):/t.me|telegram|телеграм/.test(s)});
-const contacts=document.createElement('div');contacts.className='oz-layout30-contacts';
-let count=0;
-for(const [name,source,svg] of [['vk',find('vk'),vk],['tg',find('tg'),tg]]){
- if(!source)continue;
- const a=document.createElement('a');a.className='oz-layout30-brand '+name;a.href=source.href;a.target=source.target||'_blank';a.rel='noopener noreferrer';a.setAttribute('aria-label',name==='vk'?'ВКонтакте':'Telegram');a.innerHTML=svg;contacts.appendChild(a);count++;
-}
-if(count){box.parentNode.insertBefore(contacts,box);links.forEach(a=>{if(a===find('vk')||a===find('tg')){let p=a;while(p.parentElement&&p.parentElement!==panel&&p.parentElement.children.length===1&&!p.parentElement.classList.contains('oz-helper-panel'))p=p.parentElement;p.classList.add('oz-layout30-hidden')}})}
-}
-function start(){install();let busy=false;const ob=new MutationObserver(()=>{if(busy)return;busy=true;ob.disconnect();install();ob.observe(document.body,{childList:true,subtree:true});busy=false});ob.observe(document.body,{childList:true,subtree:true})}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
-
 
 // Searchable FAQ input, tolerant of word forms and typos.
 (function(){
