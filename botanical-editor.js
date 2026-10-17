@@ -2,7 +2,7 @@
 
 // Use one stable circular favicon. Preserve the existing artwork and remove old square icons.
 (()=>{
- const iconPath='/favicon-selected.svg?v=20261017-2';
+ const iconPath='/favicon-selected.svg?v=20261017-3';
  const normalize=()=>{
   const icons=[...document.head.querySelectorAll('link[rel~="icon"]')];
   let main=document.getElementById('oz-round-favicon');
