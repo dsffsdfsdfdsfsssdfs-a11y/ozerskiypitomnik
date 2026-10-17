@@ -1,4 +1,26 @@
 (()=>{'use strict';
+
+// Use one stable circular favicon. Preserve the existing artwork and remove old square icons.
+(()=>{
+ const iconPath='/favicon-round.svg?v=20261017';
+ const normalize=()=>{
+  const icons=[...document.head.querySelectorAll('link[rel~="icon"]')];
+  let main=document.getElementById('oz-round-favicon');
+  if(!main){
+   main=document.createElement('link');
+   main.id='oz-round-favicon';
+   main.rel='icon';
+   main.type='image/svg+xml';
+   document.head.appendChild(main);
+  }
+  if(main.getAttribute('href')!==iconPath)main.setAttribute('href',iconPath);
+  for(const icon of icons)if(icon!==main)icon.remove();
+ };
+ normalize();
+ const observer=new MutationObserver(normalize);
+ observer.observe(document.head,{childList:true,subtree:false,attributes:true,attributeFilter:['href','rel']});
+})();
+
 // Public-only layout and published site settings. Editor and admin UI removed.
 const OZ_MOBILE_PREVIEW=false;
 try{
