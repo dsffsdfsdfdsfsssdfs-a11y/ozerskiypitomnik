@@ -142,6 +142,7 @@
   field.disabled=!choice;field.value='';
   field.placeholder=choice==='ВКонтакте'?'Ссылка на страницу VK (vk.com/...)':choice==='Telegram'?'Ваш @username в Telegram':choice==='MAX'?'Ссылка или ID вашего профиля MAX':'Выберите способ связи';
  }));
+ form.querySelector('#ozContactValue').addEventListener('input',e=>e.target.setCustomValidity(''));
  form.querySelector('#ozCheckoutForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!items.length)return;
