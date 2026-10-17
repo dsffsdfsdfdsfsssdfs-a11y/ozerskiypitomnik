@@ -1,5 +1,42 @@
 (()=>{'use strict';
 
+// Hide only the homepage hero photo collage and its floating catalog teaser.
+(()=>{
+ const css=document.createElement('style');css.id='oz-home-no-photo-collage';
+ css.textContent=[
+ '.hero .hero-media,.hero .hero-gallery,.hero .hero-images,.hero .hero-right,.hero .hero-visual,.hero .hero-art,.hero .hero-collage{display:none!important}',
+ '.hero .hero-in,.hero .hero-inner,.hero .hero-grid,.hero>.wrap{grid-template-columns:minmax(0,1fr)!important}',
+ '.hero .hero-content,.hero .hero-copy,.hero .hero-text{max-width:880px!important;width:100%!important}',
+ '.hero .hero-image-card,.hero .hero-catalog-card{display:none!important}'
+ ].join('\n');document.head.appendChild(css);
+ const start=()=>{
+  const hero=document.querySelector('.hero');if(!hero)return;
+  const targets=[...hero.querySelectorAll('img')];
+  const groups=new Map();
+  targets.forEach(img=>{
+   let el=img;
+   for(let depth=0;depth<5&&el.parentElement&&el.parentElement!==hero;depth++){
+    el=el.parentElement;
+    const n=el.querySelectorAll('img').length;
+    if(n>=3){groups.set(el,n);break}
+   }
+  });
+  const candidates=[...groups].sort((a,b)=>b[1]-a[1]);
+  for(const [el] of candidates){
+   if(el.contains(hero.querySelector('h1')))continue;
+   const rect=el.getBoundingClientRect(),hr=hero.getBoundingClientRect();
+   if(rect.width>=200&&rect.left>hr.left+hr.width*.30){
+    el.style.setProperty('display','none','important');
+    break;
+   }
+  }
+  const parent=hero.querySelector('h1')?.parentElement;
+  if(parent)parent.style.setProperty('max-width','880px','important');
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 
 // Independent central cart v2. Does not reuse, move, or modify the old drawer.
 (()=>{
