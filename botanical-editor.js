@@ -3,11 +3,11 @@
 
 // Independent central cart v2. Does not reuse, move, or modify the old drawer.
 (()=>{
+ // Cart is deliberately kept in memory only: fresh visit starts empty.
  const key='oz-new-cart-v2';
- let items=[];try{const old=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(old))items=old.filter(x=>x&&x.name&&Number(x.qty)>0)}catch{}
-
- // The new cart is authoritative; stale old-cart items must not be imported.
- const save=()=>{try{localStorage.setItem(key,JSON.stringify(items))}catch{}};
+ let items=[];
+ try{localStorage.removeItem(key)}catch{}
+ const save=()=>{};
  const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const style=document.createElement('style');style.id='oz-new-cart-css';
  style.textContent=[
@@ -27,12 +27,15 @@
  '#ozNewCartFoot p{font-size:11px;line-height:1.4;color:#728777;margin:0 0 10px}',
  '#ozNewCartOrder{display:block;border:0;background:#194a37;color:white;border-radius:11px;padding:12px 17px;margin:0 auto;font:inherit;font-weight:700;cursor:pointer;max-width:210px}',
  '#ozNewCartOrder:disabled{opacity:.5;cursor:not-allowed}',
+ '#ozNewCartFoot .oz-cart-footer-actions{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}',
+ '#ozNewCartClear{border:1px solid #c8d6c9;background:#fff;color:#526b58;border-radius:11px;padding:11px 13px;font:inherit;font-size:13px;cursor:pointer}',
+ '#ozNewCartClear:hover{background:#f1f5ef}#ozNewCartClear:disabled{opacity:.45;cursor:not-allowed}',
  '#ozNewCartEmpty{text-align:center;padding:48px 12px 28px;color:#688073;font-size:14px}',
  '#ozNewCartCatalog{display:block;background:#e3efe3;color:#1b5038;border:1px solid #a8c6ab;border-radius:10px;margin:15px auto 0;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}',
  'body.oz-new-cart-active [class*="cart-drawer" i],body.oz-new-cart-active [id*="cart-drawer" i]{display:none!important}'
  ].join('\n');document.head.appendChild(style);
  const overlay=document.createElement('div');overlay.id='ozNewCartOverlay';
- overlay.innerHTML='<section id="ozNewCartDialog" role="dialog" aria-modal="true" aria-label="Ваша корзина"><header id="ozNewCartHead"><strong>Ваша корзина <span id="ozNewCartCount"></span></strong><button id="ozNewCartClose" aria-label="Закрыть">×</button></header><div id="ozNewCartItems"></div><footer id="ozNewCartFoot"><p>Добавленные товары не резервируются автоматически. Отправьте заявку питомнику для уточнения наличия и стоимости.</p><button id="ozNewCartOrder">Оформить заказ</button></footer></section>';
+ overlay.innerHTML='<section id="ozNewCartDialog" role="dialog" aria-modal="true" aria-label="Ваша корзина"><header id="ozNewCartHead"><strong>Ваша корзина <span id="ozNewCartCount"></span></strong><button id="ozNewCartClose" aria-label="Закрыть">×</button></header><div id="ozNewCartItems"></div><footer id="ozNewCartFoot"><p>Добавленные товары не резервируются автоматически. Отправьте заявку питомнику для уточнения наличия и стоимости.</p><div class="oz-cart-footer-actions"><button id="ozNewCartClear" type="button">Очистить корзину</button><button id="ozNewCartOrder">Оформить заказ</button></div></footer></section>';
  const mount=()=>{if(!overlay.isConnected)document.body.append(overlay)};
  let previousFocus=null;
  const updateCount=()=>{
@@ -50,7 +53,7 @@
  const render=()=>{
   const list=overlay.querySelector('#ozNewCartItems');
   list.innerHTML=items.length?items.map((x,i)=>'<div class="oz-new-line">'+(x.img?'<img src="'+esc(x.img)+'" alt="'+esc(x.name)+'">':'')+'<div class="oz-new-info"><strong>'+esc(x.name)+'</strong><small>'+(x.price?'Цена: '+esc(x.price):'Цена уточняется')+'</small><div class="oz-new-actions"><button data-cart-i="'+i+'" data-action="minus" aria-label="Уменьшить количество">−</button><b>'+x.qty+'</b><button data-cart-i="'+i+'" data-action="plus" aria-label="Увеличить количество">+</button><button class="oz-remove" data-cart-i="'+i+'" data-action="remove" aria-label="Удалить товар">×</button></div></div></div>').join(''):'<div id="ozNewCartEmpty">Корзина пока пуста. Выберите растения в каталоге.<button type="button" id="ozNewCartCatalog">Перейти в каталог</button></div>';
-  overlay.querySelector('#ozNewCartOrder').disabled=!items.length;updateCount();save();
+  overlay.querySelector('#ozNewCartOrder').disabled=!items.length;overlay.querySelector('#ozNewCartClear').disabled=!items.length;updateCount();save();
  };
  const toastStyle=document.createElement('style');toastStyle.id='oz-order-toast-style';
  toastStyle.textContent='#ozOrderToast{position:fixed;left:50%;bottom:35px;transform:translate(-50%,18px);max-width:min(400px,calc(100vw - 28px));width:max-content;z-index:2147483647;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:#e8ece9;color:#334b40;border:1px solid #cbd4ce;box-shadow:0 12px 34px #14291d22;font-size:13px;line-height:1.45;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease}#ozOrderToast.oz-toast-show{opacity:1;transform:translate(-50%,0)}#ozOrderToast svg{width:26px;height:26px;flex:none;stroke:#4d8064;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}@media(prefers-reduced-motion:reduce){#ozOrderToast{transition:none}}';
@@ -99,6 +102,11 @@
   else if(delta>0)items.push({id,name,img,price,qty:delta});
   items=items.filter(x=>x.qty>0);render();return true;
  };
+ overlay.querySelector('#ozNewCartClear').addEventListener('click',()=>{
+  if(!items.length)return;
+  if(!window.confirm('Удалить все товары из корзины?'))return;
+  items=[];render();
+ });
  overlay.addEventListener('click',e=>{
   if(e.target===overlay||e.target.closest('#ozNewCartClose')){close();return}
   if(e.target.closest('#ozNewCartCatalog')){close();const link=[...document.querySelectorAll('a[href]')].find(a=>/каталог/i.test(a.textContent||'')&&!(a.closest('#ozNewCartOverlay')));const section=document.querySelector('#catalog,#catalogue,[id*="catalog" i]');if(section)section.scrollIntoView({behavior:'smooth',block:'start'});else if(link)link.click();else location.hash='catalog';return}
