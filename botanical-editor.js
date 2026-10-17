@@ -8,10 +8,10 @@
  #ozHelper13 .oz-h-reply,
  #ozHelper13 #ozHelperReply,
  #ozHelper13 .oz-h-reply.oz-answer-cream-final {
-  background:#f3e6ce!important;
-  background-color:#f3e6ce!important;
+  background:#e6edcf!important;
+  background-color:#e6edcf!important;
   background-image:none!important;
-  border-color:#decda9!important;
+  border-color:#b9ca9c!important;
   color:#365343!important;
  }
  `;
