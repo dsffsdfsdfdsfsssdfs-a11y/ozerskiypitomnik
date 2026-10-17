@@ -53,7 +53,7 @@
 // Make the five main header menu labels more legible.
 (()=>{
  const st=document.createElement('style');st.id='oz-header-links-larger';
- st.textContent='html body #ozCombinedHeader a[href*="#catalog"],html body #ozCombinedHeader a[href*="#about"],html body #ozCombinedHeader a[href*="#gallery"],html body #ozCombinedHeader a[href*="#video"],html body #ozCombinedHeader a[href*="#contacts"],html body #mainNav a[href*="#catalog"],html body #mainNav a[href*="#about"],html body #mainNav a[href*="#gallery"],html body #mainNav a[href*="#video"],html body #mainNav a[href*="#contacts"]{font-family:"Neucha",cursive!important;font-size:23px!important;line-height:1.15!important}';
+ st.textContent='html body #ozCombinedHeader a[href*="#catalog"],html body #ozCombinedHeader a[href*="#about"],html body #ozCombinedHeader a[href*="#gallery"],html body #ozCombinedHeader a[href*="#video"],html body #ozCombinedHeader a[href*="#contacts"],html body #mainNav a[href*="#catalog"],html body #mainNav a[href*="#about"],html body #mainNav a[href*="#gallery"],html body #mainNav a[href*="#video"],html body #mainNav a[href*="#contacts"]{font-family:"Neucha",cursive!important;font-size:19px!important;letter-spacing:.055em!important;font-stretch:expanded!important;line-height:1.2!important;white-space:nowrap!important}';
  document.head.appendChild(st);
 })();
 
