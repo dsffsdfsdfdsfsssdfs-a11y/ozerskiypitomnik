@@ -13,6 +13,29 @@
 })();
 
 
+
+// Apply VK typography to the actual helper social card, including non-link titles.
+(()=>{
+ const st=document.createElement('style');st.id='oz-helper-vk-title-font';
+ st.textContent='#ozHelper13 .oz-vk-tile,#ozHelper13 .oz-vk-tile *:not(svg):not(svg *){font-family:"Neucha",cursive!important}#ozHelper13 .oz-vk-tile .oz-vk-title{font-family:"Neucha",cursive!important;font-size:21px!important;font-weight:400!important;line-height:1.12!important;letter-spacing:0!important}';
+ document.head.appendChild(st);
+ const apply=()=>{
+  const root=document.getElementById('ozHelper13');if(!root)return;
+  const nodes=[...root.querySelectorAll('a,button,div,span')];
+  const title=nodes.find(el=>el.children.length===0&&el.textContent.trim()==='ВКонтакте');
+  if(!title)return;
+  title.classList.add('oz-vk-title');
+  const card=title.closest('a,button,[class*="social"],[class*="tile"]');
+  if(card)card.classList.add('oz-vk-tile');
+  title.style.setProperty('font-family','"Neucha",cursive','important');
+  title.style.setProperty('font-size','21px','important');
+  title.style.setProperty('font-weight','400','important');
+  title.style.setProperty('letter-spacing','0','important');
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+ const watcher=new MutationObserver(apply);watcher.observe(document.documentElement,{childList:true,subtree:true});
+})();
+
 // Site-wide Neucha typography (including dynamically added content).
 (()=>{
  const font=document.createElement('link');
