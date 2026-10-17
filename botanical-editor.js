@@ -53,7 +53,7 @@
   overlay.querySelector('#ozNewCartOrder').disabled=!items.length;updateCount();save();
  };
  const open=()=>{mount();previousFocus=document.activeElement;render();overlay.classList.add('open');document.body.classList.add('oz-new-cart-active');overlay.querySelector('#ozNewCartClose').focus()};
- const close=()=>{overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
+ const close=()=>{const f=overlay.querySelector('#ozCheckoutStep');if(f)f.hidden=true;overlay.querySelector('#ozNewCartDialog')?.classList.remove('oz-checkout-mode');overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
  const findProduct=(button)=>{
   let el=button;
   for(let i=0;i<12&&el&&el!==document.body;i++,el=el.parentElement){
@@ -98,14 +98,72 @@
   else items[i].qty=0;
   items=items.filter(x=>x.qty>0);render();
  });
- overlay.querySelector('#ozNewCartOrder').addEventListener('click',()=>{
+
+ // Second checkout step. The order is not submitted until the visitor explicitly sends it.
+ const form=document.createElement('section');form.id='ozCheckoutStep';form.hidden=true;
+ form.innerHTML='<div class="oz-checkout-top"><button type="button" id="ozCheckoutBack">← Назад к корзине</button><h2>Оформление заказа</h2><p>Проверьте контактные данные — специалист свяжется с вами для уточнения заказа.</p></div><form id="ozCheckoutForm"><label>Ваше имя <input name="customerName" autocomplete="name" maxlength="100" placeholder="Как к вам обращаться" required></label><label>Номер телефона <input name="customerPhone" type="tel" autocomplete="tel" placeholder="+7 999 123-45-67" minlength="10" maxlength="30" required></label><label>Электронная почта <input name="customerEmail" type="email" autocomplete="email" placeholder="example@mail.ru" required></label><fieldset><legend>Куда удобнее написать? Выберите один вариант</legend><div class="oz-contact-choices"><label><input type="radio" name="contactService" value="ВКонтакте" required> ВКонтакте</label><label><input type="radio" name="contactService" value="Telegram"> Telegram</label><label><input type="radio" name="contactService" value="MAX"> MAX</label></div><input id="ozContactValue" name="contactValue" placeholder="Сначала выберите способ связи" maxlength="250" required disabled></fieldset><p class="oz-contact-warning">Пожалуйста, указывайте только достоверную и актуальную информацию. Иначе специалист по работе с клиентами не сможет связаться с вами по поводу выбранного заказа.</p><label class="oz-checkout-agree"><input name="dataConsent" type="checkbox" required> Согласен(на) на использование указанных контактных данных для связи по моему заказу.</label><button type="submit" class="oz-checkout-submit">Подготовить заявку</button><div id="ozCheckoutResult" aria-live="polite"></div></form>';
+ overlay.querySelector('#ozNewCartDialog').appendChild(form);
+ const formStyle=document.createElement('style');formStyle.id='oz-checkout-form-css';
+ formStyle.textContent=[
+ '#ozNewCartDialog.oz-checkout-mode>#ozNewCartItems,#ozNewCartDialog.oz-checkout-mode>#ozNewCartFoot{display:none!important}',
+ '#ozNewCartDialog.oz-checkout-mode #ozNewCartHead{display:none!important}',
+ '#ozCheckoutStep[hidden]{display:none!important}#ozCheckoutStep{display:flex;flex-direction:column;min-height:0;overflow-y:auto;flex:1;background:#fff}',
+ '#ozCheckoutStep .oz-checkout-top{padding:20px 22px 8px;background:#173e30;color:white}',
+ '#ozCheckoutStep .oz-checkout-top button{border:0;background:transparent;color:#d7eddd;font:inherit;cursor:pointer;padding:0;margin-bottom:10px;font-size:12px}',
+ '#ozCheckoutStep h2{font-size:20px;margin:0 0 7px;color:white}',
+ '#ozCheckoutStep .oz-checkout-top p{font-size:12px;line-height:1.45;margin:0 0 10px;color:#d4e7d8}',
+ '#ozCheckoutForm{display:flex;flex-direction:column;gap:12px;padding:17px 22px 24px}',
+ '#ozCheckoutForm>label:not(.oz-checkout-agree){display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:650;color:#234b37}',
+ '#ozCheckoutForm input:not([type="radio"]):not([type="checkbox"]){box-sizing:border-box;width:100%;border:1px solid #bbd0bf;border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;background:white;color:#183a2a}',
+ '#ozCheckoutForm input:focus{outline:2px solid #91bba0;outline-offset:1px}',
+ '#ozCheckoutForm fieldset{border:1px solid #d2e1d3;border-radius:11px;padding:10px 12px 12px;min-width:0}',
+ '#ozCheckoutForm legend{font-size:12px;font-weight:700;color:#31523f;padding:0 5px}',
+ '#ozCheckoutForm .oz-contact-choices{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;font-size:12px}',
+ '#ozCheckoutForm .oz-contact-choices label{display:flex;align-items:center;gap:4px;cursor:pointer}',
+ '#ozCheckoutForm .oz-contact-warning{background:#eff5e9;border-radius:10px;padding:12px;font-size:12px;line-height:1.55;color:#3c6048;margin:0}',
+ '#ozCheckoutForm .oz-checkout-agree{display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.45;color:#587260}',
+ '#ozCheckoutForm .oz-checkout-submit{background:#194a37;border:0;color:white;border-radius:11px;padding:12px;font:inherit;font-weight:700;cursor:pointer}',
+ '#ozCheckoutResult{font-size:12px;line-height:1.5;color:#234b37;white-space:pre-wrap}',
+ '#ozCheckoutResult a{display:inline-block;margin-top:8px;color:#165e3d;font-weight:700}'
+ ].join('\n');document.head.appendChild(formStyle);
+ const dialog=overlay.querySelector('#ozNewCartDialog');
+ const showCheckout=()=>{
   if(!items.length)return;
-  const lines=items.map(x=>x.name+' — '+x.qty+' шт.'+(x.price?' ('+x.price+')':'')).join('\n');
-  const message='Здравствуйте! Хочу оформить заказ в Озерском питомнике:\n'+lines+'\nПодскажите наличие, стоимость и условия доставки.';
-  navigator.clipboard?.writeText(message).catch(()=>{});
-  const contact=[...document.querySelectorAll('a[href]')].find(a=>/vk\.com/.test(a.href)&&!a.closest('#ozNewCartOverlay'));
-  if(contact)window.open(contact.href,'_blank','noopener');
-  else alert('Заявка подготовлена. Скопируйте список товаров и свяжитесь с питомником:\n\n'+message);
+  form.hidden=false;dialog.classList.add('oz-checkout-mode');
+  const result=form.querySelector('#ozCheckoutResult');result.textContent='';
+  form.querySelector('[name="customerName"]').focus();
+ };
+ const hideCheckout=()=>{form.hidden=true;dialog.classList.remove('oz-checkout-mode')};
+ overlay.querySelector('#ozNewCartOrder').addEventListener('click',showCheckout);
+ form.querySelector('#ozCheckoutBack').addEventListener('click',hideCheckout);
+ form.querySelectorAll('input[name="contactService"]').forEach(radio=>radio.addEventListener('change',()=>{
+  const choice=form.querySelector('input[name="contactService"]:checked')?.value;
+  const field=form.querySelector('#ozContactValue');
+  field.disabled=!choice;field.value='';
+  field.placeholder=choice==='ВКонтакте'?'Ссылка на страницу VK (vk.com/...)':choice==='Telegram'?'Ваш @username в Telegram':choice==='MAX'?'Ссылка или ID вашего профиля MAX':'Выберите способ связи';
+ }));
+ form.querySelector('#ozCheckoutForm').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(!items.length)return;
+  const data=new FormData(event.currentTarget);
+  const service=String(data.get('contactService')||'');
+  const contact=String(data.get('contactValue')||'').trim();
+  if(service==='ВКонтакте'&&!/^(https?:\/\/)?(m\.)?(vk\.com|vk\.ru)\/[a-zA-Z0-9_.-]+\/?$/i.test(contact)){
+   form.querySelector('#ozContactValue').setCustomValidity('Укажите ссылку на страницу ВКонтакте (vk.com/...)');form.querySelector('#ozContactValue').reportValidity();return;
+  }
+  if(service==='Telegram'&&!/^@?[a-zA-Z0-9_]{5,32}$/.test(contact)){
+   form.querySelector('#ozContactValue').setCustomValidity('Укажите корректный Telegram @username');form.querySelector('#ozContactValue').reportValidity();return;
+  }
+  form.querySelector('#ozContactValue').setCustomValidity('');
+  const products=items.map(x=>x.name+' — '+x.qty+' шт.'+(x.price?' ('+x.price+')':'')).join('\n');
+  const message='Заявка — Озерский питомник\nИмя: '+data.get('customerName')+'\nТелефон: '+data.get('customerPhone')+'\nЭл. почта: '+data.get('customerEmail')+'\nСпособ связи: '+service+'\nКонтакт: '+contact+'\n\nТовары:\n'+products+'\n\nПрошу уточнить наличие и стоимость.';
+  const result=form.querySelector('#ozCheckoutResult');
+  const button=form.querySelector('.oz-checkout-submit');
+  try{await navigator.clipboard.writeText(message);result.textContent='Заявка скопирована. Отправьте её питомнику через ВКонтакте — только после отправки сотрудники получат данные.'}
+  catch{result.textContent='Скопируйте заявку и отправьте питомнику:\n\n'+message}
+  let link=result.querySelector('a');
+  const vk=[...document.querySelectorAll('a[href]')].find(a=>/vk\.com/.test(a.href)&&!a.closest('#ozNewCartOverlay'));
+  if(vk){link=document.createElement('a');link.href=vk.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Открыть ВКонтакте для отправки';result.appendChild(link)}
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open')){e.stopPropagation();close()}},true);
  document.addEventListener('click',e=>{
