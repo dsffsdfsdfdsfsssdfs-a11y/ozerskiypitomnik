@@ -5,8 +5,10 @@
  const style=document.createElement('style');
  style.id='oz-helper-status-18-style';
  style.textContent=String.raw`
- #ozHelper13 .oz-status18{display:inline-flex;align-items:center;gap:7px;vertical-align:middle;color:#368853;font-size:inherit;font-weight:600;white-space:nowrap;line-height:1;transform:translateY(1px)}
- #ozHelper13 .oz-signal18{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:16px;flex:0 0 16px;transform:translateY(-1px)}
+ #ozHelper13 .oz-status18-row{display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;gap:9px!important;vertical-align:middle!important;line-height:1.25!important;white-space:nowrap!important}
+ #ozHelper13 .oz-status18-name{display:inline-block!important;line-height:inherit!important;white-space:nowrap!important}
+ #ozHelper13 .oz-status18{display:inline-flex;align-items:center;gap:7px;color:#368853;font-size:inherit;font-weight:600;white-space:nowrap;line-height:inherit;transform:none}
+ #ozHelper13 .oz-signal18{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:16px;flex:0 0 16px;transform:none}
  #ozHelper13 .oz-signal18 i{display:block;width:4px;background:#28ba65;border-radius:3px;transform-origin:bottom;animation:oz-signal-wave18 1.3s ease-in-out infinite}
  #ozHelper13 .oz-signal18 i:nth-child(1){height:5px}
  #ozHelper13 .oz-signal18 i:nth-child(2){height:9px;animation-delay:.2s}
@@ -27,8 +29,11 @@
    const before=raw.slice(0,m.index).replace(/\s*[·•]\s*$/,' ');
    const after=raw.slice(m.index+m[0].length);
    const frag=document.createDocumentFragment();
-   if(before)frag.appendChild(document.createTextNode(before));
-   frag.appendChild(make());
+   if(/Оз[её]рский питомник/i.test(before)){
+    const row=document.createElement('span');row.className='oz-status18-row';
+    const name=document.createElement('span');name.className='oz-status18-name';name.textContent=before.trim();
+    row.append(name,make());frag.appendChild(row);
+   }else{if(before)frag.appendChild(document.createTextNode(before));frag.appendChild(make())}
    if(after)frag.appendChild(document.createTextNode(after));
    node.replaceWith(frag);return true;
   }
