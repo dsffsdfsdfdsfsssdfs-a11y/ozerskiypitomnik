@@ -1,5 +1,37 @@
 (()=>{'use strict';
 
+// Homepage typography concept 45 — Wide horizon.
+(()=>{
+ const css=document.createElement('style');
+ css.id='ozHeroText45Styles';
+ css.textContent=[
+  '.hero.oz-hero-text45{position:relative!important;min-height:690px!important;isolation:isolate!important}',
+  '.hero.oz-hero-text45 .wrap{visibility:hidden!important}',
+  '.hero.oz-hero-text45 #ozHeroText45{visibility:visible!important}',
+  '#ozHeroText45{position:absolute!important;left:22%!important;top:18%!important;width:56%!important;min-height:365px;box-sizing:border-box;padding:37px 43px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:22;color:#184332;isolation:isolate}',
+  '#ozHeroText45::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#eaf2e8f5,#eaf2e8a0 70%,#eaf2e800);border-radius:20px;pointer-events:none}',
+  '#ozHeroText45 .oz45-kicker{font:700 11px/1.4 system-ui,sans-serif;letter-spacing:.23em;text-transform:uppercase;color:#65836b;margin-bottom:21px}',
+  '#ozHeroText45 h1{font-family:Georgia,"Times New Roman",serif!important;font-weight:500!important;font-size:clamp(40px,4.7vw,72px)!important;letter-spacing:-.055em!important;line-height:1.06!important;max-width:720px;margin:0!important;color:#184332!important;text-align:center!important}',
+  '#ozHeroText45 p{font-size:16px!important;line-height:1.62!important;max-width:520px!important;color:#53705d!important;margin:22px 0 0!important;text-align:center!important}',
+  '#ozHeroText45 a{display:inline-flex;align-items:center;justify-content:center;margin-top:28px;padding:14px 26px;border:0;border-radius:999px;background:#194b39;color:white;text-decoration:none;font-size:14px;font-weight:700;min-height:48px}',
+  '@media(max-width:760px){.hero.oz-hero-text45{min-height:620px!important}#ozHeroText45{left:5%!important;top:12%!important;width:90%!important;min-height:0;padding:32px 22px}#ozHeroText45 h1{font-size:clamp(37px,9vw,53px)!important}#ozHeroText45 p{font-size:15px!important}}'
+ ].join('\n');
+ document.head.appendChild(css);
+ const mount=()=>{
+  const hero=document.querySelector('.hero');
+  if(!hero||document.getElementById('ozHeroText45'))return;
+  hero.classList.add('oz-hero-text45');
+  const panel=document.createElement('section');
+  panel.id='ozHeroText45';
+  panel.innerHTML='<div class="oz45-kicker">Озерский питомник растений</div><h1>Место для вашего сада.</h1><p>Плодовые деревья, декоративные культуры и цветы для сада, который радует каждый сезон.</p><a href="#catalog">Открыть ассортимент</a>';
+  hero.appendChild(panel);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+ setTimeout(mount,900);
+})();
+
+
+
 // Hero photograph variant 39: one uninterrupted layer across header and hero.
 (()=>{
  const style=document.createElement('style');
