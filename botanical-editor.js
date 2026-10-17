@@ -1,5 +1,37 @@
 (()=>{'use strict';
 
+// Customized delivery and pickup answer for the existing four-button helper.
+(()=>{
+ const reply='Доставка курьером, а также через СДЭК, Boxberry и Почту России. Возможна бесплатная доставка при соблюдении условий заказа. Также доступен самовывоз. Напишите нам в Telegram или ВКонтакте — уточним стоимость, сроки и условия доставки и самовывоза.';
+ let active=false,updating=false;
+ const update=()=>{
+  if(!active||updating)return;
+  const root=document.getElementById('ozHelper13');if(!root)return;
+  const bubble=root.querySelector('.oz-h-reply,#ozHelperReply');
+  if(!bubble)return;
+  if(bubble.textContent.trim()!==reply){
+   updating=true;bubble.textContent=reply;updating=false;
+  }
+ };
+ document.addEventListener('click',e=>{
+  const root=document.getElementById('ozHelper13');
+  if(!root||!root.contains(e.target))return;
+  const button=e.target.closest('button,[role="button"],a,[onclick]')||e.target;
+  const label=(button.textContent||'').trim();
+  if(label==='Доставка и самовывоз'){
+    active=true;setTimeout(update,0);setTimeout(update,80);setTimeout(update,250);
+  }else if(['Помощь с выбором растений','Как оформить заказ?','Связаться с нами'].includes(label)){active=false}
+ },true);
+ const start=()=>{
+  const root=document.getElementById('ozHelper13');
+  if(!root)return;
+  const observer=new MutationObserver(()=>{if(active&&!updating)update()});
+  observer.observe(root,{childList:true,subtree:true,characterData:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Answer bubble: direct selector, independent of the text it contains.
 (()=>{
  const el=document.createElement('style');
