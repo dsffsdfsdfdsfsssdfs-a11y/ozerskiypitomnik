@@ -1,5 +1,56 @@
 (()=>{'use strict';
 
+// Fix the EXISTING slide-out cart stacking order. Do not create or open any cart.
+(()=>{
+ const css=document.createElement('style');css.id='oz-cart-stacking-repair';
+ css.textContent=[
+ 'body.oz-existing-cart-open #ozCombinedHeader{z-index:2!important}',
+ 'body.oz-existing-cart-open #ozCombinedHeader .header{z-index:2!important}',
+ 'body.oz-existing-cart-open .oz-existing-cart-drawer{z-index:2147483001!important}',
+ 'body.oz-existing-cart-open .oz-existing-cart-overlay{z-index:2147483000!important}',
+ 'body.oz-existing-cart-open #ozCombinedHeader{pointer-events:none!important}'
+ ].join('\n');
+ document.head.appendChild(css);
+ let busy=false;
+ function update(){
+  if(busy)return;busy=true;
+  const elements=[...document.querySelectorAll('aside,[role="dialog"],[class*="cart" i],[id*="cart" i],[class*="basket" i],[id*="basket" i]')];
+  let drawer=null;
+  for(const el of elements){
+   if(el.closest('#ozCombinedHeader,nav')||el.matches('button,a,input'))continue;
+   const rect=el.getBoundingClientRect();const st=getComputedStyle(el);
+   if(rect.width<270||rect.height<300||rect.right<innerWidth-50||rect.left>innerWidth-130)continue;
+   if(st.visibility==='hidden'||st.display==='none'||parseFloat(st.opacity)===0)continue;
+   if(!/корзин|оформить заявку|оформить заказ/i.test((el.textContent||'').slice(0,800)))continue;
+   // The actual fixed/sticky drawer, not its product cards.
+   if(st.position==='fixed'||st.position==='absolute'||el.getAttribute('role')==='dialog'){
+    if(!drawer||el.getBoundingClientRect().height>drawer.getBoundingClientRect().height)drawer=el;
+   }
+  }
+  document.querySelectorAll('.oz-existing-cart-drawer').forEach(el=>{if(el!==drawer)el.classList.remove('oz-existing-cart-drawer')});
+  document.body.classList.toggle('oz-existing-cart-open',!!drawer);
+  if(drawer){
+   drawer.classList.add('oz-existing-cart-drawer');
+   // Raise any stacking-context ancestors, without changing layout or display.
+   let parent=drawer.parentElement;
+   while(parent&&parent!==document.body){
+    const st=getComputedStyle(parent);
+    if(st.position!=='static' || st.transform!=='none' || st.isolation==='isolate')parent.style.setProperty('z-index','2147483000','important');
+    parent=parent.parentElement;
+   }
+  }
+  busy=false;
+ }
+ function start(){
+  update();let queued=false;
+  const obs=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;update()})});
+  obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','open','aria-hidden']});
+  document.addEventListener('click',()=>{requestAnimationFrame(update);setTimeout(update,180)},true);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Keep the nursery's visible brand spelling consistent: "Озерский" (without ё).
 (()=>{
  const correct=s=>s.replace(/Озёрск/g,'Озерск').replace(/озёрск/g,'озерск');
