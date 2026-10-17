@@ -1,55 +1,66 @@
 (()=>{'use strict';
 
-// Fix the EXISTING slide-out cart stacking order. Do not create or open any cart.
-(()=>{
- const css=document.createElement('style');css.id='oz-cart-stacking-repair';
- css.textContent=[
- 'body.oz-existing-cart-open #ozCombinedHeader{z-index:2!important}',
- 'body.oz-existing-cart-open #ozCombinedHeader .header{z-index:2!important}',
- 'body.oz-existing-cart-open .oz-existing-cart-drawer{z-index:2147483001!important}',
- 'body.oz-existing-cart-open .oz-existing-cart-overlay{z-index:2147483000!important}',
- 'body.oz-existing-cart-open #ozCombinedHeader{pointer-events:none!important}'
- ].join('\n');
- document.head.appendChild(css);
- let busy=false;
- function update(){
-  if(busy)return;busy=true;
-  const elements=[...document.querySelectorAll('aside,[role="dialog"],[class*="cart" i],[id*="cart" i],[class*="basket" i],[id*="basket" i]')];
-  let drawer=null;
-  for(const el of elements){
-   if(el.closest('#ozCombinedHeader,nav')||el.matches('button,a,input'))continue;
-   const rect=el.getBoundingClientRect();const st=getComputedStyle(el);
-   if(rect.width<270||rect.height<300||rect.right<innerWidth-50||rect.left>innerWidth-130)continue;
-   if(st.visibility==='hidden'||st.display==='none'||parseFloat(st.opacity)===0)continue;
-   if(!/корзин|оформить заявку|оформить заказ/i.test((el.textContent||'').slice(0,800)))continue;
-   // The actual fixed/sticky drawer, not its product cards.
-   if(st.position==='fixed'||st.position==='absolute'||el.getAttribute('role')==='dialog'){
-    if(!drawer||el.getBoundingClientRect().height>drawer.getBoundingClientRect().height)drawer=el;
-   }
-  }
-  document.querySelectorAll('.oz-existing-cart-drawer').forEach(el=>{if(el!==drawer)el.classList.remove('oz-existing-cart-drawer')});
-  document.body.classList.toggle('oz-existing-cart-open',!!drawer);
-  if(drawer){
-   drawer.classList.add('oz-existing-cart-drawer');
-   // Raise any stacking-context ancestors, without changing layout or display.
-   let parent=drawer.parentElement;
-   while(parent&&parent!==document.body){
-    const st=getComputedStyle(parent);
-    if(st.position!=='static' || st.transform!=='none' || st.isolation==='isolate')parent.style.setProperty('z-index','2147483000','important');
-    parent=parent.parentElement;
-   }
-  }
-  busy=false;
- }
- function start(){
-  update();let queued=false;
-  const obs=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;update()})});
-  obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','open','aria-hidden']});
-  document.addEventListener('click',()=>{requestAnimationFrame(update);setTimeout(update,180)},true);
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
 
+// Cart design #15. Style the existing live drawer; never create or open a second cart.
+(()=>{
+const css=document.createElement('style');css.id='oz-cart15-live';
+css.textContent=[
+'#ozCombinedHeader{isolation:auto!important}',
+'body.oz-cart15-active #ozCombinedHeader{z-index:10!important}',
+'body.oz-cart15-active .oz-cart15-drawer{position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;transform:none!important;z-index:2147483000!important;width:min(460px,100vw)!important;height:100dvh!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important;overflow:hidden!important;background:#fff!important;border-radius:20px 0 0 20px!important;box-shadow:-25px 0 75px #061e1645!important}',
+'body.oz-cart15-active .oz-cart15-drawer .oz-cart15-head{background:#194435!important;color:white!important;padding:22px 22px 20px!important;margin:0!important;flex:none!important}',
+'body.oz-cart15-active .oz-cart15-drawer .oz-cart15-head *{color:white!important}',
+'body.oz-cart15-active .oz-cart15-drawer .oz-cart15-close{background:#e9f0e9!important;color:#194435!important;border-radius:50%!important}',
+'body.oz-cart15-active .oz-cart15-drawer .oz-cart15-order{background:#194435!important;color:white!important;border:0!important;border-radius:12px!important;max-width:220px!important;width:auto!important;min-height:42px!important;padding:10px 18px!important;margin:auto!important;font-weight:700!important}',
+'body.oz-cart15-active .oz-cart15-drawer img{object-fit:cover;border-radius:11px}',
+'body.oz-cart15-active .oz-cart15-drawer .oz-cart15-product{border-bottom:1px solid #e0ebe3!important;padding:12px 0!important}',
+'@media(max-width:580px){body.oz-cart15-active .oz-cart15-drawer{width:100vw!important;border-radius:15px 15px 0 0!important}}'
+].join('\n');document.head.appendChild(css);
+let current=null;
+const visible=el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>280&&r.height>330};
+function findDrawer(){
+ const nodes=[...document.querySelectorAll('aside,[role="dialog"],[id*="cart" i],[class*="cart" i],[id*="basket" i],[class*="basket" i]')];
+ const candidates=[];
+ for(const el of nodes){
+  if(el.closest('#ozCombinedHeader,nav,header')||!visible(el)||el.matches('button,a'))continue;
+  const r=el.getBoundingClientRect(),txt=(el.innerText||'').slice(0,1300);
+  if(r.right<innerWidth-40||r.width>Math.min(innerWidth*.85,750))continue;
+  if(!/корзин/i.test(txt)||!/оформить заявк|оформить заказ/i.test(txt))continue;
+  const cs=getComputedStyle(el);
+  if(cs.position!=='fixed'&&cs.position!=='absolute'&&el.getAttribute('role')!=='dialog')continue;
+  candidates.push(el);
+ }
+ return candidates.sort((x,y)=>y.getBoundingClientRect().height-x.getBoundingClientRect().height)[0]||null;
+}
+function decorate(drawer){
+ const headings=[...drawer.querySelectorAll('h1,h2,h3,[class*="title" i],[class*="head" i]')];
+ const title=headings.find(n=>/корзин/i.test(n.textContent||''));
+ if(title){
+  let head=title.parentElement;
+  if(head&&head.getBoundingClientRect().height<130)head.classList.add('oz-cart15-head');
+ }
+ const buttons=[...drawer.querySelectorAll('button')];
+ const order=buttons.find(n=>/оформить заявк|оформить заказ/i.test(n.textContent||''));
+ if(order)order.classList.add('oz-cart15-order');
+ const close=buttons.find(n=>n.textContent.trim()==='×'||n.getAttribute('aria-label')?.toLowerCase().includes('закрыть'));
+ if(close)close.classList.add('oz-cart15-close');
+}
+function apply(){
+ const drawer=findDrawer();
+ if(current&&current!==drawer)current.classList.remove('oz-cart15-drawer');
+ current=drawer;
+ document.body.classList.toggle('oz-cart15-active',!!drawer);
+ if(drawer){drawer.classList.add('oz-cart15-drawer');decorate(drawer)}
+}
+function start(){
+ let queued=false;
+ const request=()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;apply()})};
+ document.addEventListener('click',()=>{setTimeout(request,40);setTimeout(request,230)},true);
+ new MutationObserver(request).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','aria-hidden','open']});
+ apply();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
 
 // Keep the nursery's visible brand spelling consistent: "Озерский" (without ё).
 (()=>{
