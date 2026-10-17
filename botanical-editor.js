@@ -1,5 +1,40 @@
 (()=>{'use strict';
 
+// Distinct warm ivory background for the helper answer panel.
+(()=>{
+ const style=document.createElement('style');style.id='oz-helper-answer-ivory';
+ style.textContent='#ozHelper13 .oz-helper-answer-ivory{background:#f7f1e5!important;background-image:none!important;border-color:#e8dcc4!important;color:#315540!important}';
+ document.head.appendChild(style);
+ const phrase='Выберите интересующий вопрос';
+ const apply=()=>{
+  const root=document.getElementById('ozHelper13');if(!root)return false;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let node,found=false;
+  while((node=walker.nextNode())){
+   if(!(node.nodeValue||'').includes(phrase))continue;
+   let el=node.parentElement;
+   if(!el)continue;
+   const start=el;
+   while(el.parentElement&&root.contains(el.parentElement)){
+    const parent=el.parentElement;
+    if(parent.classList.contains('oz-helper-panel')||parent.querySelectorAll('button,[role="button"]').length>0)break;
+    if(parent.children.length>3)break;
+    el=parent;
+   }
+   (el===root?start:el).classList.add('oz-helper-answer-ivory');found=true;
+  }
+  return found;
+ };
+ const start=()=>{
+  apply();
+  const root=document.getElementById('ozHelper13');if(!root)return;
+  const observer=new MutationObserver(()=>{observer.disconnect();apply();observer.observe(root,{childList:true,subtree:true,characterData:true})});
+  observer.observe(root,{childList:true,subtree:true,characterData:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Palette 2 — style the actual FAQ action, including div-based clickable items.
 (()=>{
  const style=document.createElement('style');
