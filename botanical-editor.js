@@ -1,23 +1,43 @@
 (()=>{'use strict';
 
-// Chosen palette #2: cool eucalyptus. Colors only for the four helper quick-actions.
+// Palette 2 — style the actual FAQ action, including div-based clickable items.
 (()=>{
- const css=document.createElement('style');css.id='oz-helper-palette-2';
- css.textContent='#ozHelper13 .oz-helper-palette-2{background:#e5efeb!important;border-color:#b3cfc3!important}';
- document.head.appendChild(css);
+ const style=document.createElement('style');
+ style.id='oz-helper-palette-2';
+ style.textContent='#ozHelper13 .oz-helper-palette-2{background:#e5efeb!important;background-image:none!important;border-color:#b3cfc3!important}#ozHelper13 .oz-helper-palette-2:hover{background:#dceae4!important;border-color:#93b9a8!important}';
+ document.head.appendChild(style);
  const labels=new Set(['Помощь с выбором растений','Как оформить заказ?','Доставка и самовывоз','Связаться с нами']);
  const apply=()=>{
-  const root=document.getElementById('ozHelper13');if(!root)return;
-  root.querySelectorAll('button,[role="button"],a').forEach(el=>{
-   if(labels.has((el.textContent||'').trim()))el.classList.add('oz-helper-palette-2');
-  });
+  const root=document.getElementById('ozHelper13');
+  if(!root)return false;
+  const walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let node;while((node=walk.nextNode())){
+   if(!labels.has((node.nodeValue||'').trim()))continue;
+   const parent=node.parentElement;
+   if(!parent)continue;
+   let target=parent.closest('button,a,[role="button"],[onclick]');
+   if(!target||!root.contains(target)){
+    target=parent;
+    for(let j=0;j<2&&target.parentElement&&root.contains(target.parentElement);j++){
+     const p=target.parentElement;
+     if(p.children.length>2||p.querySelectorAll('button,a,[role="button"]').length>0)break;
+     if(p.classList.contains('oz-helper-panel'))break;
+     target=p;
+    }
+   }
+   target.classList.add('oz-helper-palette-2');
+  }
+  return true;
  };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
- const observer=new MutationObserver(apply);
- const start=()=>{const root=document.getElementById('ozHelper13');if(root)observer.observe(root,{childList:true,subtree:true});};
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+ const begin=()=>{
+  if(!apply()){const ready=new MutationObserver(()=>{if(apply()){ready.disconnect();begin()}});ready.observe(document.documentElement,{subtree:true,childList:true});return}
+  const root=document.getElementById('ozHelper13');
+  let busy=false;
+  const observer=new MutationObserver(()=>{if(busy)return;busy=true;observer.disconnect();apply();observer.observe(root,{subtree:true,childList:true,characterData:true});busy=false});
+  observer.observe(root,{subtree:true,childList:true,characterData:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 })();
-
 
 // Variant 18: animated green signal bars in the nursery helper status.
 (()=>{
