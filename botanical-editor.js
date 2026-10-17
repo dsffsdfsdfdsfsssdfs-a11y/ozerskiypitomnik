@@ -25,6 +25,21 @@
 })();
 
 
+
+// Increase readability of Neucha outside the main hero copy and helper dialogue.
+(()=>{
+ const st=document.createElement('style');st.id='oz-neucha-readable';
+ st.textContent=[
+  '#ozCombinedHeader #mainNav a,#ozCombinedHeader .header a,#mainNav a{font-size:17px!important}',
+  'body :is(#catalog,#catalogue,.catalog,.products,.product-grid,.catalog-grid,footer,.footer) :is(p,li,span,a,label,small,button){font-size:max(16px,1em)!important;line-height:1.45!important}',
+  'body :is(#catalog,#catalogue,.catalog,.products,.product-grid,.catalog-grid) :is(h2,h3,h4){font-size:clamp(23px,2.15vw,32px)!important;line-height:1.18!important}',
+  'body :is(#ozNewCartDialog,#ozCheckoutForm,.oz-checkout-modal) :is(p,li,span,a,label,small,button,input,textarea,select){font-size:17px!important;line-height:1.35!important}',
+  'body :is(button,.btn,[role="button"]):not(#ozHeroText45 *):not(#ozHelper13 *){font-size:max(16px,1em)!important}',
+  '#ozHeroText45 .oz45-kicker,#ozHeroText45 h1,#ozHeroText45 p,#ozHeroText45 a{font-size:revert-layer}',
+  '@media(max-width:760px){#ozCombinedHeader #mainNav a,#mainNav a{font-size:16px!important}}'
+ ].join('\n');document.head.appendChild(st);
+})();
+
 // Homepage typography concept 45 — Wide horizon.
 (()=>{
  const fontLink=document.createElement('link');fontLink.rel='stylesheet';fontLink.href='https://fonts.googleapis.com/css2?family=Neucha&display=swap';document.head.appendChild(fontLink);
