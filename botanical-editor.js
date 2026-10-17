@@ -1,5 +1,24 @@
 (()=>{'use strict';
 
+// Chosen palette #2: cool eucalyptus. Colors only for the four helper quick-actions.
+(()=>{
+ const css=document.createElement('style');css.id='oz-helper-palette-2';
+ css.textContent='#ozHelper13 .oz-helper-palette-2{background:#e5efeb!important;border-color:#b3cfc3!important}';
+ document.head.appendChild(css);
+ const labels=new Set(['Помощь с выбором растений','Как оформить заказ?','Доставка и самовывоз','Связаться с нами']);
+ const apply=()=>{
+  const root=document.getElementById('ozHelper13');if(!root)return;
+  root.querySelectorAll('button,[role="button"],a').forEach(el=>{
+   if(labels.has((el.textContent||'').trim()))el.classList.add('oz-helper-palette-2');
+  });
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+ const observer=new MutationObserver(apply);
+ const start=()=>{const root=document.getElementById('ozHelper13');if(root)observer.observe(root,{childList:true,subtree:true});};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Variant 18: animated green signal bars in the nursery helper status.
 (()=>{
  const style=document.createElement('style');
