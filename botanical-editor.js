@@ -2,27 +2,79 @@
 
 
 
-// Temporarily disable the old cart drawer visually until replacement #15 is built.
-// Cart data and buttons are retained in the DOM; no additional cart is created.
+
+// Cart №15 «Лесной вечер»: re-skin the real cart DOM and keep native item/order handlers.
 (()=>{
- const style=document.createElement('style');style.id='oz-disable-old-cart';
- style.textContent='body .oz-old-cart-hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}';
- document.head.appendChild(style);
- const scan=()=>{
-  const nodes=[...document.querySelectorAll('aside,[role="dialog"],[id*="cart" i],[class*="cart" i],[id*="basket" i],[class*="basket" i]')];
-  for(const el of nodes){
-   if(el.closest('#ozCombinedHeader,header,nav')||el.matches('button,a'))continue;
-   const r=el.getBoundingClientRect(),txt=(el.innerText||'').slice(0,1500);
-   if(r.width<280||r.height<320||r.right<innerWidth-80)continue;
-   if(!/ваша корзина|корзина/i.test(txt)||!/оформить заявку|оформить заказ/i.test(txt))continue;
-   if(getComputedStyle(el).position==='fixed'||getComputedStyle(el).position==='absolute'||el.getAttribute('role')==='dialog')el.classList.add('oz-old-cart-hidden');
-  }
- };
- const begin=()=>{
-  scan();let queued=false;
-  new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;scan()})}).observe(document.body,{childList:true,subtree:true});
-  document.addEventListener('click',()=>setTimeout(scan,40),true);
- };
+ const sheet=document.createElement('style');sheet.id='oz-cart15-final';
+ sheet.textContent=[
+ 'body .oz-old-cart-hidden{display:revert!important;visibility:visible!important;pointer-events:auto!important}',
+ 'body .oz-cart15-overlay{position:fixed!important;inset:0!important;background:#10271d83!important;z-index:2147482900!important;display:none;backdrop-filter:blur(3px)}',
+ 'body.oz-cart15-open .oz-cart15-overlay{display:block!important}',
+ 'body.oz-cart15-open .oz-cart15-panel{position:fixed!important;z-index:2147482999!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(490px,calc(100vw - 26px))!important;height:min(680px,calc(100dvh - 30px))!important;max-height:calc(100dvh - 30px)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:#fff!important;border-radius:23px!important;box-shadow:0 30px 100px #06180f70!important;border:1px solid #c7d9c9!important}',
+ 'body.oz-cart15-open .oz-cart15-panel .oz-cart15-header{background:#183d30!important;color:#fff!important;padding:19px 22px!important;flex:0 0 auto!important;min-height:69px!important;box-sizing:border-box!important;border:0!important}',
+ 'body.oz-cart15-open .oz-cart15-panel .oz-cart15-header *{color:#fff!important}',
+ 'body.oz-cart15-open .oz-cart15-panel .oz-cart15-header button{border:1px solid #719d86!important;border-radius:50%!important;min-width:35px!important;min-height:35px!important}',
+ 'body.oz-cart15-open .oz-cart15-panel .oz-cart15-footer{margin-top:auto!important;background:#f3f7f0!important;border-top:1px solid #e1ebe0!important;padding:16px 20px!important;flex:0 0 auto!important}',
+ 'body.oz-cart15-open .oz-cart15-panel .oz-cart15-order{width:auto!important;max-width:225px!important;min-height:43px!important;padding:10px 17px!important;border-radius:11px!important;background:#215740!important;color:#fff!important;border:0!important;font-weight:700!important}',
+ 'body.oz-cart15-open .oz-cart15-panel .oz-cart15-items{min-height:0!important;overflow-y:auto!important;flex:1 1 auto!important;padding:12px 20px!important}',
+ 'body.oz-cart15-open .oz-cart15-panel img{border-radius:10px!important;object-fit:cover!important}',
+ '@media(max-width:520px){body.oz-cart15-open .oz-cart15-panel{width:calc(100vw - 16px)!important;height:min(640px,calc(100dvh - 16px))!important;border-radius:18px!important}}'
+ ].join('\n');document.head.appendChild(sheet);
+ const backdrop=document.createElement('div');backdrop.className='oz-cart15-overlay';document.body.append(backdrop);
+ let drawer=null;
+ function find(){
+  const all=[...document.querySelectorAll('aside,[role="dialog"],[id*="cart" i],[class*="cart" i],[id*="basket" i],[class*="basket" i]')];
+  const candidates=all.filter(el=>{
+   if(el.closest('header,nav,#ozCombinedHeader')||el.matches('button,a')||el===backdrop)return false;
+   const text=(el.textContent||'').slice(0,1600);
+   if(!/ваша корзина/i.test(text)||!/оформить заявк|оформить заказ/i.test(text))return false;
+   const r=el.getBoundingClientRect();
+   return r.width>285&&r.width<Math.min(window.innerWidth*.85,820)&&r.height>300;
+  });
+  return candidates.sort((a,b)=>a.getBoundingClientRect().width-b.getBoundingClientRect().width)[0]||null;
+ }
+ function isOpen(el){
+  if(!el)return false;
+  // Native open state, not our own class or styles.
+  const own=el.getAttribute('data-oz-native-open');
+  const cs=getComputedStyle(el),r=el.getBoundingClientRect();
+  return cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity)>0&&r.width>280&&r.right>window.innerWidth-100;
+ }
+ function decorate(el){
+  if(!el)return;
+  const headings=[...el.querySelectorAll('h1,h2,h3')];const heading=headings.find(n=>/корзин/i.test(n.textContent||''));
+  if(heading&&heading.parentElement)heading.parentElement.classList.add('oz-cart15-header');
+  const buttons=[...el.querySelectorAll('button')];const order=buttons.find(n=>/оформить заявк|оформить заказ/i.test(n.textContent||''));
+  if(order){order.classList.add('oz-cart15-order');const label=[...order.childNodes].find(n=>n.nodeType===Node.TEXT_NODE);if(label)label.textContent='Оформить заказ';}
+  const footer=order?.parentElement?.parentElement;if(footer&&footer!==el)footer.classList.add('oz-cart15-footer');
+  const head=heading?.parentElement;
+  const children=[...el.children].filter(n=>n!==head&&n!==footer);
+  const body=children.find(n=>n.scrollHeight>150);if(body)body.classList.add('oz-cart15-items');
+ }
+ let observing=false,scheduled=false;
+ function refresh(){
+  scheduled=false;
+  let target=find();
+  if(!target){document.body.classList.remove('oz-cart15-open');return}
+  const currentlyOpen=isOpen(target);
+  if(drawer&&drawer!==target)drawer.classList.remove('oz-cart15-panel');
+  drawer=target;
+  if(currentlyOpen){
+   decorate(target);
+   target.classList.add('oz-cart15-panel');
+   document.body.classList.add('oz-cart15-open');
+  }else{target.classList.remove('oz-cart15-panel');document.body.classList.remove('oz-cart15-open')}
+ }
+ function queue(){if(scheduled)return;scheduled=true;requestAnimationFrame(refresh)}
+ backdrop.addEventListener('click',()=>{
+  const btn=drawer&&[...drawer.querySelectorAll('button')].find(b=>/закры|close/i.test(b.getAttribute('aria-label')||'')||b.textContent.trim()==='×');
+  if(btn)btn.click();
+ });
+ function begin(){
+  queue();
+  new MutationObserver(queue).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','aria-hidden','open']});
+  document.addEventListener('click',()=>setTimeout(queue,60),true);
+ }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
 })();
 
