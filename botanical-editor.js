@@ -1,62 +1,90 @@
 (()=>{'use strict';
 
-// Central cart layout: native cart only, no cloning, no MutationObserver.
+
+// Independent central cart v2. Does not reuse, move, or modify the old drawer.
 (()=>{
- const css=document.createElement('style');css.id='oz-cart-center-stable';
- css.textContent=[
- 'body.oz-center-cart-open .oz-center-cart-native{position:fixed!important;inset:auto!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(500px,calc(100vw - 24px))!important;height:min(640px,calc(100dvh - 28px))!important;max-height:calc(100dvh - 28px)!important;z-index:2147483001!important;display:flex!important;flex-direction:column!important;border-radius:21px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 26px 85px #0a21165e!important;transition:none!important}',
- 'body.oz-center-cart-open .oz-center-cart-native .oz-center-cart-heading{background:#1b4132!important;color:#fff!important;padding:19px 22px!important}',
- 'body.oz-center-cart-open .oz-center-cart-native .oz-center-cart-heading *{color:#fff!important}',
- 'body.oz-center-cart-open .oz-center-cart-native .oz-center-cart-checkout{background:#1b4132!important;border:0!important;color:white!important;width:auto!important;max-width:225px!important;border-radius:11px!important;padding:12px 17px!important}',
- 'body.oz-center-cart-open #ozCombinedHeader{z-index:1!important}',
- '@media(max-width:550px){body.oz-center-cart-open .oz-center-cart-native{width:calc(100vw - 18px)!important;height:min(640px,calc(100dvh - 18px))!important}}'
- ].join('\n');document.head.append(css);
- let native=null;
- const isCartTrigger=target=>{
-  const b=target.closest('#ozV13Cart,[id*="cart" i],button,[role="button"]');
-  if(!b)return false;
-  if(b.closest('.oz-center-cart-native'))return false;
-  const sig=[b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('title'),b.textContent].join(' ');
-  return /ozV13Cart|корзин|basket|cart/i.test(sig)&&b.getBoundingClientRect().width<110;
+ const key='oz-new-cart-v2';
+ let items=[];try{const old=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(old))items=old.filter(x=>x&&x.name&&Number(x.qty)>0)}catch{}
+ const save=()=>{try{localStorage.setItem(key,JSON.stringify(items))}catch{}};
+ const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const style=document.createElement('style');style.id='oz-new-cart-css';
+ style.textContent=[
+ '#ozNewCartOverlay{position:fixed;inset:0;background:#0a21188c;backdrop-filter:blur(3px);z-index:2147483644;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}',
+ '#ozNewCartOverlay.open{display:flex}',
+ '#ozNewCartDialog{background:#fff;width:min(490px,100%);height:min(620px,calc(100dvh - 24px));max-height:calc(100dvh - 24px);border-radius:20px;box-shadow:0 25px 100px #051a1370;overflow:hidden;display:flex;flex-direction:column;font:inherit;color:#244233}',
+ '#ozNewCartHead{background:#173e30;color:#fff;padding:19px 22px;display:flex;align-items:center;justify-content:space-between;flex:none}',
+ '#ozNewCartHead strong{font-size:19px}',
+ '#ozNewCartClose{background:#f0f5ee;border:0;border-radius:50%;width:36px;height:36px;color:#1a4e35;font-size:23px;cursor:pointer;display:grid;place-items:center}',
+ '#ozNewCartItems{overflow-y:auto;min-height:0;flex:1;padding:15px 20px}',
+ '.oz-new-line{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e1eae2;align-items:center}',
+ '.oz-new-line img{width:75px;height:75px;object-fit:cover;border-radius:12px;background:#edf2eb;flex:none}',
+ '.oz-new-info{flex:1;min-width:0}.oz-new-info strong{display:block;color:#1e4232;font-size:14px;line-height:1.35}.oz-new-info small{color:#658174;font-size:12px}',
+ '.oz-new-actions{display:flex;gap:7px;align-items:center;margin-top:9px}.oz-new-actions button{min-width:27px;height:27px;border:0;background:#e8f1e8;border-radius:8px;color:#244b35;cursor:pointer}.oz-new-actions .oz-remove{margin-left:auto;background:transparent;color:#7b8a7e;font-size:16px}',
+ '#ozNewCartFoot{flex:none;padding:15px 20px;background:#f4f8f2;border-top:1px solid #e0e9df}',
+ '#ozNewCartFoot p{font-size:11px;line-height:1.4;color:#728777;margin:0 0 10px}',
+ '#ozNewCartOrder{display:block;border:0;background:#194a37;color:white;border-radius:11px;padding:12px 17px;margin:0 auto;font:inherit;font-weight:700;cursor:pointer;max-width:210px}',
+ '#ozNewCartOrder:disabled{opacity:.5;cursor:not-allowed}',
+ '#ozNewCartEmpty{text-align:center;padding:56px 12px;color:#688073;font-size:14px}',
+ 'body.oz-new-cart-active [class*="cart-drawer" i],body.oz-new-cart-active [id*="cart-drawer" i]{display:none!important}'
+ ].join('\n');document.head.appendChild(style);
+ const overlay=document.createElement('div');overlay.id='ozNewCartOverlay';
+ overlay.innerHTML='<section id="ozNewCartDialog" role="dialog" aria-modal="true" aria-label="Ваша корзина"><header id="ozNewCartHead"><strong>Ваша корзина <span id="ozNewCartCount"></span></strong><button id="ozNewCartClose" aria-label="Закрыть">×</button></header><div id="ozNewCartItems"></div><footer id="ozNewCartFoot"><p>Добавленные товары не резервируются автоматически. Отправьте заявку питомнику для уточнения наличия и стоимости.</p><button id="ozNewCartOrder">Оформить заказ</button></footer></section>';
+ const mount=()=>{if(!overlay.isConnected)document.body.append(overlay)};
+ let previousFocus=null;
+ const updateCount=()=>{
+  const n=items.reduce((s,x)=>s+x.qty,0);
+  const badge=document.getElementById('ozNewCartCount');if(badge)badge.textContent='('+n+')';
+  for(const el of document.querySelectorAll('#ozV13Cart [class*="badge"],#ozV13Cart [class*="count"]'))el.textContent=String(n);
  };
- const findNative=()=>{
-  const nodes=[...document.querySelectorAll('aside,[role="dialog"],[id*="cart" i],[class*="cart" i],[id*="basket" i],[class*="basket" i]')];
-  return nodes.filter(el=>{
-   if(el.matches('button,a')||el.closest('#ozCombinedHeader,header,nav'))return false;
-   const txt=(el.textContent||'').slice(0,1600),r=el.getBoundingClientRect();
-   return /ваша корзина/i.test(txt)&&/оформить заявк|оформить заказ/i.test(txt)&&r.width>=300&&r.height>=300;
-  }).sort((a,b)=>a.getBoundingClientRect().width-b.getBoundingClientRect().width)[0]||null;
+ const render=()=>{
+  const list=overlay.querySelector('#ozNewCartItems');
+  list.innerHTML=items.length?items.map((x,i)=>'<div class="oz-new-line">'+(x.img?'<img src="'+esc(x.img)+'" alt="'+esc(x.name)+'">':'')+'<div class="oz-new-info"><strong>'+esc(x.name)+'</strong><small>'+(x.price?'Цена: '+esc(x.price):'Цена уточняется')+'</small><div class="oz-new-actions"><button data-cart-i="'+i+'" data-action="minus" aria-label="Уменьшить количество">−</button><b>'+x.qty+'</b><button data-cart-i="'+i+'" data-action="plus" aria-label="Увеличить количество">+</button><button class="oz-remove" data-cart-i="'+i+'" data-action="remove" aria-label="Удалить товар">×</button></div></div></div>').join(''):'<div id="ozNewCartEmpty">Корзина пока пуста. Выберите растения в каталоге.</div>';
+  overlay.querySelector('#ozNewCartOrder').disabled=!items.length;updateCount();save();
  };
- function closeVisual(){
-  document.body.classList.remove('oz-center-cart-open');
-  if(native)native.classList.remove('oz-center-cart-native');
-  native=null;
- }
- function center(){
-  const el=findNative();if(!el)return;
-  native=el;
-  el.classList.add('oz-center-cart-native');
-  const title=[...el.querySelectorAll('h1,h2,h3')].find(x=>/корзин/i.test(x.textContent));
-  if(title?.parentElement)title.parentElement.classList.add('oz-center-cart-heading');
-  const checkout=[...el.querySelectorAll('button')].find(x=>/оформить заявк|оформить заказ/i.test(x.textContent));
-  if(checkout)checkout.classList.add('oz-center-cart-checkout');
-  document.body.classList.add('oz-center-cart-open');
- }
- document.addEventListener('click',event=>{
-  if(native&&event.target.closest('.oz-center-cart-native')){
-   const button=event.target.closest('button');
-   if(button&&(/закры/i.test(button.getAttribute('aria-label')||'')||/^[×✕x]$/.test(button.textContent.trim()))){closeVisual()}
-   return;
+ const open=()=>{mount();previousFocus=document.activeElement;render();overlay.classList.add('open');document.body.classList.add('oz-new-cart-active');overlay.querySelector('#ozNewCartClose').focus()};
+ const close=()=>{overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
+ const addFromCard=(button)=>{
+  const card=button.closest('[data-product-id],[data-id],.product-card,.catalog-card,[class*="product-card"],[class*="catalog-card"],article,[class*="plant-card"]');
+  if(!card)return false;
+  const name=(card.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]')?.textContent||'').trim();
+  if(!name||name.length>130)return false;
+  const img=card.querySelector('img')?.currentSrc||card.querySelector('img')?.src||'';
+  const price=(card.querySelector('[class*="price"]')?.textContent||'').trim().slice(0,60);
+  const id=card.getAttribute('data-product-id')||card.getAttribute('data-id')||name;
+  const item=items.find(x=>x.id===id);if(item)item.qty++;else items.push({id,name,img,price,qty:1});render();return true;
+ };
+ overlay.addEventListener('click',e=>{
+  if(e.target===overlay||e.target.closest('#ozNewCartClose')){close();return}
+  const b=e.target.closest('[data-action]');if(!b)return;
+  const i=Number(b.dataset.cartI);if(!items[i])return;
+  if(b.dataset.action==='plus')items[i].qty++;
+  else if(b.dataset.action==='minus')items[i].qty--;
+  else items[i].qty=0;
+  items=items.filter(x=>x.qty>0);render();
+ });
+ overlay.querySelector('#ozNewCartOrder').addEventListener('click',()=>{
+  if(!items.length)return;
+  const lines=items.map(x=>x.name+' — '+x.qty+' шт.'+(x.price?' ('+x.price+')':'')).join('\n');
+  const message='Здравствуйте! Хочу оформить заказ в Озерском питомнике:\n'+lines+'\nПодскажите наличие, стоимость и условия доставки.';
+  navigator.clipboard?.writeText(message).catch(()=>{});
+  const contact=[...document.querySelectorAll('a[href]')].find(a=>/vk\.com/.test(a.href)&&!a.closest('#ozNewCartOverlay'));
+  if(contact)window.open(contact.href,'_blank','noopener');
+  else alert('Заявка подготовлена. Скопируйте список товаров и свяжитесь с питомником:\n\n'+message);
+ });
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open')){e.stopPropagation();close()}},true);
+ document.addEventListener('click',e=>{
+  if(e.target.closest('#ozNewCartOverlay'))return;
+  const b=e.target.closest('button,a,[role="button"]');if(!b)return;
+  const info=[b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('title'),b.textContent].join(' ').toLowerCase();
+  if(b.id==='ozV13Cart'||(/корзин|cart|basket/.test(info)&&b.getBoundingClientRect().width<110&&!b.closest('.product-card,.catalog-card'))){
+   e.preventDefault();e.stopImmediatePropagation();open();return;
   }
-  if(isCartTrigger(event.target)){setTimeout(center,80);return}
-  if(native&&document.body.classList.contains('oz-center-cart-open'))closeVisual();
+  if(/в корзину|добавить в корзину/.test((b.textContent||'').toLowerCase())&&addFromCard(b)){
+   e.preventDefault();e.stopImmediatePropagation();
+  }
  },true);
- document.addEventListener('keydown',event=>{if(event.key==='Escape')closeVisual()},true);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();render()},{once:true});else{mount();render()}
 })();
-
-
-
-
 
 // Keep the nursery's visible brand spelling consistent: "Озерский" (without ё).
 (()=>{
