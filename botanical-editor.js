@@ -52,7 +52,7 @@ function install(){
  send.addEventListener('click',submit);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}});
  row.append(input,send);box.append(label,row,log);panel.appendChild(box);
 }
-function start(){install();var root=document.getElementById('ozHelper13');if(!root)return;var busy=false;var observer=new MutationObserver(()=>{if(busy)return;busy=true;observer.disconnect();install();observer.observe(root,{childList:true,subtree:true});busy=false});observer.observe(root,{childList:true,subtree:true})}
+function start(){install();var observer=new MutationObserver(()=>{install()});observer.observe(document.body||document.documentElement,{childList:true,subtree:true});setInterval(install,1200)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
