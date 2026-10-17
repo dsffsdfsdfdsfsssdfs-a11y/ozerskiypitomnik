@@ -1,5 +1,60 @@
 (()=>{'use strict';
 
+// Central cart layout: native cart only, no cloning, no MutationObserver.
+(()=>{
+ const css=document.createElement('style');css.id='oz-cart-center-stable';
+ css.textContent=[
+ 'body.oz-center-cart-open .oz-center-cart-native{position:fixed!important;inset:auto!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(500px,calc(100vw - 24px))!important;height:min(640px,calc(100dvh - 28px))!important;max-height:calc(100dvh - 28px)!important;z-index:2147483001!important;display:flex!important;flex-direction:column!important;border-radius:21px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 26px 85px #0a21165e!important;transition:none!important}',
+ 'body.oz-center-cart-open .oz-center-cart-native .oz-center-cart-heading{background:#1b4132!important;color:#fff!important;padding:19px 22px!important}',
+ 'body.oz-center-cart-open .oz-center-cart-native .oz-center-cart-heading *{color:#fff!important}',
+ 'body.oz-center-cart-open .oz-center-cart-native .oz-center-cart-checkout{background:#1b4132!important;border:0!important;color:white!important;width:auto!important;max-width:225px!important;border-radius:11px!important;padding:12px 17px!important}',
+ 'body.oz-center-cart-open #ozCombinedHeader{z-index:1!important}',
+ '@media(max-width:550px){body.oz-center-cart-open .oz-center-cart-native{width:calc(100vw - 18px)!important;height:min(640px,calc(100dvh - 18px))!important}}'
+ ].join('\n');document.head.append(css);
+ let native=null;
+ const isCartTrigger=target=>{
+  const b=target.closest('#ozV13Cart,[id*="cart" i],button,[role="button"]');
+  if(!b)return false;
+  if(b.closest('.oz-center-cart-native'))return false;
+  const sig=[b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('title'),b.textContent].join(' ');
+  return /ozV13Cart|корзин|basket|cart/i.test(sig)&&b.getBoundingClientRect().width<110;
+ };
+ const findNative=()=>{
+  const nodes=[...document.querySelectorAll('aside,[role="dialog"],[id*="cart" i],[class*="cart" i],[id*="basket" i],[class*="basket" i]')];
+  return nodes.filter(el=>{
+   if(el.matches('button,a')||el.closest('#ozCombinedHeader,header,nav'))return false;
+   const txt=(el.textContent||'').slice(0,1600),r=el.getBoundingClientRect();
+   return /ваша корзина/i.test(txt)&&/оформить заявк|оформить заказ/i.test(txt)&&r.width>=300&&r.height>=300;
+  }).sort((a,b)=>a.getBoundingClientRect().width-b.getBoundingClientRect().width)[0]||null;
+ };
+ function closeVisual(){
+  document.body.classList.remove('oz-center-cart-open');
+  if(native)native.classList.remove('oz-center-cart-native');
+  native=null;
+ }
+ function center(){
+  const el=findNative();if(!el)return;
+  native=el;
+  el.classList.add('oz-center-cart-native');
+  const title=[...el.querySelectorAll('h1,h2,h3')].find(x=>/корзин/i.test(x.textContent));
+  if(title?.parentElement)title.parentElement.classList.add('oz-center-cart-heading');
+  const checkout=[...el.querySelectorAll('button')].find(x=>/оформить заявк|оформить заказ/i.test(x.textContent));
+  if(checkout)checkout.classList.add('oz-center-cart-checkout');
+  document.body.classList.add('oz-center-cart-open');
+ }
+ document.addEventListener('click',event=>{
+  if(native&&event.target.closest('.oz-center-cart-native')){
+   const button=event.target.closest('button');
+   if(button&&(/закры/i.test(button.getAttribute('aria-label')||'')||/^[×✕x]$/.test(button.textContent.trim()))){closeVisual()}
+   return;
+  }
+  if(isCartTrigger(event.target)){setTimeout(center,80);return}
+  if(native&&document.body.classList.contains('oz-center-cart-open'))closeVisual();
+ },true);
+ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeVisual()},true);
+})();
+
+
 
 
 
