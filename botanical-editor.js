@@ -1,38 +1,43 @@
 (()=>{'use strict';
 
-// Hero photograph style 22 — translucent botanical layer.
+// Hero photograph variant 22: one uninterrupted layer across header and hero.
 (()=>{
  const style=document.createElement('style');
  style.id='oz-hero-photo-22-css';
  style.textContent=[
- '.oz-hero22-host{position:relative!important;isolation:isolate!important;overflow:hidden!important}',
- '.oz-hero22-photo{position:absolute!important;pointer-events:none!important;z-index:0!important;top:0!important;right:0!important;bottom:0!important;width:59%!important;height:100%!important;background:url("/hero-seedlings-22.jpg") center 57%/cover no-repeat!important;opacity:.96!important;filter:saturate(.94)!important;mask-image:linear-gradient(90deg,transparent 0%,#000 31%,#000 100%)!important;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 31%,#000 100%)!important}',
- '.oz-hero22-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f4faf2 0%,#f4faf2d9 24%,transparent 71%),linear-gradient(140deg,#c2e1be77,transparent 75%)}',
- '.oz-hero22-host>:not(.oz-hero22-photo){position:relative;z-index:1}',
- '@media(max-width:760px){.oz-hero22-photo{top:0!important;bottom:0!important;right:0!important;width:100%!important;height:100%!important;opacity:.50!important;mask-image:linear-gradient(90deg,transparent 0%,#000 38%)!important;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 38%)!important}.oz-hero22-host{min-height:0!important}}',
- '#ozCombinedHeader{position:relative!important;isolation:isolate!important;overflow:visible!important}',
- '#ozCombinedHeader::before{content:"";position:absolute;top:0;right:0;bottom:0;width:59%;pointer-events:none;z-index:0;background:url("/hero-seedlings-22.jpg") center 16%/cover no-repeat;opacity:.94;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 31%);mask-image:linear-gradient(90deg,transparent 0%,#000 31%)}',
- '#ozCombinedHeader>*{position:relative;z-index:1}',
- '@media(max-width:760px){#ozCombinedHeader::before{width:100%;opacity:.5;mask-image:linear-gradient(90deg,transparent,#000 38%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 38%)}}',
- '@media(prefers-reduced-motion:reduce){.oz-hero22-photo{transition:none!important}}'
- ].join('\n');
- document.head.appendChild(style);
- const place=()=>{
-  if(document.querySelector('.oz-hero22-photo'))return;
-  const h=document.querySelector('main h1, .hero h1, h1');
-  let host=h&&h.closest('.hero, .home-hero, .hero-section, #home, section');
-  if(!host)host=document.querySelector('.hero, .home-hero, #home');
-  if(!host||host.tagName==='MAIN'||host===document.body)return;
-  host.classList.add('oz-hero22-host');
-  const layer=document.createElement('div');
-  layer.className='oz-hero22-photo';
-  layer.setAttribute('aria-hidden','true');
-  host.insertBefore(layer,host.firstChild);
+  '#ozHero22Continuous{position:absolute;z-index:12;pointer-events:none;background-image:linear-gradient(90deg,rgba(244,250,242,.10),transparent 62%),url("/hero-seedlings-22.jpg");background-size:cover;background-position:center 54%;opacity:.96;filter:saturate(.94);-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.26) 13%,#000 33%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.26) 13%,#000 33%)}',
+  '#ozCombinedHeader{position:relative!important;z-index:15!important}',
+  '#ozCombinedHeader::before{content:none!important;display:none!important}',
+  '.hero .wrap,.hero .hero-content,.hero .hero-copy,.hero h1,.hero p,.hero .hero-actions{position:relative;z-index:14}',
+  '@media(max-width:760px){#ozHero22Continuous{opacity:.43;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 36%);mask-image:linear-gradient(90deg,transparent 0%,#000 36%)}}'
+ ].join('\n');document.head.appendChild(style);
+ const layer=document.createElement('div');
+ layer.id='ozHero22Continuous';
+ layer.setAttribute('aria-hidden','true');
+ let watched=false,frame=0;
+ const update=()=>{
+  frame=0;
+  const hero=document.querySelector('.hero, .home-hero, .hero-section, #home');
+  const header=document.getElementById('ozCombinedHeader')||document.querySelector('.header');
+  if(!hero)return;
+  if(!layer.isConnected)document.body.appendChild(layer);
+  const hr=hero.getBoundingClientRect();
+  const nr=header?.getBoundingClientRect();
+  const top=nr?Math.min(nr.top,hr.top):hr.top;
+  const bottom=hr.bottom;
+  const left=hr.left;
+  layer.style.cssText+=';top:'+(top+window.scrollY)+'px;left:'+(left+hr.width*.39)+'px;width:'+(hr.width*.61)+'px;height:'+Math.max(0,bottom-top)+'px';
  };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',place,{once:true});else place();
- setTimeout(place,900);
+ const schedule=()=>{if(!frame)frame=requestAnimationFrame(update)};
+ const init=()=>{
+  update();
+  window.addEventListener('resize',schedule,{passive:true});
+  window.addEventListener('load',schedule,{once:true});
+  if('ResizeObserver'in window){const ro=new ResizeObserver(schedule);[document.querySelector('.hero'),document.getElementById('ozCombinedHeader')].filter(Boolean).forEach(el=>ro.observe(el))}
+  setTimeout(update,850);setTimeout(update,2200);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
-
 
 // Remove the original three-photo collage and floating catalog teaser from home.
 (()=>{
