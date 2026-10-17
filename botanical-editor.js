@@ -1,5 +1,44 @@
 (()=>{'use strict';
 
+// Compact chat layout: keep composer visible, scroll only the answer history.
+(function(){
+const style=document.createElement('style');style.id='oz-compact-chat-fixed';
+style.textContent=String.raw`
+#ozHelper13 .oz-helper-panel{height:min(422px,calc(100dvh - 32px))!important;max-height:min(422px,calc(100dvh - 32px))!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;box-sizing:border-box!important}
+#ozHelper13 .oz-layout-chat-stage{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#ozHelper13 .oz-layout-chat-feed{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin!important}
+#ozHelper13 .oz-q-box{order:99!important;flex:0 0 auto!important;margin:0!important;padding:9px!important;border-radius:0 0 14px 14px!important;border-left:0!important;border-right:0!important;border-bottom:0!important;box-shadow:0 -3px 12px #153d2220!important;background:#f1f5e9!important}
+#ozHelper13 .oz-q-box .oz-q-label{display:none!important}
+#ozHelper13 .oz-q-box .oz-q-row{display:flex!important;align-items:center!important}
+#ozHelper13 .oz-q-box .oz-q-log{display:none!important}
+#ozHelper13 .oz-layout-chat-feed .oz-q-log{display:flex!important;max-height:none!important;overflow:visible!important;margin:6px 0!important;gap:6px!important}
+#ozHelper13 .oz-layout30-contacts{flex:0 0 auto!important;margin:4px auto 7px!important;gap:12px!important}
+#ozHelper13 .oz-layout30-brand{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;flex-basis:36px!important}
+#ozHelper13 .oz-layout30-brand svg{width:20px!important;height:20px!important}
+#ozHelper13 .oz-q-input{height:38px!important}
+`;
+document.head.appendChild(style);
+function layout(){
+const root=document.getElementById('ozHelper13');if(!root)return;
+const panel=root.querySelector('.oz-helper-panel'),composer=root.querySelector('.oz-q-box');
+if(!panel||!composer)return;
+let stage=panel.querySelector('.oz-layout-chat-stage');
+if(!stage){
+ stage=document.createElement('div');stage.className='oz-layout-chat-stage';
+ const feed=document.createElement('div');feed.className='oz-layout-chat-feed';
+ const children=[...panel.children].filter(el=>el!==composer);
+ children.forEach(el=>feed.appendChild(el));
+ stage.appendChild(feed);panel.insertBefore(stage,composer);
+}
+const feed=stage.querySelector('.oz-layout-chat-feed'),log=composer.querySelector('.oz-q-log');
+if(log&&log.parentElement!==feed)feed.appendChild(log);
+if(composer.parentElement!==panel)panel.appendChild(composer);
+}
+function start(){layout();let busy=false;const ob=new MutationObserver(()=>{if(busy)return;busy=true;ob.disconnect();layout();ob.observe(document.body,{subtree:true,childList:true});busy=false});ob.observe(document.body,{subtree:true,childList:true})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Layout #30: compact assistant with circular VK/TG and curved reply button.
 (function(){
 const style=document.createElement('style');style.id='oz-layout-30-style';
