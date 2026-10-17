@@ -1,0 +1,39 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Аватарка помощника — Озёрский питомник</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f2f6f1;font:15px system-ui,-apple-system,sans-serif;color:#193f2c}main{max-width:630px;margin:42px auto;padding:28px;background:white;border-radius:24px;box-shadow:0 14px 40px #15392316}h1{font-size:25px;margin:0 0 8px}p{color:#607366;line-height:1.5}label{display:block;margin:19px 0 7px;font-weight:600}input[type="password"],input[type="file"]{width:100%;padding:12px;border:1px solid #ccdaca;border-radius:10px}input[type="range"]{width:100%;accent-color:#286d42}.preview{display:flex;align-items:center;gap:18px;padding:20px;background:#eff5ed;border-radius:16px;margin-top:18px}.circle{width:84px;height:84px;flex:0 0 84px;border-radius:50%;overflow:hidden;background:#90b580}.circle canvas{display:block;width:84px;height:84px}button{background:#195f38;color:#fff;font-weight:700;border:0;border-radius:12px;padding:14px 20px;cursor:pointer;margin-top:20px}button:disabled{opacity:.4}#status{font-weight:600}small{color:#66776b}@media(max-width:700px){main{margin:12px;padding:20px}}
+</style></head><body><main><h1>Аватарка помощника</h1><p>Отдельная настройка для владельца сайта. Старая административная панель не требуется. Выбери фотографию или значок — посетителям доступен только результат.</p>
+<label for="key">Ключ администратора</label><input id="key" type="password" autocomplete="off" placeholder="Ключ из Vercel: OZ_EDITOR_ADMIN_KEY">
+<label for="file">Изображение (PNG, JPG или WebP)</label><input id="file" type="file" accept="image/png,image/jpeg,image/webp">
+<div class="preview"><div class="circle"><canvas id="preview" width="256" height="256"></canvas></div><div>Так миниатюра будет выглядеть в помощнике.<div><small>Размер на сайте: 42 × 42 px, экспорт: 256 × 256 px.</small></div></div></div>
+<label for="zoom">Увеличение <output id="zv">100%</output></label><input id="zoom" type="range" min="100" max="260" value="100" step="1">
+<label for="x">По горизонтали <output id="xv">0</output></label><input id="x" type="range" min="-100" max="100" value="0" step="1">
+<label for="y">По вертикали <output id="yv">0</output></label><input id="y" type="range" min="-100" max="100" value="0" step="1">
+<button id="save" disabled>Сохранить для всех посетителей</button><p id="status" role="status"></p></main>
+<script>
+const canvas=document.getElementById('preview'),ctx=canvas.getContext('2d');let original=null;
+const $=id=>document.getElementById(id);
+function render(){
+ const N=256,z=+$('zoom').value/100,dx=+$('x').value/100,dy=+$('y').value/100;
+ $('zv').textContent=$('zoom').value+'%';$('xv').textContent=$('x').value;$('yv').textContent=$('y').value;
+ ctx.clearRect(0,0,N,N);ctx.save();ctx.beginPath();ctx.arc(128,128,128,0,Math.PI*2);ctx.clip();
+ ctx.fillStyle='#90b580';ctx.fillRect(0,0,N,N);
+ if(original){const scale=Math.max(N/original.width,N/original.height)*z;const w=original.width*scale,h=original.height*scale;ctx.drawImage(original,(N-w)/2+dx*N/2,(N-h)/2+dy*N/2,w,h)}
+ ctx.restore();
+}
+['zoom','x','y'].forEach(id=>$(id).addEventListener('input',render));
+$('file').addEventListener('change',async()=>{
+ const f=$('file').files?.[0];if(!f)return;
+ if(!/^image\/(png|jpeg|webp)$/.test(f.type)||f.size>12*1024*1024){$('status').textContent='Выбери PNG, JPG или WebP до 12 МБ';return}
+ const url=URL.createObjectURL(f);const im=new Image();im.onload=()=>{original=im;render();$('save').disabled=false;URL.revokeObjectURL(url);$('status').textContent='Изображение готово к публикации'};im.onerror=()=>{$('status').textContent='Не удалось открыть изображение';URL.revokeObjectURL(url)};im.src=url;
+});
+$('save').addEventListener('click',async()=>{
+ if(!original)return;const key=$('key').value.trim();if(!key){$('status').textContent='Введи ключ администратора';return}
+ $('save').disabled=true;$('status').textContent='Публикация...';
+ try{
+  const image=canvas.toDataURL('image/png');if(image.length>350000)throw Error('Слишком большой PNG. Выбери изображение попроще');
+  const res=await fetch('/api/helper-avatar',{method:'POST',headers:{'Content-Type':'application/json','x-avatar-key':key},body:JSON.stringify({image})});
+  const data=await res.json();if(!res.ok)throw Error(data.error||'Ошибка сохранения');
+  $('status').textContent='Аватарка опубликована для всех посетителей!';
+ }catch(e){$('status').textContent=e.message||'Ошибка'}finally{$('save').disabled=false}
+});
+render();
+</script></body></html>
