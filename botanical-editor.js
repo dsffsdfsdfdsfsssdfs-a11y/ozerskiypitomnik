@@ -1,5 +1,35 @@
 (()=>{'use strict';
 
+// Hero photograph style 22 — translucent botanical layer.
+(()=>{
+ const style=document.createElement('style');
+ style.id='oz-hero-photo-22-css';
+ style.textContent=[
+ '.oz-hero22-host{position:relative!important;isolation:isolate!important;overflow:hidden!important}',
+ '.oz-hero22-photo{position:absolute!important;pointer-events:none!important;z-index:0!important;top:-3%!important;right:-7%!important;width:76%!important;height:108%!important;background:url("/hero-seedlings-22.jpg") center center/cover no-repeat!important;opacity:.94!important;filter:hue-rotate(8deg) saturate(.90)!important;mask-image:linear-gradient(90deg,transparent 0%,#000 39%,#000 100%)!important;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 39%,#000 100%)!important}',
+ '.oz-hero22-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f4faf2 0%,#f4faf2d9 24%,transparent 71%),linear-gradient(140deg,#c2e1be77,transparent 75%)}',
+ '.oz-hero22-host>:not(.oz-hero22-photo){position:relative;z-index:1}',
+ '@media(max-width:760px){.oz-hero22-photo{top:auto!important;bottom:0!important;right:-22%!important;width:110%!important;height:53%!important;opacity:.65!important;mask-image:linear-gradient(180deg,transparent 0%,#000 53%)!important;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 53%)!important}.oz-hero22-host{min-height:540px!important}}',
+ '@media(prefers-reduced-motion:reduce){.oz-hero22-photo{transition:none!important}}'
+ ].join('\n');
+ document.head.appendChild(style);
+ const place=()=>{
+  if(document.querySelector('.oz-hero22-photo'))return;
+  const h=document.querySelector('main h1, .hero h1, h1');
+  let host=h&&h.closest('.hero, .home-hero, .hero-section, #home, section');
+  if(!host)host=document.querySelector('.hero, .home-hero, #home');
+  if(!host||host.tagName==='MAIN'||host===document.body)return;
+  host.classList.add('oz-hero22-host');
+  const layer=document.createElement('div');
+  layer.className='oz-hero22-photo';
+  layer.setAttribute('aria-hidden','true');
+  host.insertBefore(layer,host.firstChild);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',place,{once:true});else place();
+ setTimeout(place,900);
+})();
+
+
 // Remove the original three-photo collage and floating catalog teaser from home.
 (()=>{
  const style=document.createElement('style');style.id='oz-remove-home-collage';
