@@ -17,7 +17,7 @@
    max-width:none!important;min-width:0!important;max-height:none!important;
    padding:0!important;margin:0!important;border:0!important;
    border-radius:50%!important;object-fit:cover!important;object-position:50% 50%!important;
-   transform:scale(1.15)!important;transform-origin:center center!important;
+   transform:none!important;transform-origin:center center!important;
  }
  `;
  document.head.appendChild(style);
