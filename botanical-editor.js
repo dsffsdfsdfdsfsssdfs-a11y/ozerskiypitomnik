@@ -56,23 +56,30 @@
  const close=()=>{overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
  const findProduct=(button)=>{
   let el=button;
-  for(let i=0;i<9&&el&&el!==document.body;i++,el=el.parentElement){
+  for(let i=0;i<12&&el&&el!==document.body;i++,el=el.parentElement){
    if(el.closest('#ozNewCartOverlay'))return null;
-   const image=el.querySelector('img');
+   const img=el.querySelector('img');
+   if(!img)continue;
+   const r=el.getBoundingClientRect();
+   if(r.width<150||r.width>650||r.height<170||r.height>1100)continue;
+   const ownText=(el.innerText||'').trim();
+   if(!/цена по запросу|₽|саженц|гортенз|яблон|груш|растени|хвойн|плодов|декоратив/i.test(ownText))continue;
    const title=el.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]');
-   if(!image||!title)continue;
-   const name=(title.textContent||'').trim();
-   if(name.length<3||name.length>130||el.querySelectorAll('h2,h3,h4').length>4)continue;
-   const rect=el.getBoundingClientRect();
-   if(rect.width>750||rect.height>950)continue;
-   return el;
+   if(title&&title.textContent.trim().length>2)return el;
+   const fragments=ownText.split('\n').map(x=>x.trim()).filter(x=>x.length>2&&x.length<100);
+   if(fragments.length>=2)return el;
   }
   return null;
  };
+ const getTitle=(card)=>{
+  const heading=card.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]');
+  if(heading?.textContent.trim())return heading.textContent.trim();
+  const lines=(card.innerText||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  return lines.find(x=>x.length>=4&&x.length<95&&!/^(популярное|плодовые|декоративные|рассада|цветы|цена по запросу|в корзину|добавить)$/i.test(x))||'';
+ };
  const addFromCard=(button,delta=1)=>{
   const card=findProduct(button);if(!card)return false;
-  const title=card.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]');
-  const name=(title?.textContent||'').trim();if(!name)return false;
+  const name=getTitle(card);if(!name||name.length>130)return false;
   const img=card.querySelector('img')?.currentSrc||card.querySelector('img')?.src||'';
   const price=(card.querySelector('[class*="price"]')?.textContent||'').trim().slice(0,60);
   const id=card.getAttribute('data-product-id')||card.getAttribute('data-id')||name;
@@ -103,21 +110,23 @@
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open')){e.stopPropagation();close()}},true);
  document.addEventListener('click',e=>{
   if(e.target.closest('#ozNewCartOverlay'))return;
-  const b=e.target.closest('button,a,[role="button"]');if(!b)return;
-  const info=[b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('title'),b.textContent].join(' ').toLowerCase();
-  if(b.id==='ozV13Cart'||(/корзин|cart|basket/.test(info)&&b.getBoundingClientRect().width<110&&!b.closest('.product-card,.catalog-card'))){
-   e.preventDefault();e.stopImmediatePropagation();open();return;
-  }
-  const txt=(b.textContent||'').trim().toLowerCase();
+  const b=e.target.closest('button,a,[role="button"],input[type="button"]');if(!b)return;
+  const name=(b.textContent||'').trim().toLowerCase();
   const aria=(b.getAttribute('aria-label')||'').toLowerCase();
   const card=findProduct(b);
-  if(card){
-   if(/в корзину|добавить в корзину|купить/.test(txt)){addFromCard(b,1);return}
-   const isPlus=/^[+＋]$/.test(txt)||/увелич|добавить/i.test(aria)||b.matches('[data-action="plus"],[data-qty="plus"],[class*="qty-plus"],[class*="quantity-plus"]');
-   const isMinus=/^[−–-]$/.test(txt)||/уменьш/i.test(aria)||b.matches('[data-action="minus"],[class*="qty-minus"],[class*="quantity-minus"]');
-   if(isPlus){addFromCard(b,1);return}
-   if(isMinus){addFromCard(b,-1);return}
+  const plus=/^[+＋]$/.test(name)||/в корзину|добавить в корзину/.test(name)||(/добав|увелич/.test(aria)&&!!card);
+  const minus=/^[−–-]$/.test(name)&&!!card;
+  if(card&&(plus||minus)){
+   // Capture phase: stop the old cart's click handler before it opens the side drawer.
+   e.preventDefault();e.stopImmediatePropagation();
+   addFromCard(b,minus?-1:1);
+   return;
   }
+  const info=[b.id,b.className,b.getAttribute('aria-label'),b.getAttribute('title'),b.textContent].join(' ').toLowerCase();
+  if(b.id==='ozV13Cart'||(/корзин|cart|basket/.test(info)&&b.getBoundingClientRect().width<110&&!card)){
+   e.preventDefault();e.stopImmediatePropagation();open();return;
+  }
+
  },true);
  const syncBadge=()=>{const t=document.getElementById('ozV13Cart');if(t&&(!t.querySelector('.oz-new-count-badge')||[...t.querySelectorAll('span,b,strong')].some(e=>e.classList.contains('oz-old-number-hidden')===false&&e.classList.contains('oz-new-count-badge')===false&&/^\d+$/.test(e.textContent.trim())&&e.children.length===0)))updateCount()};
  setInterval(syncBadge,1200);
