@@ -1,5 +1,17 @@
 (()=>{'use strict';
 
+// Restore the helper's original UI typography while keeping Neucha on social-service tiles.
+(()=>{
+ const st=document.createElement('style');
+ st.id='oz-helper-original-type';
+ st.textContent=[
+  'html body #ozHelper13,html body #ozHelper13 *:not(svg):not(svg *){font-family:Arial,Helvetica,sans-serif!important}',
+  'html body #ozHelper13 a[href*="vk.com"],html body #ozHelper13 a[href*="vk.com"] *:not(svg):not(svg *),html body #ozHelper13 a[href*="t.me"],html body #ozHelper13 a[href*="t.me"] *:not(svg):not(svg *),html body #ozHelper13 .oz-max-tile,html body #ozHelper13 .oz-max-tile *:not(svg):not(svg *){font-family:"Neucha",cursive!important}'
+ ].join('\n');
+ document.head.appendChild(st);
+})();
+
+
 // Site-wide Neucha typography (including dynamically added content).
 (()=>{
  const font=document.createElement('link');
