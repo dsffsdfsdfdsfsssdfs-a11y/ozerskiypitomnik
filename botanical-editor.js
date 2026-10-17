@@ -5,6 +5,33 @@
 (()=>{
  const key='oz-new-cart-v2';
  let items=[];try{const old=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(old))items=old.filter(x=>x&&x.name&&Number(x.qty)>0)}catch{}
+
+ // One-time migration from the original cart storage if the new cart is empty.
+ function recoverLegacy(){
+  if(items.length)return;
+  for(let i=0;i<localStorage.length;i++){
+   const k=localStorage.key(i);
+   if(!k||k===key||!/cart|basket|корзин/i.test(k))continue;
+   try{
+    const data=JSON.parse(localStorage.getItem(k));
+    const list=Array.isArray(data)?data:(Array.isArray(data?.items)?data.items:Array.isArray(data?.cart)?data.cart:null);
+    if(!list?.length)continue;
+    const parsed=list.map((x,j)=>{
+     if(!x||typeof x!=='object')return null;
+     const p=x.product&&typeof x.product==='object'?x.product:x;
+     const name=String(p.name||p.title||p.productName||p.plantName||'').trim();
+     if(!name)return null;
+     const qty=Math.max(1,Number(x.qty||x.quantity||x.count||1)||1);
+     const rawImg=p.img||p.image||p.photo||p.thumbnail||'';
+     const img=typeof rawImg==='string'?rawImg:(rawImg?.src||rawImg?.url||'');
+     const rawPrice=p.price||p.displayPrice||'';
+     return {id:String(p.id||p.productId||name||j),name,img,price:String(rawPrice),qty};
+    }).filter(Boolean);
+    if(parsed.length){items=parsed;return}
+   }catch{}
+  }
+ }
+ try{recoverLegacy()}catch{}
  const save=()=>{try{localStorage.setItem(key,JSON.stringify(items))}catch{}};
  const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const style=document.createElement('style');style.id='oz-new-cart-css';
@@ -24,7 +51,8 @@
  '#ozNewCartFoot p{font-size:11px;line-height:1.4;color:#728777;margin:0 0 10px}',
  '#ozNewCartOrder{display:block;border:0;background:#194a37;color:white;border-radius:11px;padding:12px 17px;margin:0 auto;font:inherit;font-weight:700;cursor:pointer;max-width:210px}',
  '#ozNewCartOrder:disabled{opacity:.5;cursor:not-allowed}',
- '#ozNewCartEmpty{text-align:center;padding:56px 12px;color:#688073;font-size:14px}',
+ '#ozNewCartEmpty{text-align:center;padding:48px 12px 28px;color:#688073;font-size:14px}',
+ '#ozNewCartCatalog{display:block;background:#e3efe3;color:#1b5038;border:1px solid #a8c6ab;border-radius:10px;margin:15px auto 0;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}',
  'body.oz-new-cart-active [class*="cart-drawer" i],body.oz-new-cart-active [id*="cart-drawer" i]{display:none!important}'
  ].join('\n');document.head.appendChild(style);
  const overlay=document.createElement('div');overlay.id='ozNewCartOverlay';
@@ -35,10 +63,11 @@
   const n=items.reduce((s,x)=>s+x.qty,0);
   const badge=document.getElementById('ozNewCartCount');if(badge)badge.textContent='('+n+')';
   for(const el of document.querySelectorAll('#ozV13Cart [class*="badge"],#ozV13Cart [class*="count"]'))el.textContent=String(n);
+  const oldTrigger=document.getElementById('ozV13Cart');if(oldTrigger){const oldNum=[...oldTrigger.querySelectorAll('span,b,strong')].filter(el=>/^\\d+$/.test(el.textContent.trim())&&el.children.length===0);oldNum.forEach(el=>{el.textContent=String(n)})}
  };
  const render=()=>{
   const list=overlay.querySelector('#ozNewCartItems');
-  list.innerHTML=items.length?items.map((x,i)=>'<div class="oz-new-line">'+(x.img?'<img src="'+esc(x.img)+'" alt="'+esc(x.name)+'">':'')+'<div class="oz-new-info"><strong>'+esc(x.name)+'</strong><small>'+(x.price?'Цена: '+esc(x.price):'Цена уточняется')+'</small><div class="oz-new-actions"><button data-cart-i="'+i+'" data-action="minus" aria-label="Уменьшить количество">−</button><b>'+x.qty+'</b><button data-cart-i="'+i+'" data-action="plus" aria-label="Увеличить количество">+</button><button class="oz-remove" data-cart-i="'+i+'" data-action="remove" aria-label="Удалить товар">×</button></div></div></div>').join(''):'<div id="ozNewCartEmpty">Корзина пока пуста. Выберите растения в каталоге.</div>';
+  list.innerHTML=items.length?items.map((x,i)=>'<div class="oz-new-line">'+(x.img?'<img src="'+esc(x.img)+'" alt="'+esc(x.name)+'">':'')+'<div class="oz-new-info"><strong>'+esc(x.name)+'</strong><small>'+(x.price?'Цена: '+esc(x.price):'Цена уточняется')+'</small><div class="oz-new-actions"><button data-cart-i="'+i+'" data-action="minus" aria-label="Уменьшить количество">−</button><b>'+x.qty+'</b><button data-cart-i="'+i+'" data-action="plus" aria-label="Увеличить количество">+</button><button class="oz-remove" data-cart-i="'+i+'" data-action="remove" aria-label="Удалить товар">×</button></div></div></div>').join(''):'<div id="ozNewCartEmpty">Корзина пока пуста. Выберите растения в каталоге.<button type="button" id="ozNewCartCatalog">Перейти в каталог</button></div>';
   overlay.querySelector('#ozNewCartOrder').disabled=!items.length;updateCount();save();
  };
  const open=()=>{mount();previousFocus=document.activeElement;render();overlay.classList.add('open');document.body.classList.add('oz-new-cart-active');overlay.querySelector('#ozNewCartClose').focus()};
@@ -55,6 +84,7 @@
  };
  overlay.addEventListener('click',e=>{
   if(e.target===overlay||e.target.closest('#ozNewCartClose')){close();return}
+  if(e.target.closest('#ozNewCartCatalog')){close();const link=[...document.querySelectorAll('a[href]')].find(a=>/каталог/i.test(a.textContent||'')&&!(a.closest('#ozNewCartOverlay')));const section=document.querySelector('#catalog,#catalogue,[id*="catalog" i]');if(section)section.scrollIntoView({behavior:'smooth',block:'start'});else if(link)link.click();else location.hash='catalog';return}
   const b=e.target.closest('[data-action]');if(!b)return;
   const i=Number(b.dataset.cartI);if(!items[i])return;
   if(b.dataset.action==='plus')items[i].qty++;
