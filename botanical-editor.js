@@ -1,8 +1,40 @@
 (()=>{'use strict';
 
+// MAX contact tile: reuse the existing Telegram tile layout and official MAX image.
+// No MAX account URL is configured yet; this tile is informational until provided.
+(function(){
+ const css=document.createElement('style');css.id='oz-max-social-tile';
+ css.textContent='#ozHelper13 .oz-max-tile{background:linear-gradient(125deg,#471aff,#9500ff)!important;color:white!important;border-color:#794bff!important;cursor:default!important}#ozHelper13 .oz-max-tile img{display:block!important;width:30px!important;height:30px!important;object-fit:contain!important;border-radius:9px!important;flex-shrink:0!important}#ozHelper13 .oz-max-tile .oz-max-title{font-size:inherit!important;font-weight:700!important;color:#fff!important}';
+ document.head.appendChild(css);
+ function install(){
+  const root=document.getElementById('ozHelper13');if(!root||root.querySelector('.oz-max-tile'))return;
+  const anchors=Array.from(root.querySelectorAll('a[href]'));
+  const tg=anchors.find(a=>/t\.me|telegram|телеграм/i.test((a.getAttribute('href')||'')+' '+(a.textContent||'')+' '+(a.getAttribute('aria-label')||'')));
+  if(!tg)return;
+  let card=tg;
+  for(let i=0;i<3&&card.parentElement&&card.parentElement!==root;i++){
+   const p=card.parentElement;
+   if(p.children.length>1||p.matches('.oz-helper-panel'))break;
+   card=p;
+  }
+  const tile=card.cloneNode(true);
+  tile.classList.add('oz-max-tile');tile.removeAttribute('href');tile.removeAttribute('target');
+  tile.setAttribute('aria-label','MAX — ссылка на менеджера пока не указана');tile.setAttribute('title','MAX: ссылка на менеджера пока не указана');
+  tile.querySelectorAll('a').forEach(a=>{a.removeAttribute('href');a.removeAttribute('target');a.style.pointerEvents='none'});
+  tile.querySelectorAll('svg,img').forEach(el=>el.remove());
+  const image=document.createElement('img');image.src='https://max.ru/s/img/big-logo.png';image.alt='MAX';image.loading='lazy';
+  const label=document.createElement('span');label.className='oz-max-title';label.textContent='MAX';
+  tile.textContent='';tile.append(image,label);
+  card.insertAdjacentElement('afterend',tile);
+ }
+ function start(){install();const ob=new MutationObserver(()=>{if(!document.querySelector('#ozHelper13 .oz-max-tile'))install()});ob.observe(document.body,{childList:true,subtree:true})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Customized delivery and pickup answer for the existing four-button helper.
 (()=>{
- const reply='Доставка курьером, а также через СДЭК, Boxberry и Почту России. Возможна бесплатная доставка при соблюдении условий заказа. Также доступен самовывоз. Напишите нам в Telegram или ВКонтакте — уточним стоимость, сроки и условия доставки и самовывоза.';
+ const reply='Доставка курьером, а также через СДЭК, Boxberry и Почту России. Возможна бесплатная доставка при соблюдении условий заказа. Также доступен самовывоз. Напишите нам во ВКонтакте или MAX — уточним стоимость, сроки и условия доставки и самовывоза.';
  let active=false,updating=false;
  const update=()=>{
   if(!active||updating)return;
