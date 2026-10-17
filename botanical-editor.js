@@ -50,6 +50,13 @@
 
 
 
+// Make the five main header menu labels more legible.
+(()=>{
+ const st=document.createElement('style');st.id='oz-header-links-larger';
+ st.textContent='html body #ozCombinedHeader a[href*="#catalog"],html body #ozCombinedHeader a[href*="#about"],html body #ozCombinedHeader a[href*="#gallery"],html body #ozCombinedHeader a[href*="#video"],html body #ozCombinedHeader a[href*="#contacts"],html body #mainNav a[href*="#catalog"],html body #mainNav a[href*="#about"],html body #mainNav a[href*="#gallery"],html body #mainNav a[href*="#video"],html body #mainNav a[href*="#contacts"]{font-family:"Neucha",cursive!important;font-size:23px!important;line-height:1.15!important}';
+ document.head.appendChild(st);
+})();
+
 // Increase readability of Neucha outside the main hero copy and helper dialogue.
 (()=>{
  const st=document.createElement('style');st.id='oz-neucha-readable';
