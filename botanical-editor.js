@@ -63,7 +63,7 @@
   const n=items.reduce((s,x)=>s+x.qty,0);
   const badge=document.getElementById('ozNewCartCount');if(badge)badge.textContent='('+n+')';
   for(const el of document.querySelectorAll('#ozV13Cart [class*="badge"],#ozV13Cart [class*="count"]'))el.textContent=String(n);
-  const oldTrigger=document.getElementById('ozV13Cart');if(oldTrigger){const oldNum=[...oldTrigger.querySelectorAll('span,b,strong')].filter(el=>/^\\d+$/.test(el.textContent.trim())&&el.children.length===0);oldNum.forEach(el=>{el.textContent=String(n)})}
+  const oldTrigger=document.getElementById('ozV13Cart');if(oldTrigger){const oldNum=[...oldTrigger.querySelectorAll('span,b,strong')].filter(el=>/^\d+$/.test(el.textContent.trim())&&el.children.length===0);oldNum.forEach(el=>{el.textContent=String(n)})}
  };
  const render=()=>{
   const list=overlay.querySelector('#ozNewCartItems');
