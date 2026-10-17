@@ -1,5 +1,29 @@
 (()=>{'use strict';
 
+// Keep the nursery's visible brand spelling consistent: "Озерский" (without ё).
+(()=>{
+ const correct=s=>s.replace(/Озёрск/g,'Озерск').replace(/озёрск/g,'озерск');
+ const fix=()=>{
+  if(document.title)document.title=correct(document.title);
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let node;
+  while((node=walker.nextNode())){
+   if(node.parentElement?.closest('script,style,textarea,[contenteditable="true"]'))continue;
+   if(node.nodeValue.includes('зёрск'))node.nodeValue=correct(node.nodeValue);
+  }
+ };
+ const start=()=>{
+  fix();let pending=false;
+  const ob=new MutationObserver(()=>{
+   if(pending)return;pending=true;
+   requestAnimationFrame(()=>{pending=false;ob.disconnect();fix();ob.observe(document.body,{childList:true,subtree:true,characterData:true})});
+  });
+  ob.observe(document.body,{childList:true,subtree:true,characterData:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Gentle two-note sound when the visitor opens the nursery helper.
 (()=>{
  let ctx=null;
