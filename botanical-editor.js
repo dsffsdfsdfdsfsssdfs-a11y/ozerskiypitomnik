@@ -1,5 +1,48 @@
 (()=>{'use strict';
 
+// Layout #30: compact assistant with circular VK/TG and curved reply button.
+(function(){
+const style=document.createElement('style');style.id='oz-layout-30-style';
+style.textContent=String.raw`
+#ozHelper13 .oz-helper-panel{width:322px!important;max-width:calc(100vw - 20px)!important;box-sizing:border-box!important;max-height:min(422px,calc(100dvh - 40px))!important;overflow-y:auto!important}
+#ozHelper13 .oz-q-box{margin:8px 0 0!important;padding:8px!important;border-radius:12px!important;background:#f1f5e9!important}
+#ozHelper13 .oz-q-label{font-size:11px!important;margin-bottom:5px!important}
+#ozHelper13 .oz-q-row{align-items:center!important}
+#ozHelper13 .oz-q-input{min-height:36px!important;padding:7px 10px!important}
+#ozHelper13 .oz-q-button{height:36px!important;width:36px!important;min-width:36px!important;padding:7px!important;display:grid!important;place-items:center!important;border-radius:50%!important}
+#ozHelper13 .oz-q-button svg{width:20px!important;height:20px!important;fill:none!important;stroke:currentColor!important;stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+#ozHelper13 .oz-q-log{max-height:126px!important;overflow-y:auto!important;margin-top:6px!important}
+#ozHelper13 .oz-layout30-contacts{display:flex!important;gap:12px!important;justify-content:center!important;align-items:center!important;margin:9px auto 2px!important}
+#ozHelper13 .oz-layout30-brand{display:grid!important;place-items:center!important;flex:0 0 42px!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;max-width:42px!important;max-height:42px!important;aspect-ratio:1/1!important;border-radius:50%!important;overflow:hidden!important;box-shadow:0 2px 6px #193a2222!important}
+#ozHelper13 .oz-layout30-brand.vk{background:#0077ff!important}
+#ozHelper13 .oz-layout30-brand.tg{background:#28a8e9!important}
+#ozHelper13 .oz-layout30-brand svg{display:block!important;width:23px!important;height:23px!important;flex:none!important;fill:#fff!important}
+#ozHelper13 .oz-layout30-hidden{display:none!important}
+`;
+document.head.appendChild(style);
+const vk='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.8 17.5h-1.3c-4.2 0-6.6-2.9-7.6-8.6-.1-.5.1-.8.6-.8h2.1c.4 0 .6.2.7.6.8 2.4 1.6 3.9 2.4 4.1.3.1.4-.1.4-.6V9.4c-.1-.7-.4-.9-.7-1-.2 0-.2-.2 0-.4.3-.3.8-.4 1.5-.4h1.7c.5 0 .7.3.7.9v3.8c0 .4.2.5.4.4.8-.4 1.6-1.9 2.2-4.1.1-.3.4-.5.8-.5h2.1c.6 0 .7.3.5.8-.5 1.7-2.1 3.8-2.1 3.8-.2.3-.2.5 0 .8.2.2 1 .9 1.5 1.5.6.7 1.1 1.3 1.2 1.8.1.5-.2.7-.7.7h-2.3c-.4 0-.6-.2-.9-.6-.5-.7-1-1.4-1.5-1.5-.3 0-.4.2-.4.5v1c0 .4-.2.6-.6.6z"/></svg>';
+const tg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.8 4.2 18.5 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.2L18.2 6c.4-.4-.1-.6-.6-.3L5.9 13.1.9 11.5c-1.1-.4-1.1-1.1.2-1.6L20.4 2.5c.9-.3 1.7.2 1.4 1.7z"/></svg>';
+const reply='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5M4 12h9a7 7 0 0 1 7 7"/></svg>';
+function install(){
+const root=document.getElementById('ozHelper13');if(!root)return;
+const box=root.querySelector('.oz-q-box');const panel=root.querySelector('.oz-helper-panel');if(!box||!panel)return;
+const send=box.querySelector('.oz-q-button');if(send&&!send.dataset.layout30){send.innerHTML=reply;send.dataset.layout30='yes';send.title='Отправить вопрос'}
+if(panel.querySelector('.oz-layout30-contacts'))return;
+const links=[...root.querySelectorAll('a[href]')].filter(a=>!a.closest('.oz-q-box'));
+const find=(kind)=>links.find(a=>{const s=((a.textContent||'')+' '+a.getAttribute('href')+' '+(a.getAttribute('aria-label')||'')+' '+(a.className||'')).toLowerCase();return kind==='vk'?/vk.com|вконтакте|oz.*vk/.test(s):/t.me|telegram|телеграм/.test(s)});
+const contacts=document.createElement('div');contacts.className='oz-layout30-contacts';
+let count=0;
+for(const [name,source,svg] of [['vk',find('vk'),vk],['tg',find('tg'),tg]]){
+ if(!source)continue;
+ const a=document.createElement('a');a.className='oz-layout30-brand '+name;a.href=source.href;a.target=source.target||'_blank';a.rel='noopener noreferrer';a.setAttribute('aria-label',name==='vk'?'ВКонтакте':'Telegram');a.innerHTML=svg;contacts.appendChild(a);count++;
+}
+if(count){box.parentNode.insertBefore(contacts,box);links.forEach(a=>{if(a===find('vk')||a===find('tg')){let p=a;while(p.parentElement&&p.parentElement!==panel&&p.parentElement.children.length===1&&!p.parentElement.classList.contains('oz-helper-panel'))p=p.parentElement;p.classList.add('oz-layout30-hidden')}})}
+}
+function start(){install();let busy=false;const ob=new MutationObserver(()=>{if(busy)return;busy=true;ob.disconnect();install();ob.observe(document.body,{childList:true,subtree:true});busy=false});ob.observe(document.body,{childList:true,subtree:true})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Searchable FAQ input, tolerant of word forms and typos.
 (function(){
 var topics=[
