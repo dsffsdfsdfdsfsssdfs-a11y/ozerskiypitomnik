@@ -52,6 +52,17 @@
   list.innerHTML=items.length?items.map((x,i)=>'<div class="oz-new-line">'+(x.img?'<img src="'+esc(x.img)+'" alt="'+esc(x.name)+'">':'')+'<div class="oz-new-info"><strong>'+esc(x.name)+'</strong><small>'+(x.price?'Цена: '+esc(x.price):'Цена уточняется')+'</small><div class="oz-new-actions"><button data-cart-i="'+i+'" data-action="minus" aria-label="Уменьшить количество">−</button><b>'+x.qty+'</b><button data-cart-i="'+i+'" data-action="plus" aria-label="Увеличить количество">+</button><button class="oz-remove" data-cart-i="'+i+'" data-action="remove" aria-label="Удалить товар">×</button></div></div></div>').join(''):'<div id="ozNewCartEmpty">Корзина пока пуста. Выберите растения в каталоге.<button type="button" id="ozNewCartCatalog">Перейти в каталог</button></div>';
   overlay.querySelector('#ozNewCartOrder').disabled=!items.length;updateCount();save();
  };
+ const toastStyle=document.createElement('style');toastStyle.id='oz-order-toast-style';
+ toastStyle.textContent='#ozOrderToast{position:fixed;left:50%;bottom:35px;transform:translate(-50%,18px);max-width:min(400px,calc(100vw - 28px));width:max-content;z-index:2147483647;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:14px;background:#e8ece9;color:#334b40;border:1px solid #cbd4ce;box-shadow:0 12px 34px #14291d22;font-size:13px;line-height:1.45;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease}#ozOrderToast.oz-toast-show{opacity:1;transform:translate(-50%,0)}#ozOrderToast svg{width:26px;height:26px;flex:none;stroke:#4d8064;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}@media(prefers-reduced-motion:reduce){#ozOrderToast{transition:none}}';
+ document.head.appendChild(toastStyle);
+ let toastTimeout;
+ const showThanks=()=>{
+  let toast=document.getElementById('ozOrderToast');
+  if(!toast){toast=document.createElement('div');toast.id='ozOrderToast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');toast.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 2.5 2.5L16 9"></path></svg><span><strong>Спасибо за заказ!</strong><br>Специалист свяжется с вами после обработки заявки.</span>';document.body.appendChild(toast)}
+  clearTimeout(toastTimeout);toast.classList.remove('oz-toast-show');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>toast.classList.add('oz-toast-show')));
+  toastTimeout=setTimeout(()=>toast.classList.remove('oz-toast-show'),4400);
+ };
  const open=()=>{mount();previousFocus=document.activeElement;render();overlay.classList.add('open');document.body.classList.add('oz-new-cart-active');overlay.querySelector('#ozNewCartClose').focus()};
  const close=()=>{const f=overlay.querySelector('#ozCheckoutStep');if(f)f.hidden=true;overlay.querySelector('#ozNewCartDialog')?.classList.remove('oz-checkout-mode');overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
  const findProduct=(button)=>{
@@ -171,11 +182,12 @@
    })});
    const payload=await response.json().catch(()=>({}));
    if(!response.ok||!payload.ok)throw Error(payload.error||'Не удалось отправить заявку');
-   result.textContent='Заявка №'+payload.id+' успешно отправлена и сохранена. Специалист свяжется с вами по указанным контактам после обработки заказа.';
+   result.textContent='';
    items=[];render();
    form.querySelectorAll('input').forEach(el=>{if(el.type==='checkbox'||el.type==='radio')el.checked=false;else el.value=''});
    field.disabled=true;field.placeholder='Сначала выберите способ связи';
-   button.textContent='Заявка отправлена';button.disabled=true;
+   button.disabled=false;button.textContent='Отправить заявку';
+   close();showThanks();
   }catch(error){
    result.textContent=(error?.message||'Ошибка отправки')+'. Проверьте соединение и повторите попытку.';
    button.disabled=false;button.textContent='Отправить заявку';
