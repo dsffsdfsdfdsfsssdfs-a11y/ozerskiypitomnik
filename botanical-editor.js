@@ -1,39 +1,45 @@
 (()=>{'use strict';
 
-// Distinct warm ivory background for the helper answer panel.
+// Answer card palette: identify the actual painted container rather than the text label.
 (()=>{
- const style=document.createElement('style');style.id='oz-helper-answer-ivory';
- style.textContent='#ozHelper13 .oz-helper-answer-ivory{background:#f7f1e5!important;background-image:none!important;border-color:#e8dcc4!important;color:#315540!important}';
- document.head.appendChild(style);
- const phrase='Выберите интересующий вопрос';
+ const marker='Выберите интересующий вопрос';
+ const paint=(el)=>{
+  if(!el||el.id==='ozHelper13'||el.classList.contains('oz-helper-panel'))return;
+  el.style.setProperty('background','#f7f1e5','important');
+  el.style.setProperty('background-color','#f7f1e5','important');
+  el.style.setProperty('background-image','none','important');
+  el.style.setProperty('border-color','#e8dcc4','important');
+  el.style.setProperty('color','#315540','important');
+  el.dataset.ozAnswerCard='1';
+ };
  const apply=()=>{
   const root=document.getElementById('ozHelper13');if(!root)return false;
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-  let node,found=false;
-  while((node=walker.nextNode())){
-   if(!(node.nodeValue||'').includes(phrase))continue;
+  const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node,done=false;
+  while((node=tw.nextNode())){
+   if(!(node.nodeValue||'').includes(marker))continue;
    let el=node.parentElement;
-   if(!el)continue;
-   const start=el;
-   while(el.parentElement&&root.contains(el.parentElement)){
-    const parent=el.parentElement;
-    if(parent.classList.contains('oz-helper-panel')||parent.querySelectorAll('button,[role="button"]').length>0)break;
-    if(parent.children.length>3)break;
-    el=parent;
+   // Find the closest ancestor that actually paints the card background.
+   for(let i=0;i<5&&el&&el!==root;i++,el=el.parentElement){
+    const cs=getComputedStyle(el),bg=cs.backgroundColor;
+    const filled=bg!=='rgba(0, 0, 0, 0)'&&bg!=='transparent';
+    if(filled&&el.getBoundingClientRect().height>=35){paint(el);done=true;break}
    }
-   (el===root?start:el).classList.add('oz-helper-answer-ivory');found=true;
   }
-  return found;
+  return done;
  };
  const start=()=>{
   apply();
-  const root=document.getElementById('ozHelper13');if(!root)return;
-  const observer=new MutationObserver(()=>{observer.disconnect();apply();observer.observe(root,{childList:true,subtree:true,characterData:true})});
-  observer.observe(root,{childList:true,subtree:true,characterData:true});
+  const root=document.getElementById('ozHelper13');
+  if(!root)return;
+  let scheduled=false;
+  const observer=new MutationObserver(()=>{
+   if(scheduled)return;scheduled=true;
+   requestAnimationFrame(()=>{scheduled=false;observer.disconnect();apply();observer.observe(root,{subtree:true,childList:true,characterData:true})});
+  });
+  observer.observe(root,{subtree:true,childList:true,characterData:true});
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-
 
 // Palette 2 — style the actual FAQ action, including div-based clickable items.
 (()=>{
