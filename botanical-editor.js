@@ -1,5 +1,63 @@
 (()=>{'use strict';
 
+// Searchable FAQ input, tolerant of word forms and typos.
+(function(){
+var topics=[
+['заказ оформить покупка корзина заявка заказать приобрести купить оформить','Для заказа выберите растения в каталоге, добавьте их в корзину и отправьте заявку.','каталог'],
+['доставка привезти отправка перевозка транспорт курьер','Условия доставки, сроки и стоимость уточните у питомника для вашего адреса.','контакты'],
+['самовывоз забрать приехать получить самостоятельно','Возможность самовывоза и время получения согласуйте с питомником.','контакты'],
+['адрес находитесь добраться проехать местонахождение карта координаты','Адрес питомника и способы связи указаны в разделе «Контакты».','контакты'],
+['телефон позвонить связаться написать вконтакте телеграм почта контакты','Все актуальные способы связи с питомником указаны в разделе «Контакты».','контакты'],
+['график часы режим работы открыты выходной работаете','Актуальные часы работы и удобное время посещения уточните через контакты питомника.','контакты'],
+['цена стоимость прайс прайслист сколько стоит рублей скидка','Стоимость зависит от сорта и размера растения. Актуальные цены смотрите в каталоге или уточняйте у питомника.','каталог'],
+['наличие осталось есть доступно остаток доступность','Наличие растений меняется. Актуальный остаток конкретного сорта уточните у питомника.','каталог'],
+['каталог ассортимент растения сорта виды выбор продукция','Посмотреть растения и доступные категории можно в каталоге сайта.','каталог'],
+['гортензия гортензии метельчатая древовидная','Гортензии можно поискать в каталоге. Наличие конкретных сортов уточните перед заказом.','каталог'],
+['хвойные хвойники туя ель сосна можжевельник пихта','Хвойные растения представлены среди направлений питомника. Выбирайте в каталоге и уточняйте сорта.','каталог'],
+['плодовые яблоня груша вишня слива ягоды смородина малина жимолость','Плодовые и ягодные культуры ищите в каталоге питомника.','каталог'],
+['декоративные кустарники деревья барбарис спирея сирень цветы','Декоративные растения можно посмотреть в каталоге питомника.','каталог'],
+['рассада саженцы саженец посадочный материал','Рассаду и саженцы выбирайте в каталоге; актуальное наличие уточняйте.','каталог'],
+['выбрать подбор посоветуйте рекомендация подойдет сад участок','Напишите, для какого участка нужны растения и какие условия на нём. Для выбора конкретного сорта можно связаться с питомником.','контакты'],
+['уход полив поливать сажать посадка удобрение обрезка зимовка','Уход зависит от вида и сорта растения. За рекомендациями по конкретному саженцу обратитесь к специалистам питомника.','контакты'],
+['оптом оптовый крупная партия сотрудничество закупка','Условия оптовых заказов и сотрудничества уточняйте напрямую у питомника.','контакты'],
+['оплата оплатить наличные карта перевод предоплата счет','Способы оплаты и порядок расчётов уточните при оформлении заказа.','контакты'],
+['фото фотография изображение картинки галерея','Фотографии растений и питомника можно посмотреть в галерее.','галерея'],
+['видео ролик съемка посмотреть видеозапись','Посмотрите видеоматериалы в разделе «Видео».','видео'],
+['история питомнике хозяйство теплицы выращивание производство','Подробнее о питомнике можно узнать в разделе «О питомнике».','о питомнике'],
+['возврат гарантия обмен брак повреждение претензия качество','С вопросами качества, обмена и возврата обратитесь напрямую в питомник, указав подробности заказа.','контакты']
+];
+function clean(s){return String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function rootWord(s){return clean(s).replace(/(иями|ениями|аться|овать|остями|ого|ему|ыми|ские|ская|ский|ение|ость|ами|ями|ать|ить|ала|или|ете|ной|ные|ных|ый|ий|ой|ая|ую|ые|их|ов|ев|ам|ям|ах|ях|ом|ем|ие|ия|иям|ей|а|я|ы|и|е|у|ю|о|ь)$/,'')}
+function distance(a,b){if(Math.abs(a.length-b.length)>2)return 9;var old=Array.from({length:b.length+1},(_,i)=>i);for(var i=1;i<=a.length;i++){var next=[i];for(var j=1;j<=b.length;j++)next[j]=Math.min(old[j]+1,next[j-1]+1,old[j-1]+(a[i-1]===b[j-1]?0:1));old=next}return old[b.length]}
+var ignored=new Set('пожалуйста подскажите скажите расскажите я мне вы вам что как какие какая какой где есть можно нужно узнать хочу это ли по у на для про а и или вопрос'.split(' '));
+function terms(s){return clean(s).split(' ').filter(w=>w.length>2&&!ignored.has(w)).map(rootWord)}
+var entries=topics.map(t=>({terms:terms(t[0]),answer:t[1],section:t[2]}));
+function matches(a,b){return a===b||(a.length>=4&&b.length>=4&&(a.startsWith(b)||b.startsWith(a)))||(a.length>=5&&b.length>=5&&distance(a,b)<=Math.min(2,Math.floor(Math.min(a.length,b.length)/4)))}
+function answer(question){var words=terms(question),best=null,high=0;entries.forEach(t=>{var score=0;words.forEach(w=>{if(t.terms.some(k=>matches(w,k)))score++});if(score>high){high=score;best=t}});return best}
+var css=document.createElement('style');css.id='oz-question-field-styles';
+css.textContent='#ozHelper13 .oz-q-box{box-sizing:border-box;margin:12px 0 0;padding:11px;border:1px solid #c8d6b6;border-radius:14px;background:#f1f5e9}#ozHelper13 .oz-q-label{font-size:12px;font-weight:700;color:#385b46;margin-bottom:8px}#ozHelper13 .oz-q-row{display:flex;gap:7px}#ozHelper13 .oz-q-input{box-sizing:border-box;min-width:0;flex:1;width:100%;border:1px solid #b7ceb9;border-radius:10px;background:white;color:#23422c;padding:10px;font:inherit;font-size:13px;outline:none}#ozHelper13 .oz-q-input:focus{border-color:#5d8e67}#ozHelper13 .oz-q-button{border:0;border-radius:10px;background:#356d4f;color:white;padding:0 13px;cursor:pointer}#ozHelper13 .oz-q-log{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;margin-top:8px}#ozHelper13 .oz-q-message{font-size:12.5px;line-height:1.5;padding:10px;border-radius:11px;overflow-wrap:anywhere;white-space:pre-wrap}#ozHelper13 .oz-q-human{align-self:flex-end;background:#d8e8d8;color:#264832}#ozHelper13 .oz-q-answer{background:#e6edcf;color:#284636;border:1px solid #b9ca9c}#ozHelper13 .oz-q-answer a{color:#206042;text-decoration:underline}';
+document.head.appendChild(css);
+function sectionLink(label){var links=Array.from(document.querySelectorAll('a[href]'));return links.find(a=>!a.closest('#ozHelper13')&&(clean(a.textContent).includes(clean(label))||clean(a.getAttribute('href')).includes(clean(label).replace(/ /g,'')))&&a.href.indexOf(location.origin)===0)}
+function install(){
+ var helper=document.getElementById('ozHelper13');if(!helper)return;
+ var panel=helper.querySelector('.oz-helper-panel');if(!panel||panel.querySelector('.oz-q-box'))return;
+ var box=document.createElement('div');box.className='oz-q-box';
+ var label=document.createElement('div');label.className='oz-q-label';label.textContent='Или задайте свой вопрос';
+ var row=document.createElement('div');row.className='oz-q-row';
+ var input=document.createElement('input');input.className='oz-q-input';input.type='text';input.maxLength=500;input.placeholder='Например: есть гортензии?';input.setAttribute('aria-label','Вопрос питомнику');
+ var send=document.createElement('button');send.type='button';send.className='oz-q-button';send.textContent='➜';send.setAttribute('aria-label','Отправить вопрос');
+ var log=document.createElement('div');log.className='oz-q-log';log.setAttribute('aria-live','polite');
+ function bubble(message,human,link){var div=document.createElement('div');div.className='oz-q-message '+(human?'oz-q-human':'oz-q-answer');div.textContent=message;if(link){var url=sectionLink(link);if(url){var a=document.createElement('a');a.href=url.href;a.textContent='Перейти в раздел «'+link+'» ↗';div.append(document.createTextNode('\n'),a)}}log.appendChild(div);log.scrollTop=log.scrollHeight}
+ function submit(){var q=input.value.trim();if(!q)return;bubble(q,true);input.value='';var result=answer(q);if(result)bubble(result.answer,false,result.section);else bubble('Я не нашёл точный ответ на этот вопрос. Можно посмотреть каталог или уточнить информацию у сотрудников питомника.',false,'контакты')}
+ send.addEventListener('click',submit);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}});
+ row.append(input,send);box.append(label,row,log);panel.appendChild(box);
+}
+function start(){install();var root=document.getElementById('ozHelper13');if(!root)return;var busy=false;var observer=new MutationObserver(()=>{if(busy)return;busy=true;observer.disconnect();install();observer.observe(root,{childList:true,subtree:true});busy=false});observer.observe(root,{childList:true,subtree:true})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
+
 // Answer bubble: direct selector, independent of the text it contains.
 (()=>{
  const el=document.createElement('style');
