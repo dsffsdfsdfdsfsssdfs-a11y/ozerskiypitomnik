@@ -10,6 +10,10 @@
  '.oz-hero22-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f4faf2 0%,#f4faf2d9 24%,transparent 71%),linear-gradient(140deg,#c2e1be77,transparent 75%)}',
  '.oz-hero22-host>:not(.oz-hero22-photo){position:relative;z-index:1}',
  '@media(max-width:760px){.oz-hero22-photo{top:0!important;bottom:0!important;right:0!important;width:100%!important;height:100%!important;opacity:.50!important;mask-image:linear-gradient(90deg,transparent 0%,#000 38%)!important;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 38%)!important}.oz-hero22-host{min-height:0!important}}',
+ '#ozCombinedHeader{position:relative!important;isolation:isolate!important;overflow:visible!important}',
+ '#ozCombinedHeader::before{content:"";position:absolute;top:0;right:0;bottom:0;width:59%;pointer-events:none;z-index:0;background:url("/hero-seedlings-22.jpg") center 16%/cover no-repeat;opacity:.94;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 31%);mask-image:linear-gradient(90deg,transparent 0%,#000 31%)}',
+ '#ozCombinedHeader>*{position:relative;z-index:1}',
+ '@media(max-width:760px){#ozCombinedHeader::before{width:100%;opacity:.5;mask-image:linear-gradient(90deg,transparent,#000 38%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 38%)}}',
  '@media(prefers-reduced-motion:reduce){.oz-hero22-photo{transition:none!important}}'
  ].join('\n');
  document.head.appendChild(style);
