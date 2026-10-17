@@ -1,5 +1,18 @@
 (()=>{'use strict';
 
+// Site-wide Neucha typography (including dynamically added content).
+(()=>{
+ const font=document.createElement('link');
+ font.rel='stylesheet';
+ font.href='https://fonts.googleapis.com/css2?family=Neucha&display=swap';
+ document.head.appendChild(font);
+ const st=document.createElement('style');
+ st.id='oz-global-neucha';
+ st.textContent='html body,html body *:not(svg):not(svg *){font-family:"Neucha",cursive!important}html body input,html body textarea,html body select,html body button{font-family:"Neucha",cursive!important}';
+ document.head.appendChild(st);
+})();
+
+
 // Homepage typography concept 45 — Wide horizon.
 (()=>{
  const fontLink=document.createElement('link');fontLink.rel='stylesheet';fontLink.href='https://fonts.googleapis.com/css2?family=Neucha&display=swap';document.head.appendChild(fontLink);
