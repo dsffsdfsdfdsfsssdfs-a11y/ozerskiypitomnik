@@ -44,7 +44,7 @@
   badge.textContent=String(n);badge.style.display=n?'block':'none';
   [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
    if(el===badge||el.closest('.oz-new-count-badge'))return;
-   if(el.children.length===0&&/^\\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
+   if(el.children.length===0&&/^\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
   });
  };
  const render=()=>{
@@ -119,7 +119,7 @@
    if(isMinus){addFromCard(b,-1);return}
   }
  },true);
- const syncBadge=()=>{const t=document.getElementById('ozV13Cart');if(t&&(!t.querySelector('.oz-new-count-badge')||[...t.querySelectorAll('span,b,strong')].some(e=>e.classList.contains('oz-old-number-hidden')===false&&e.classList.contains('oz-new-count-badge')===false&&/^\\d+$/.test(e.textContent.trim())&&e.children.length===0)))updateCount()};
+ const syncBadge=()=>{const t=document.getElementById('ozV13Cart');if(t&&(!t.querySelector('.oz-new-count-badge')||[...t.querySelectorAll('span,b,strong')].some(e=>e.classList.contains('oz-old-number-hidden')===false&&e.classList.contains('oz-new-count-badge')===false&&/^\d+$/.test(e.textContent.trim())&&e.children.length===0)))updateCount()};
  setInterval(syncBadge,1200);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();render()},{once:true});else{mount();render()}
 })();
