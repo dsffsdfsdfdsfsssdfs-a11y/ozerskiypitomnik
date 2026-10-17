@@ -1,10 +1,32 @@
 (()=>{'use strict';
 
+// Replace the old Telegram mention only in the 'Contact us' quick answer.
+(()=>{
+ const replacement='Свяжитесь с нами через ВКонтакте или MAX — поможем с выбором растений, заказом и доставкой.';
+ let active=false,internal=false;
+ const apply=()=>{
+  if(!active||internal)return;
+  const root=document.getElementById('ozHelper13');if(!root)return;
+  const reply=root.querySelector('.oz-h-reply,#ozHelperReply');if(!reply)return;
+  if(reply.textContent.trim()!==replacement){internal=true;reply.textContent=replacement;internal=false}
+ };
+ document.addEventListener('click',e=>{
+  const root=document.getElementById('ozHelper13');if(!root||!root.contains(e.target))return;
+  const target=e.target.closest('button,[role="button"],a,[onclick]')||e.target;
+  const name=(target.textContent||'').trim();
+  if(name==='Связаться с нами'){active=true;setTimeout(apply,0);setTimeout(apply,80);setTimeout(apply,250)}
+  else if(['Помощь с выбором растений','Как оформить заказ?','Доставка и самовывоз'].includes(name))active=false;
+ },true);
+ const start=()=>{const root=document.getElementById('ozHelper13');if(!root)return;const ob=new MutationObserver(()=>{if(active&&!internal)apply()});ob.observe(root,{childList:true,subtree:true,characterData:true})};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // MAX contact tile: reuse the existing Telegram tile layout and official MAX image.
 // No MAX account URL is configured yet; this tile is informational until provided.
 (function(){
  const css=document.createElement('style');css.id='oz-max-social-tile';
- css.textContent='#ozHelper13 .oz-max-tile{background:linear-gradient(125deg,#471aff,#9500ff)!important;color:white!important;border-color:#794bff!important;cursor:default!important}#ozHelper13 .oz-max-tile img{display:block!important;width:30px!important;height:30px!important;object-fit:contain!important;border-radius:9px!important;flex-shrink:0!important}#ozHelper13 .oz-max-tile .oz-max-title{font-size:inherit!important;font-weight:700!important;color:#fff!important}';
+ css.textContent='#ozHelper13 .oz-max-tile{background:#e9e2ff!important;color:#30205e!important;border-color:#a995e3!important;cursor:default!important}#ozHelper13 .oz-max-tile img{display:block!important;width:30px!important;height:30px!important;object-fit:contain!important;border-radius:9px!important;flex-shrink:0!important}#ozHelper13 .oz-max-tile .oz-max-title{font-size:inherit!important;font-weight:700!important;color:#30205e!important}';
  document.head.appendChild(css);
  function install(){
   const root=document.getElementById('ozHelper13');if(!root||root.querySelector('.oz-max-tile'))return;
