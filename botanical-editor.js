@@ -1,5 +1,39 @@
 (()=>{'use strict';
 
+// Gentle two-note sound when the visitor opens the nursery helper.
+(()=>{
+ let ctx=null;
+ const chime=()=>{
+  try{
+   const AudioContextCtor=window.AudioContext||window.webkitAudioContext;
+   if(!AudioContextCtor)return;
+   if(!ctx)ctx=new AudioContextCtor();
+   if(ctx.state==='suspended')ctx.resume();
+   const now=ctx.currentTime;
+   [[660,0,.12],[880,.095,.16]].forEach(([freq,delay,duration])=>{
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(freq,now+delay);
+    gain.gain.setValueAtTime(.0001,now+delay);
+    gain.gain.exponentialRampToValueAtTime(.035,now+delay+.015);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+delay+duration);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(now+delay);osc.stop(now+delay+duration+.01);
+   });
+  }catch(e){}
+ };
+ document.addEventListener('click',event=>{
+  const toggle=event.target.closest('#ozHelperToggle');
+  if(!toggle)return;
+  const root=document.getElementById('ozHelper13');
+  const panel=root&&root.querySelector('.oz-helper-panel');
+  if(panel&&getComputedStyle(panel).display!=='none'&&getComputedStyle(panel).visibility!=='hidden'&&panel.getBoundingClientRect().width>0){
+   return; // already open; this click closes it
+  }
+  chime();
+ },true);
+})();
+
+
 // Replace the old Telegram mention only in the 'Contact us' quick answer.
 (()=>{
  const replacement='Свяжитесь с нами через ВКонтакте или MAX — поможем с выбором растений, заказом и доставкой.';
