@@ -6,38 +6,14 @@
  const key='oz-new-cart-v2';
  let items=[];try{const old=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(old))items=old.filter(x=>x&&x.name&&Number(x.qty)>0)}catch{}
 
- // One-time migration from the original cart storage if the new cart is empty.
- function recoverLegacy(){
-  if(items.length)return;
-  for(let i=0;i<localStorage.length;i++){
-   const k=localStorage.key(i);
-   if(!k||k===key||!/cart|basket|корзин/i.test(k))continue;
-   try{
-    const data=JSON.parse(localStorage.getItem(k));
-    const list=Array.isArray(data)?data:(Array.isArray(data?.items)?data.items:Array.isArray(data?.cart)?data.cart:null);
-    if(!list?.length)continue;
-    const parsed=list.map((x,j)=>{
-     if(!x||typeof x!=='object')return null;
-     const p=x.product&&typeof x.product==='object'?x.product:x;
-     const name=String(p.name||p.title||p.productName||p.plantName||'').trim();
-     if(!name)return null;
-     const qty=Math.max(1,Number(x.qty||x.quantity||x.count||1)||1);
-     const rawImg=p.img||p.image||p.photo||p.thumbnail||'';
-     const img=typeof rawImg==='string'?rawImg:(rawImg?.src||rawImg?.url||'');
-     const rawPrice=p.price||p.displayPrice||'';
-     return {id:String(p.id||p.productId||name||j),name,img,price:String(rawPrice),qty};
-    }).filter(Boolean);
-    if(parsed.length){items=parsed;return}
-   }catch{}
-  }
- }
- try{recoverLegacy()}catch{}
+ // The new cart is authoritative; stale old-cart items must not be imported.
  const save=()=>{try{localStorage.setItem(key,JSON.stringify(items))}catch{}};
  const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const style=document.createElement('style');style.id='oz-new-cart-css';
  style.textContent=[
  '#ozNewCartOverlay{position:fixed;inset:0;background:#0a21188c;backdrop-filter:blur(3px);z-index:2147483644;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}',
  '#ozNewCartOverlay.open{display:flex}',
+ '#ozV13Cart{position:relative!important}#ozV13Cart .oz-new-count-badge{position:absolute!important;top:-4px!important;right:-5px!important;min-width:18px!important;height:18px!important;padding:0 4px!important;box-sizing:border-box!important;border-radius:20px!important;background:#1d513b!important;color:white!important;font-size:11px!important;line-height:18px!important;text-align:center!important;z-index:50!important;pointer-events:none!important}#ozV13Cart .oz-old-number-hidden{display:none!important}',
  '#ozNewCartDialog{background:#fff;width:min(490px,100%);height:min(620px,calc(100dvh - 24px));max-height:calc(100dvh - 24px);border-radius:20px;box-shadow:0 25px 100px #051a1370;overflow:hidden;display:flex;flex-direction:column;font:inherit;color:#244233}',
  '#ozNewCartHead{background:#173e30;color:#fff;padding:19px 22px;display:flex;align-items:center;justify-content:space-between;flex:none}',
  '#ozNewCartHead strong{font-size:19px}',
@@ -60,10 +36,16 @@
  const mount=()=>{if(!overlay.isConnected)document.body.append(overlay)};
  let previousFocus=null;
  const updateCount=()=>{
-  const n=items.reduce((s,x)=>s+x.qty,0);
-  const badge=document.getElementById('ozNewCartCount');if(badge)badge.textContent='('+n+')';
-  for(const el of document.querySelectorAll('#ozV13Cart [class*="badge"],#ozV13Cart [class*="count"]'))el.textContent=String(n);
-  const oldTrigger=document.getElementById('ozV13Cart');if(oldTrigger){const oldNum=[...oldTrigger.querySelectorAll('span,b,strong')].filter(el=>/^\d+$/.test(el.textContent.trim())&&el.children.length===0);oldNum.forEach(el=>{el.textContent=String(n)})}
+  const n=items.reduce((sum,x)=>sum+x.qty,0);
+  const count=overlay.querySelector('#ozNewCartCount');if(count)count.textContent='('+n+')';
+  const trigger=document.getElementById('ozV13Cart');if(!trigger)return;
+  let badge=trigger.querySelector('.oz-new-count-badge');
+  if(!badge){badge=document.createElement('span');badge.className='oz-new-count-badge';trigger.appendChild(badge)}
+  badge.textContent=String(n);badge.style.display=n?'block':'none';
+  [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
+   if(el===badge||el.closest('.oz-new-count-badge'))return;
+   if(el.children.length===0&&/^\\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
+  });
  };
  const render=()=>{
   const list=overlay.querySelector('#ozNewCartItems');
@@ -72,15 +54,32 @@
  };
  const open=()=>{mount();previousFocus=document.activeElement;render();overlay.classList.add('open');document.body.classList.add('oz-new-cart-active');overlay.querySelector('#ozNewCartClose').focus()};
  const close=()=>{overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
- const addFromCard=(button)=>{
-  const card=button.closest('[data-product-id],[data-id],.product-card,.catalog-card,[class*="product-card"],[class*="catalog-card"],article,[class*="plant-card"]');
-  if(!card)return false;
-  const name=(card.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]')?.textContent||'').trim();
-  if(!name||name.length>130)return false;
+ const findProduct=(button)=>{
+  let el=button;
+  for(let i=0;i<9&&el&&el!==document.body;i++,el=el.parentElement){
+   if(el.closest('#ozNewCartOverlay'))return null;
+   const image=el.querySelector('img');
+   const title=el.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]');
+   if(!image||!title)continue;
+   const name=(title.textContent||'').trim();
+   if(name.length<3||name.length>130||el.querySelectorAll('h2,h3,h4').length>4)continue;
+   const rect=el.getBoundingClientRect();
+   if(rect.width>750||rect.height>950)continue;
+   return el;
+  }
+  return null;
+ };
+ const addFromCard=(button,delta=1)=>{
+  const card=findProduct(button);if(!card)return false;
+  const title=card.querySelector('h2,h3,h4,[class*="product-name"],[class*="product-title"],[class*="plant-name"]');
+  const name=(title?.textContent||'').trim();if(!name)return false;
   const img=card.querySelector('img')?.currentSrc||card.querySelector('img')?.src||'';
   const price=(card.querySelector('[class*="price"]')?.textContent||'').trim().slice(0,60);
   const id=card.getAttribute('data-product-id')||card.getAttribute('data-id')||name;
-  const item=items.find(x=>x.id===id);if(item)item.qty++;else items.push({id,name,img,price,qty:1});render();return true;
+  const item=items.find(x=>x.id===id);
+  if(item){item.qty+=delta;if(!item.img&&img)item.img=img}
+  else if(delta>0)items.push({id,name,img,price,qty:delta});
+  items=items.filter(x=>x.qty>0);render();return true;
  };
  overlay.addEventListener('click',e=>{
   if(e.target===overlay||e.target.closest('#ozNewCartClose')){close();return}
@@ -109,10 +108,19 @@
   if(b.id==='ozV13Cart'||(/корзин|cart|basket/.test(info)&&b.getBoundingClientRect().width<110&&!b.closest('.product-card,.catalog-card'))){
    e.preventDefault();e.stopImmediatePropagation();open();return;
   }
-  if(/в корзину|добавить в корзину/.test((b.textContent||'').toLowerCase())&&addFromCard(b)){
-   e.preventDefault();e.stopImmediatePropagation();
+  const txt=(b.textContent||'').trim().toLowerCase();
+  const aria=(b.getAttribute('aria-label')||'').toLowerCase();
+  const card=findProduct(b);
+  if(card){
+   if(/в корзину|добавить в корзину|купить/.test(txt)){addFromCard(b,1);return}
+   const isPlus=/^[+＋]$/.test(txt)||/увелич|добавить/i.test(aria)||b.matches('[data-action="plus"],[data-qty="plus"],[class*="qty-plus"],[class*="quantity-plus"]');
+   const isMinus=/^[−–-]$/.test(txt)||/уменьш/i.test(aria)||b.matches('[data-action="minus"],[class*="qty-minus"],[class*="quantity-minus"]');
+   if(isPlus){addFromCard(b,1);return}
+   if(isMinus){addFromCard(b,-1);return}
   }
  },true);
+ const syncBadge=()=>{const t=document.getElementById('ozV13Cart');if(t&&(!t.querySelector('.oz-new-count-badge')||[...t.querySelectorAll('span,b,strong')].some(e=>e.classList.contains('oz-old-number-hidden')===false&&e.classList.contains('oz-new-count-badge')===false&&/^\\d+$/.test(e.textContent.trim())&&e.children.length===0)))updateCount()};
+ setInterval(syncBadge,1200);
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();render()},{once:true});else{mount();render()}
 })();
 
