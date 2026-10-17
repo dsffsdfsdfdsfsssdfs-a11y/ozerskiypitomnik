@@ -1,5 +1,45 @@
 (()=>{'use strict';
 
+// Cart option 15 — forest evening. Visual-only; preserve existing cart actions.
+(()=>{
+ const css=document.createElement('style');css.id='oz-cart-forest15';
+ css.textContent=`
+ body .oz-cart-forest15{z-index:2147483000!important;position:fixed!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;max-height:calc(100dvh - 28px)!important;overflow:hidden!important;border-radius:18px!important;background:#fff!important;box-shadow:0 22px 75px #071d1370!important;border:1px solid #d5e5d5!important}
+ .oz-cart-forest15 > header,.oz-cart-forest15 .cart-header,.oz-cart-forest15 .basket-header,.oz-cart-forest15 [class*="cart-head"],.oz-cart-forest15 [class*="basket-head"]{background:#194435!important;color:#fff!important}
+ .oz-cart-forest15 .cart-header button,.oz-cart-forest15 .basket-header button{color:inherit!important}
+ .oz-cart-forest15 button[class*="checkout"],.oz-cart-forest15 button[class*="order"],.oz-cart-forest15 button[class*="submit"]{background:#245e44!important;color:#fff!important;border-radius:10px!important;width:auto!important;max-width:190px!important;margin-left:auto!important;margin-right:auto!important;padding:10px 15px!important;font-weight:700!important}
+ .oz-cart-forest15 img{object-fit:cover;border-radius:10px}
+ .oz-cart-forest15 [class*="items"],.oz-cart-forest15 [class*="list"]{overflow-y:auto;min-height:0}
+ body .oz-cart-backdrop15{position:fixed!important;inset:0!important;z-index:2147482999!important;background:#071b1180!important;backdrop-filter:blur(2px)!important;pointer-events:none!important}
+ `;
+ document.head.appendChild(css);
+ const cartText=/^(корзина|ваша корзина|мой заказ)$/i;
+ const find=()=>{
+  const candidates=[...document.querySelectorAll('[role="dialog"],dialog,[id*="cart" i],[class*="cart" i],[id*="basket" i],[class*="basket" i]')];
+  for(const el of candidates){
+   if(el.closest('header,nav,#ozCombinedHeader')||el.tagName==='BUTTON')continue;
+   const st=getComputedStyle(el),rect=el.getBoundingClientRect();
+   if(st.display==='none'||st.visibility==='hidden'||rect.width<220||rect.height<110)continue;
+   if(el.querySelectorAll('button').length<2)continue;
+   const title=(el.querySelector('h1,h2,h3,[class*="title"],[class*="head"]')?.textContent||'').trim();
+   if(!/корзин/i.test(title)&&!cartText.test((el.textContent||'').trim().slice(0,35)))continue;
+   return el;
+  }
+  return null;
+ };
+ const apply=()=>{
+  const selected=find();
+  document.querySelectorAll('.oz-cart-forest15').forEach(el=>{if(el!==selected)el.classList.remove('oz-cart-forest15')});
+  if(selected)selected.classList.add('oz-cart-forest15');
+ };
+ const start=()=>{
+  apply();let queued=false;
+  new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;apply()})}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class','open']});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Keep the nursery's visible brand spelling consistent: "Озерский" (without ё).
 (()=>{
  const correct=s=>s.replace(/Озёрск/g,'Озерск').replace(/озёрск/g,'озерск');
