@@ -5,12 +5,12 @@
  const style=document.createElement('style');
  style.id='oz-hero-photo-39-css';
  style.textContent=[
-  '#ozHero22Continuous{position:absolute;z-index:12;pointer-events:none;background-image:linear-gradient(90deg,rgba(244,250,242,.10),transparent 62%),url("/hero-seedlings-22.jpg");background-size:cover;background-position:center 54%;opacity:.96;filter:saturate(.94);clip-path:polygon(12% 0,100% 0,100% 100%,12% 100%,0 70%,0 30%)}',
+  '#ozHero22Continuous{position:absolute;z-index:12;pointer-events:none;background-image:linear-gradient(90deg,rgba(244,250,242,.10),transparent 62%),url("/hero-seedlings-22.jpg");background-size:cover;background-position:center 54%;opacity:.96;filter:saturate(.90);-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.12) 8%,rgba(0,0,0,.62) 21%,#000 38%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.12) 8%,rgba(0,0,0,.62) 21%,#000 38%)}',
   '#ozCombinedHeader{position:relative!important;z-index:15!important;background:transparent!important}',
   '#ozCombinedHeader .header{background:transparent!important}',
   '#ozCombinedHeader::before{content:none!important;display:none!important}',
   '.hero .wrap,.hero .hero-content,.hero .hero-copy,.hero h1,.hero p,.hero .hero-actions{position:relative;z-index:14}',
-  '@media(max-width:760px){#ozHero22Continuous{opacity:.48;clip-path:polygon(10% 0,100% 0,100% 100%,10% 100%,0 70%,0 30%)}}'
+  '@media(max-width:760px){#ozHero22Continuous{opacity:.53;-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.5) 26%,#000 52%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.5) 26%,#000 52%)}}'
  ].join('\n');document.head.appendChild(style);
  const layer=document.createElement('div');
  layer.id='ozHero22Continuous';
