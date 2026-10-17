@@ -5,8 +5,8 @@
  const style=document.createElement('style');
  style.id='oz-helper-status-18-style';
  style.textContent=String.raw`
- #ozHelper13 .oz-status18{display:inline-flex;align-items:center;gap:7px;vertical-align:middle;color:#368853;font-size:inherit;font-weight:600;white-space:nowrap}
- #ozHelper13 .oz-signal18{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:16px;flex:0 0 16px}
+ #ozHelper13 .oz-status18{display:inline-flex;align-items:center;gap:7px;vertical-align:middle;color:#368853;font-size:inherit;font-weight:600;white-space:nowrap;line-height:1;transform:translateY(1px)}
+ #ozHelper13 .oz-signal18{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:16px;flex:0 0 16px;transform:translateY(-1px)}
  #ozHelper13 .oz-signal18 i{display:block;width:4px;background:#28ba65;border-radius:3px;transform-origin:bottom;animation:oz-signal-wave18 1.3s ease-in-out infinite}
  #ozHelper13 .oz-signal18 i:nth-child(1){height:5px}
  #ozHelper13 .oz-signal18 i:nth-child(2){height:9px;animation-delay:.2s}
