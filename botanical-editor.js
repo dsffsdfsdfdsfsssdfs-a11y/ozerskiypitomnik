@@ -6,6 +6,9 @@
  style.id='oz-hero-photo-39-css';
  style.textContent=[
   '#ozHero22Continuous{position:absolute;z-index:12;pointer-events:none;background-image:linear-gradient(90deg,rgba(244,250,242,.10),transparent 62%),url("/hero-seedlings-22.jpg");background-size:cover;background-position:center 54%;opacity:.96;filter:saturate(.90);-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.12) 8%,rgba(0,0,0,.62) 21%,#000 38%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.12) 8%,rgba(0,0,0,.62) 21%,#000 38%)}',
+  '#ozHero22Continuous::before{content:"";position:absolute;inset:0 0 auto 0;height:110px;background:linear-gradient(to bottom,rgba(238,248,235,.98),rgba(238,248,235,.76) 28%,rgba(238,248,235,.32) 62%,transparent);pointer-events:none}',
+  '#ozHero22Continuous::after{content:"";position:absolute;inset:auto 0 0 0;height:125px;background:linear-gradient(to top,rgba(238,248,235,.98),rgba(238,248,235,.74) 30%,rgba(238,248,235,.3) 62%,transparent);pointer-events:none}',
+  '@media(max-width:760px){#ozHero22Continuous::before{height:76px}#ozHero22Continuous::after{height:92px}}',
   '#ozCombinedHeader{position:relative!important;z-index:15!important;background:transparent!important}',
   '#ozCombinedHeader .header{background:transparent!important}',
   '#ozCombinedHeader::before{content:none!important;display:none!important}',
