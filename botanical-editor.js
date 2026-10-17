@@ -1,5 +1,47 @@
 (()=>{'use strict';
 
+// Variant 18: animated green signal bars in the nursery helper status.
+(()=>{
+ const style=document.createElement('style');
+ style.id='oz-helper-status-18-style';
+ style.textContent=String.raw`
+ #ozHelper13 .oz-status18{display:inline-flex;align-items:center;gap:7px;vertical-align:middle;color:#368853;font-size:inherit;font-weight:600;white-space:nowrap}
+ #ozHelper13 .oz-signal18{display:inline-flex;align-items:flex-end;gap:2px;height:14px;width:16px;flex:0 0 16px}
+ #ozHelper13 .oz-signal18 i{display:block;width:4px;background:#28ba65;border-radius:3px;transform-origin:bottom;animation:oz-signal-wave18 1.3s ease-in-out infinite}
+ #ozHelper13 .oz-signal18 i:nth-child(1){height:5px}
+ #ozHelper13 .oz-signal18 i:nth-child(2){height:9px;animation-delay:.2s}
+ #ozHelper13 .oz-signal18 i:nth-child(3){height:13px;animation-delay:.4s}
+ @keyframes oz-signal-wave18{0%,100%{transform:scaleY(.6);opacity:.7}50%{transform:scaleY(1);opacity:1}}
+ @media(prefers-reduced-motion:reduce){#ozHelper13 .oz-signal18 i{animation:none}}
+ `;
+ document.head.appendChild(style);
+ const make=()=>{const status=document.createElement('span');status.className='oz-status18';const bars=document.createElement('span');bars.className='oz-signal18';bars.setAttribute('aria-hidden','true');for(let i=0;i<3;i++)bars.appendChild(document.createElement('i'));status.append(bars,document.createTextNode('На связи'));return status};
+ const apply=()=>{
+  const helper=document.getElementById('ozHelper13');if(!helper)return false;
+  if(helper.querySelector('.oz-status18'))return true;
+  const walker=document.createTreeWalker(helper,NodeFilter.SHOW_TEXT);
+  let node;while((node=walker.nextNode())){
+   const raw=node.nodeValue||'';
+   if(!/на связи/i.test(raw)||node.parentElement?.closest('script,style'))continue;
+   const m=raw.match(/на связи/i);if(!m)continue;
+   const before=raw.slice(0,m.index).replace(/\s*[·•]\s*$/,' ');
+   const after=raw.slice(m.index+m[0].length);
+   const frag=document.createDocumentFragment();
+   if(before)frag.appendChild(document.createTextNode(before));
+   frag.appendChild(make());
+   if(after)frag.appendChild(document.createTextNode(after));
+   node.replaceWith(frag);return true;
+  }
+  return false;
+ };
+ if(!apply()){
+  const observer=new MutationObserver(()=>{if(apply())observer.disconnect()});
+  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+  setTimeout(()=>observer.disconnect(),20000);
+ }
+})();
+
+
 // Load the published assistant avatar; site visitors cannot edit it.
 (()=>{
  const apply=async()=>{
