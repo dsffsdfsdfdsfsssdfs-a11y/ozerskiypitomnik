@@ -130,7 +130,7 @@
  const showCheckout=()=>{
   if(!items.length)return;
   form.hidden=false;dialog.classList.add('oz-checkout-mode');
-  const result=form.querySelector('#ozCheckoutResult');result.textContent='';
+  const result=form.querySelector('#ozCheckoutResult');result.textContent='';const send=form.querySelector('.oz-checkout-submit');send.disabled=false;send.textContent='Отправить заявку';
   form.querySelector('[name="customerName"]').focus();
  };
  const hideCheckout=()=>{form.hidden=true;dialog.classList.remove('oz-checkout-mode')};
@@ -143,29 +143,45 @@
   field.placeholder=choice==='ВКонтакте'?'Ссылка на страницу VK (vk.com/...)':choice==='Telegram'?'Ваш @username в Telegram':choice==='MAX'?'Ссылка или ID вашего профиля MAX':'Выберите способ связи';
  }));
  form.querySelector('#ozContactValue').addEventListener('input',e=>e.target.setCustomValidity(''));
+ form.querySelector('.oz-checkout-submit').textContent='Отправить заявку';
  form.querySelector('#ozCheckoutForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!items.length)return;
   const data=new FormData(event.currentTarget);
   const service=String(data.get('contactService')||'');
   const contact=String(data.get('contactValue')||'').trim();
+  const field=form.querySelector('#ozContactValue');
+  field.setCustomValidity('');
   if(service==='ВКонтакте'&&!/^(https?:\/\/)?(m\.)?(vk\.com|vk\.ru)\/[a-zA-Z0-9_.-]+\/?$/i.test(contact)){
-   form.querySelector('#ozContactValue').setCustomValidity('Укажите ссылку на страницу ВКонтакте (vk.com/...)');form.querySelector('#ozContactValue').reportValidity();return;
+   field.setCustomValidity('Укажите ссылку на страницу VK');field.reportValidity();return;
   }
   if(service==='Telegram'&&!/^@?[a-zA-Z0-9_]{5,32}$/.test(contact)){
-   form.querySelector('#ozContactValue').setCustomValidity('Укажите корректный Telegram @username');form.querySelector('#ozContactValue').reportValidity();return;
+   field.setCustomValidity('Укажите Telegram @username');field.reportValidity();return;
   }
-  form.querySelector('#ozContactValue').setCustomValidity('');
-  const products=items.map(x=>x.name+' — '+x.qty+' шт.'+(x.price?' ('+x.price+')':'')).join('\n');
-  const message='Заявка — Озерский питомник\nИмя: '+data.get('customerName')+'\nТелефон: '+data.get('customerPhone')+'\nЭл. почта: '+data.get('customerEmail')+'\nСпособ связи: '+service+'\nКонтакт: '+contact+'\n\nТовары:\n'+products+'\n\nПрошу уточнить наличие и стоимость.';
   const result=form.querySelector('#ozCheckoutResult');
   const button=form.querySelector('.oz-checkout-submit');
-  try{await navigator.clipboard.writeText(message);result.textContent='Заявка скопирована. Отправьте её питомнику через ВКонтакте — только после отправки сотрудники получат данные.'}
-  catch{result.textContent='Скопируйте заявку и отправьте питомнику:\n\n'+message}
-  let link=result.querySelector('a');
-  const vk=[...document.querySelectorAll('a[href]')].find(a=>/vk\.com/.test(a.href)&&!a.closest('#ozNewCartOverlay'));
-  if(vk){link=document.createElement('a');link.href=vk.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Открыть ВКонтакте для отправки';result.appendChild(link)}
+  button.disabled=true;button.textContent='Отправляем…';result.textContent='';
+  try{
+   const response=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    name:String(data.get('customerName')||'').trim(),
+    phone:String(data.get('customerPhone')||'').trim(),
+    email:String(data.get('customerEmail')||'').trim(),
+    service,contact,
+    items:items.map(x=>({name:x.name,qty:x.qty,price:x.price||''}))
+   })});
+   const payload=await response.json().catch(()=>({}));
+   if(!response.ok||!payload.ok)throw Error(payload.error||'Не удалось отправить заявку');
+   result.textContent='Заявка №'+payload.id+' успешно отправлена и сохранена. Специалист свяжется с вами по указанным контактам после обработки заказа.';
+   items=[];render();
+   form.querySelectorAll('input').forEach(el=>{if(el.type==='checkbox'||el.type==='radio')el.checked=false;else el.value=''});
+   field.disabled=true;field.placeholder='Сначала выберите способ связи';
+   button.textContent='Заявка отправлена';button.disabled=true;
+  }catch(error){
+   result.textContent=(error?.message||'Ошибка отправки')+'. Проверьте соединение и повторите попытку.';
+   button.disabled=false;button.textContent='Отправить заявку';
+  }
  });
+
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open')){e.stopPropagation();close()}},true);
  document.addEventListener('click',e=>{
   if(e.target.closest('#ozNewCartOverlay'))return;
