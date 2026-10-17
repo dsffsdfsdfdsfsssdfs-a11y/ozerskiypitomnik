@@ -1,42 +1,29 @@
 (()=>{'use strict';
 
-// Hide only the homepage hero photo collage and its floating catalog teaser.
+// Remove the original three-photo collage and floating catalog teaser from home.
 (()=>{
- const css=document.createElement('style');css.id='oz-home-no-photo-collage';
- css.textContent=[
- '.hero .hero-media,.hero .hero-gallery,.hero .hero-images,.hero .hero-right,.hero .hero-visual,.hero .hero-art,.hero .hero-collage{display:none!important}',
- '.hero .hero-in,.hero .hero-inner,.hero .hero-grid,.hero>.wrap{grid-template-columns:minmax(0,1fr)!important}',
- '.hero .hero-content,.hero .hero-copy,.hero .hero-text{max-width:880px!important;width:100%!important}',
- '.hero .hero-image-card,.hero .hero-catalog-card{display:none!important}'
- ].join('\n');document.head.appendChild(css);
- const start=()=>{
-  const hero=document.querySelector('.hero');if(!hero)return;
-  const targets=[...hero.querySelectorAll('img')];
-  const groups=new Map();
-  targets.forEach(img=>{
-   let el=img;
-   for(let depth=0;depth<5&&el.parentElement&&el.parentElement!==hero;depth++){
-    el=el.parentElement;
-    const n=el.querySelectorAll('img').length;
-    if(n>=3){groups.set(el,n);break}
+ const style=document.createElement('style');style.id='oz-remove-home-collage';
+ style.textContent='.oz-home-collage-removed{display:none!important}.hero .hero-in,.hero .hero-inner,.hero .hero-grid{grid-template-columns:1fr!important}.hero .hero-content,.hero .hero-copy{max-width:900px!important}';
+ document.head.appendChild(style);
+ const fix=()=>{
+  const hero=document.querySelector('.hero')||document.querySelector('main');
+  if(!hero)return;
+  const imgs=[...hero.querySelectorAll('img')];
+  const candidates=new Set();
+  imgs.forEach(img=>{
+   for(let p=img.parentElement,d=0;p&&p!==hero&&d<8;p=p.parentElement,d++){
+    if(p.querySelectorAll('img').length>=3&&!p.querySelector('h1')){candidates.add(p);break}
    }
   });
-  const candidates=[...groups].sort((a,b)=>b[1]-a[1]);
-  for(const [el] of candidates){
-   if(el.contains(hero.querySelector('h1')))continue;
-   const rect=el.getBoundingClientRect(),hr=hero.getBoundingClientRect();
-   if(rect.width>=200&&rect.left>hr.left+hr.width*.30){
-    el.style.setProperty('display','none','important');
-    break;
-   }
-  }
-  const parent=hero.querySelector('h1')?.parentElement;
-  if(parent)parent.style.setProperty('max-width','880px','important');
+  const valid=[...candidates].filter(p=>{const r=p.getBoundingClientRect();return r.width>300&&r.height>150&&!p.closest('#catalog,[id*="catalog"],.catalog,[class*="catalog-grid"]')});
+  valid.sort((x,y)=>x.querySelectorAll('img').length-y.querySelectorAll('img').length);
+  if(valid[0])valid[0].classList.add('oz-home-collage-removed');
+  const teaser=[...hero.querySelectorAll('div,a,span')].find(el=>el.children.length<4&&el.textContent.trim()==='Загляните в наш каталог');
+  if(teaser){let p=teaser;for(let i=0;i<3&&p.parentElement&&p.parentElement!==hero;i++){if(p.parentElement.querySelectorAll('img').length>2)break;p=p.parentElement}p.classList.add('oz-home-collage-removed')}
  };
+ const start=()=>{fix();let scheduled=false;const ob=new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;ob.disconnect();fix();ob.observe(document.body,{childList:true,subtree:true})})});ob.observe(document.body,{childList:true,subtree:true})};
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-
-
 
 // Independent central cart v2. Does not reuse, move, or modify the old drawer.
 (()=>{
