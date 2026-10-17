@@ -1,35 +1,21 @@
 (()=>{'use strict';
 
-// Apply warm ivory only to the helper's FAQ answer bubble.
+// Answer bubble: direct selector, independent of the text it contains.
 (()=>{
- const css=document.createElement('style');css.id='oz-answer-cream-final';
- css.textContent='#ozHelper13 .oz-answer-cream-final{background:#f7f1e5!important;background-color:#f7f1e5!important;background-image:none!important;border-color:#e8dcc4!important;color:#315540!important}';
- document.head.appendChild(css);
- const phrase='Выберите интересующий вопрос';
- const apply=()=>{
-  const root=document.getElementById('ozHelper13');if(!root)return;
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
-  while((node=walker.nextNode())){
-   if(!(node.textContent||'').includes(phrase))continue;
-   const leaf=node.parentElement;if(!leaf)continue;
-   let target=leaf;
-   // Find the rounded box via visual geometry: the answer spans most of the panel.
-   for(let el=leaf,i=0;el&&el!==root&&i<7;el=el.parentElement,i++){
-    const rect=el.getBoundingClientRect(),style=getComputedStyle(el);
-    if(rect.width>=180&&rect.height>=46&&rect.height<=220&&parseFloat(style.borderRadius)>=12){target=el;break}
-   }
-   target.classList.add('oz-answer-cream-final');
-  }
- };
- const init=()=>{
-  const root=document.getElementById('ozHelper13');if(!root)return;
-  apply();
-  let busy=false;const ob=new MutationObserver(()=>{
-   if(busy)return;busy=true;ob.disconnect();apply();ob.observe(root,{childList:true,subtree:true,characterData:true});busy=false;
-  });
-  ob.observe(root,{childList:true,subtree:true,characterData:true});
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+ const el=document.createElement('style');
+ el.id='oz-helper-answer-sand';
+ el.textContent=`
+ #ozHelper13 .oz-h-reply,
+ #ozHelper13 #ozHelperReply,
+ #ozHelper13 .oz-h-reply.oz-answer-cream-final {
+  background:#f3e6ce!important;
+  background-color:#f3e6ce!important;
+  background-image:none!important;
+  border-color:#decda9!important;
+  color:#365343!important;
+ }
+ `;
+ document.head.appendChild(el);
 })();
 
 // Palette 2 — style the actual FAQ action, including div-based clickable items.
