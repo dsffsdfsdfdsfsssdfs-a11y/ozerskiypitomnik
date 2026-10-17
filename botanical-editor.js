@@ -6,7 +6,8 @@
  style.id='oz-hero-photo-22-css';
  style.textContent=[
   '#ozHero22Continuous{position:absolute;z-index:12;pointer-events:none;background-image:linear-gradient(90deg,rgba(244,250,242,.10),transparent 62%),url("/hero-seedlings-22.jpg");background-size:cover;background-position:center 54%;opacity:.96;filter:saturate(.94);-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.26) 13%,#000 33%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.26) 13%,#000 33%)}',
-  '#ozCombinedHeader{position:relative!important;z-index:15!important}',
+  '#ozCombinedHeader{position:relative!important;z-index:15!important;background:transparent!important}',
+  '#ozCombinedHeader .header{background:transparent!important}',
   '#ozCombinedHeader::before{content:none!important;display:none!important}',
   '.hero .wrap,.hero .hero-content,.hero .hero-copy,.hero h1,.hero p,.hero .hero-actions{position:relative;z-index:14}',
   '@media(max-width:760px){#ozHero22Continuous{opacity:.43;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 36%);mask-image:linear-gradient(90deg,transparent 0%,#000 36%)}}'
