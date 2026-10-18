@@ -131,6 +131,19 @@
  setInterval(apply,1200);
 })();
 
+// Clean full-size greenhouse photograph without fog, masks or color overlays.
+(()=>{
+ const st=document.createElement('style');st.id='oz-clean-hero-no-fog';
+ st.textContent=[
+ 'html body .hero.oz-hero-text45{background:#294a30 url("/hero-seedlings-22.jpg") center center / cover no-repeat!important;filter:none!important;opacity:1!important;-webkit-mask-image:none!important;mask-image:none!important}',
+ 'html body .hero.oz-hero-text45::before,html body .hero.oz-hero-text45::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important;filter:none!important}',
+ 'html body #ozHero22Continuous{display:none!important}',
+ 'html body .hero.oz-hero-text45 #ozHeroText45{background:#edf4ea!important;opacity:1!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 18px 45px rgba(34,74,50,.12)!important}',
+ 'html body .hero.oz-hero-text45 #ozHeroText45::before,html body .hero.oz-hero-text45 #ozHeroText45::after{display:none!important;content:none!important}',
+ 'html body .hero.oz-hero-text45 .wrap{visibility:hidden!important}'
+ ].join('\\n');document.head.appendChild(st);
+})();
+
 // Hero photograph variant 39: one uninterrupted layer across header and hero.
 (()=>{
  const style=document.createElement('style');
