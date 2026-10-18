@@ -1,5 +1,17 @@
 (()=>{'use strict';
 
+// Plain white homepage background, without changing navigation or other sections.
+(()=>{
+ const st=document.createElement('style');st.id='oz-home-white-background';
+ st.textContent=[
+ 'html body .hero,html body .home-hero,html body .hero-section,html body #home{background:#fff!important;background-color:#fff!important;background-image:none!important}',
+ 'html body .hero::before,html body .hero::after,html body #home::before,html body #home::after{display:none!important;content:none!important}',
+ 'html body #ozHero22Continuous{display:none!important}'
+ ].join('\n');
+ document.head.appendChild(st);
+})();
+
+
 // Improve readability: modest tracking across all visible website text.
 (()=>{
  const style=document.createElement('style');
