@@ -1,5 +1,70 @@
 (()=>{'use strict';
 
+// Owner-side home hero controls (browser-local saved customizations).
+(()=>{
+ const KEY='ozHero50ControlsV1';
+ const defaults={title:100,subtitle:100,eyebrow:100,buttons:100,showPrimary:true,showSecondary:true,x1:0,y1:0,x2:0,y2:0};
+ let settings={...defaults};try{settings={...settings,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){}
+ const css=document.createElement('style');css.id='oz-hero50-editor-css';
+ css.textContent=[
+  '#ozHomeLayout50 .oz50-eyebrow{font-size:calc(clamp(16px,1.4vw,22px)*var(--oz50-eyebrow-scale,1))!important}',
+  '#ozHomeLayout50 h1{font-size:calc(clamp(55px,8vw,132px)*var(--oz50-title-scale,1))!important}',
+  '#ozHomeLayout50 .oz50-summary{font-size:calc(clamp(20px,1.8vw,29px)*var(--oz50-subtitle-scale,1))!important}',
+  '#ozHomeLayout50 .oz50-actions a{font-size:calc(21px*var(--oz50-button-scale,1))!important}',
+  '#ozHomeLayout50 .oz50-actions a.oz50-move{touch-action:none!important;cursor:grab!important;user-select:none!important}',
+  '#oz50EditorOpen{position:fixed;bottom:24px;left:24px;z-index:2147483600;background:#e3f0df;color:#153a2a;border:1px solid #8eb99b;border-radius:999px;padding:11px 18px;font:17px "Neucha",cursive;box-shadow:0 7px 25px #0003;cursor:pointer}',
+  '#oz50EditorPanel{position:fixed;bottom:80px;left:24px;z-index:2147483601;width:min(330px,calc(100vw - 48px));max-height:70vh;overflow:auto;box-sizing:border-box;border-radius:17px;background:#fbfff9;color:#193b2b;padding:18px;box-shadow:0 15px 50px #0005;font:17px "Neucha",cursive}',
+  '#oz50EditorPanel label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0}',
+  '#oz50EditorPanel input[type=range]{width:145px;accent-color:#286948}',
+  '#oz50EditorPanel button{background:#235b3c;border:0;color:white;padding:9px 12px;border-radius:8px;font:16px "Neucha",cursive;cursor:pointer;margin:5px 5px 0 0}',
+  '#oz50EditorPanel .oz-note{font-size:13px;opacity:.75;line-height:1.25}'
+ ].join('\n');document.head.appendChild(css);
+ const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(settings))}catch(e){}};
+ const apply=()=>{
+  const hero=document.getElementById('ozHomeLayout50');if(!hero)return false;
+  for(const [key,prop] of [['title','title'],['subtitle','subtitle'],['eyebrow','eyebrow'],['buttons','button']])hero.style.setProperty('--oz50-'+prop+'-scale',String((settings[key]||100)/100));
+  const btns=hero.querySelectorAll('.oz50-actions a');
+  btns.forEach((btn,i)=>{
+   const show=i===0?settings.showPrimary:settings.showSecondary;
+   btn.style.setProperty('display',show?'inline-flex':'none','important');
+   btn.style.setProperty('transform','translate('+(settings['x'+(i+1)]||0)+'px,'+(settings['y'+(i+1)]||0)+'px)','important');
+  });return true;
+ };
+ const init=()=>{
+  if(!apply())return false;
+  if(document.getElementById('oz50EditorOpen'))return true;
+  const open=document.createElement('button');open.id='oz50EditorOpen';open.type='button';open.textContent='✎ Настроить главную';
+  const panel=document.createElement('div');panel.id='oz50EditorPanel';panel.hidden=true;
+  panel.innerHTML='<strong style="font-size:22px">Редактор главной</strong><div class="oz-note">Меняйте размер текста и перетаскивайте кнопки прямо на фотографии.</div>'+
+   [['title','Заголовок'],['subtitle','Описание'],['eyebrow','Надпись сверху'],['buttons','Текст кнопок']].map(([id,label])=>'<label>'+label+' <input type="range" min="50" max="160" step="5" data-oz-size="'+id+'"><output data-oz-out="'+id+'"></output></label>').join('')+
+   '<label><span>Кнопка «Ассортимент»</span><input type="checkbox" data-oz-show="showPrimary"></label>'+
+   '<label><span>Кнопка «О питомнике»</span><input type="checkbox" data-oz-show="showSecondary"></label>'+
+   '<div class="oz-note">Чтобы двигать кнопки, перетащите их мышью при открытом редакторе. Настройки сохраняются в этом браузере.</div>'+
+   '<button type="button" data-oz-save>Сохранить</button><button type="button" data-oz-reset>Сбросить</button><button type="button" data-oz-close>Закрыть</button>';
+  document.body.append(open,panel);
+  const buttons=[...document.querySelectorAll('#ozHomeLayout50 .oz50-actions a')];
+  const refresh=()=>{apply();panel.querySelectorAll('[data-oz-size]').forEach(el=>{el.value=settings[el.dataset.ozSize];panel.querySelector('[data-oz-out="'+el.dataset.ozSize+'"]').textContent=el.value+'%'});panel.querySelectorAll('[data-oz-show]').forEach(el=>el.checked=settings[el.dataset.ozShow])};
+  const toggle=v=>{panel.hidden=!v;buttons.forEach(b=>b.classList.toggle('oz50-move',v));open.textContent=v?'✕ Закрыть редактор':'✎ Настроить главную'};
+  open.addEventListener('click',()=>toggle(panel.hidden));
+  panel.addEventListener('input',e=>{const el=e.target;if(el.dataset.ozSize)settings[el.dataset.ozSize]=Number(el.value);if(el.dataset.ozShow)settings[el.dataset.ozShow]=el.checked;refresh();persist()});
+  panel.querySelector('[data-oz-save]').onclick=()=>{persist();toggle(false)};
+  panel.querySelector('[data-oz-close]').onclick=()=>toggle(false);
+  panel.querySelector('[data-oz-reset]').onclick=()=>{settings={...defaults};persist();refresh()};
+  buttons.forEach((b,i)=>{
+   b.addEventListener('click',e=>{if(!panel.hidden)e.preventDefault()});
+   b.addEventListener('pointerdown',e=>{
+    if(panel.hidden)return;e.preventDefault();b.setPointerCapture(e.pointerId);
+    const k=i+1,startX=e.clientX,startY=e.clientY,origX=settings['x'+k]||0,origY=settings['y'+k]||0;
+    const move=ev=>{settings['x'+k]=Math.round(origX+ev.clientX-startX);settings['y'+k]=Math.round(origY+ev.clientY-startY);apply()};
+    const up=()=>{b.removeEventListener('pointermove',move);b.removeEventListener('pointerup',up);b.removeEventListener('pointercancel',up);persist()};
+    b.addEventListener('pointermove',move);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);
+   });
+  });refresh();return true;
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,600)},{once:true});else{init();setTimeout(init,600)}
+})();
+
+
 // Full-screen homepage concept 50: cinematic centered typography with nursery photograph.
 (()=>{
  const css=document.createElement('style');css.id='oz-home-layout50-css';
