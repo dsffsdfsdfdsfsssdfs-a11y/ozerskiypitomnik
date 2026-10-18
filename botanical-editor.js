@@ -1,5 +1,37 @@
 (()=>{'use strict';
 
+// Full-screen homepage concept 50: cinematic centered typography with nursery photograph.
+(()=>{
+ const css=document.createElement('style');css.id='oz-home-layout50-css';
+ css.textContent=[
+  'html body #ozHomeLayout50{display:flex!important;position:relative!important;isolation:isolate!important;align-items:center!important;justify-content:center!important;min-height:calc(100svh - 105px)!important;width:100%!important;padding:100px 7vw 85px!important;box-sizing:border-box!important;overflow:hidden!important;background:#153e30 url("/hero-seedlings-22.jpg") center center/cover no-repeat!important;color:#fff!important;text-align:center!important}',
+  'html body #ozHomeLayout50::before{content:""!important;display:block!important;position:absolute!important;inset:0!important;background:linear-gradient(90deg,rgba(0,27,20,.77),rgba(23,70,49,.34)),linear-gradient(0deg,rgba(13,41,33,.66),transparent 50%)!important;z-index:0!important;pointer-events:none!important}',
+  'html body #ozHomeLayout50 .oz50-content{position:relative!important;z-index:1!important;width:min(1100px,100%)!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}',
+  'html body #ozHomeLayout50 .oz50-eyebrow{color:#f2f9ee!important;font:400 clamp(16px,1.4vw,22px)/1.25 "Neucha",cursive!important;letter-spacing:.19em!important;text-transform:uppercase!important;margin:0 0 22px!important}',
+  'html body #ozHomeLayout50 h1{font:400 clamp(55px,8vw,132px)/.91 "Neucha",cursive!important;letter-spacing:-.025em!important;color:#fff!important;margin:0 0 26px!important;text-wrap:balance!important;max-width:1100px!important}',
+  'html body #ozHomeLayout50 .oz50-summary{font:400 clamp(20px,1.8vw,29px)/1.3 "Neucha",cursive!important;letter-spacing:.02em!important;color:#f0f6ef!important;max-width:660px!important;margin:0 auto 32px!important}',
+  'html body #ozHomeLayout50 .oz50-actions{display:flex!important;justify-content:center!important;flex-wrap:wrap!important;gap:13px!important}',
+  'html body #ozHomeLayout50 .oz50-actions a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:54px!important;padding:14px 29px!important;border-radius:100px!important;font:400 21px/1.2 "Neucha",cursive!important;letter-spacing:.025em!important;text-decoration:none!important}',
+  'html body #ozHomeLayout50 .oz50-primary{background:#e1f1d7!important;color:#143929!important;border:1px solid #e1f1d7!important}',
+  'html body #ozHomeLayout50 .oz50-secondary{background:transparent!important;color:#fff!important;border:1px solid rgba(255,255,255,.66)!important}',
+  'html body #ozHomeLayout50 .oz50-bottom{position:absolute!important;bottom:24px!important;right:5vw!important;z-index:1!important;color:rgba(255,255,255,.78)!important;font:400 14px "Neucha",cursive!important;letter-spacing:.12em!important}',
+  'html body .hero:not(#ozHomeLayout50){min-height:0!important;padding-top:0!important;padding-bottom:0!important;margin-top:0!important;margin-bottom:0!important}',
+  '@media(max-width:760px){html body #ozHomeLayout50{min-height:calc(100svh - 90px)!important;padding:90px 7% 70px!important}html body #ozHomeLayout50 h1{font-size:clamp(48px,12vw,82px)!important}html body #ozHomeLayout50 .oz50-summary{font-size:20px!important}html body #ozHomeLayout50 .oz50-bottom{display:none!important}}'
+ ].join('\n');
+ document.head.appendChild(css);
+ const mount=()=>{
+  if(document.getElementById('ozHomeLayout50'))return;
+  const hero=document.querySelector('.hero,.home-hero,.hero-section,#home');
+  if(!hero)return;
+  const section=document.createElement('section');section.id='ozHomeLayout50';
+  section.innerHTML='<div class="oz50-content"><div class="oz50-eyebrow">КРАСОТА КАЖДОГО СЕЗОНА</div><h1>Питомник, в который хочется вернуться.</h1><p class="oz50-summary">Создавайте цветущие уголки и зелёные пространства в своём ритме.</p><div class="oz50-actions"><a class="oz50-primary" href="#catalog">Открыть ассортимент</a><a class="oz50-secondary" href="#about">О питомнике</a></div></div><div class="oz50-bottom">ОЗЕРСК · ЧЕЛЯБИНСКАЯ ОБЛАСТЬ</div>';
+  hero.insertAdjacentElement('afterend',section);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+ window.addEventListener('load',mount,{once:true});setTimeout(mount,900);
+})();
+
+
 // Definitive four-item top strip: locate visible original text and anchor a replacement.
 (()=>{
  const names=['Озерск · Челябинская область','Выращено с заботой о вашем саде','Питомник Елены Ершовой','Товары для сада · Посадочный материал'];
