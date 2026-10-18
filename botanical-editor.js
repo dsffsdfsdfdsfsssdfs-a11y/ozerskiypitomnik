@@ -104,6 +104,33 @@
 
 
 
+// Full-bleed hero photo: remove the former pale-green background and edge fades.
+(()=>{
+ const css=document.createElement('style');css.id='oz-full-bleed-hero-photo';
+ css.textContent=[
+  'html body .hero.oz-hero-text45,html body .hero.oz-hero-text45::before,html body .hero.oz-hero-text45::after{background:transparent!important;background-image:none!important}',
+  'html body #ozHero22Continuous{background-image:url("/hero-seedlings-22.jpg")!important;background-size:cover!important;background-position:center center!important;opacity:1!important;filter:none!important;-webkit-mask-image:none!important;mask-image:none!important}',
+  'html body .hero.oz-hero-text45 #ozHeroText45{background:rgba(237,244,234,.95)!important;backdrop-filter:blur(5px)!important;-webkit-backdrop-filter:blur(5px)!important}',
+  '@media(max-width:760px){html body #ozHero22Continuous{opacity:1!important;-webkit-mask-image:none!important;mask-image:none!important}}'
+ ].join('\\n');document.head.appendChild(css);
+ const apply=()=>{
+  const photo=document.getElementById('ozHero22Continuous');
+  const hero=document.querySelector('.hero.oz-hero-text45');
+  const header=document.getElementById('ozCombinedHeader');
+  if(!photo||!hero)return;
+  const hr=hero.getBoundingClientRect(),hd=header?.getBoundingClientRect();
+  const top=hd?Math.min(hd.top,hr.top):hr.top;
+  photo.style.setProperty('left','0px');
+  photo.style.setProperty('width',document.documentElement.clientWidth+'px');
+  photo.style.setProperty('top',(window.scrollY+top)+'px');
+  photo.style.setProperty('height',Math.max(0,hr.bottom-top)+'px');
+ };
+ const tick=()=>requestAnimationFrame(apply);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{tick();setTimeout(apply,1000)});else{tick();setTimeout(apply,1000)}
+ window.addEventListener('resize',tick,{passive:true});
+ setInterval(apply,1200);
+})();
+
 // Hero photograph variant 39: one uninterrupted layer across header and hero.
 (()=>{
  const style=document.createElement('style');
