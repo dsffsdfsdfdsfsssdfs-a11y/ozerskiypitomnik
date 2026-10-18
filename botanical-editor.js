@@ -1,31 +1,53 @@
 (()=>{'use strict';
 
-// Replace the actual dark green topbar labels with four captions.
+// Definitive four-item top strip: locate visible original text and anchor a replacement.
 (()=>{
- const captions=['Озерск · Челябинская область','Выращено с заботой о вашем саде','Питомник Елены Ершовой','Товары для сада · Посадочный материал'];
- const style=document.createElement('style');style.id='oz-topbar-four-final';
- style.textContent='#oz-topbar-four-final-content{position:absolute!important;inset:0!important;z-index:100!important;display:grid!important;grid-template-columns:1.05fr 1.4fr 1fr 1.5fr!important;align-items:center!important;gap:18px!important;padding:0 clamp(20px,3vw,55px)!important;color:#e1ebe2!important;font-family:"Neucha",cursive!important;font-size:clamp(12px,1.06vw,17px)!important;line-height:1.3!important;pointer-events:none!important}#oz-topbar-four-final-content span{font-family:"Neucha",cursive!important;letter-spacing:.08em!important;white-space:nowrap!important}#oz-topbar-four-final-content span:nth-child(2),#oz-topbar-four-final-content span:nth-child(3){text-align:center!important}#oz-topbar-four-final-content span:last-child{text-align:right!important}@media(max-width:900px){#oz-topbar-four-final-content{gap:6px!important;padding:0 10px!important;font-size:10px!important}#oz-topbar-four-final-content span{white-space:normal!important}}';
- document.head.appendChild(style);
- const apply=()=>{
-  if(document.getElementById('oz-topbar-four-final-content'))return;
-  const els=[...document.querySelectorAll('body span,body div,body p,body small')];
-  const leaf=els.find(e=>e.children.length===0&&(e.textContent||'').includes('Озерск')&&(e.textContent||'').includes('Челябинская область'));
-  if(!leaf)return;
-  let bar=leaf.parentElement;
-  for(let j=0;j<6&&bar&&bar!==document.body;j++,bar=bar.parentElement){
-   const r=bar.getBoundingClientRect();
-   if(r.width>=window.innerWidth*.75&&r.height>=20&&r.height<=85)break;
+ const names=['Озерск · Челябинская область','Выращено с заботой о вашем саде','Питомник Елены Ершовой','Товары для сада · Посадочный материал'];
+ const css=document.createElement('style');css.id='oz-four-strip-v3-css';
+ css.textContent='#oz-four-strip-v3{position:absolute!important;display:grid!important;grid-template-columns:1.1fr 1.5fr 1.1fr 1.55fr!important;align-items:center!important;column-gap:20px!important;box-sizing:border-box!important;padding:0 clamp(18px,2.8vw,56px)!important;z-index:2147483000!important;pointer-events:none!important;color:#e4f0e5!important;font-family:"Neucha",cursive!important;font-size:clamp(12px,1vw,18px)!important;line-height:1.15!important;letter-spacing:.06em!important}#oz-four-strip-v3>span{font-family:"Neucha",cursive!important;letter-spacing:.06em!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important}#oz-four-strip-v3>span:nth-child(2),#oz-four-strip-v3>span:nth-child(3){text-align:center!important}#oz-four-strip-v3>span:last-child{text-align:right!important}@media(max-width:1100px){#oz-four-strip-v3{gap:8px!important;font-size:11px!important}#oz-four-strip-v3>span{white-space:normal!important}}';
+ document.head.appendChild(css);
+ let strip=null;
+ const findText=(query)=>{
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let n;
+  while((n=walker.nextNode())){
+   if(!n.nodeValue||!n.nodeValue.includes(query))continue;
+   const el=n.parentElement;if(!el||el.closest('script,style,#oz-four-strip-v3'))continue;
+   const rect=el.getBoundingClientRect();
+   if(rect.width>0&&rect.height>0&&rect.top>=-15&&rect.top<240)return el;
   }
-  if(!bar||bar===document.body)return;
-  const original=[...bar.querySelectorAll('span,div,p,small')];
-  original.forEach(e=>{if(!e.children.length&&((e.textContent||'').includes('Озерск')||(e.textContent||'').includes('Растения для сада')))e.style.setProperty('visibility','hidden','important')});
-  bar.style.setProperty('position','relative','important');
-  const content=document.createElement('div');content.id='oz-topbar-four-final-content';
-  captions.forEach(t=>{const span=document.createElement('span');span.textContent=t;content.appendChild(span)});
-  bar.appendChild(content);
+  return null;
  };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
- window.addEventListener('load',apply,{once:true});setTimeout(apply,300);setTimeout(apply,1200);
+ const render=()=>{
+  const left=findText('Челябинская область'),right=findText('Растения для сада и дома');
+  const anchor=left||right;
+  if(!anchor)return;
+  let bar=anchor;
+  for(let k=0;k<8&&bar.parentElement;k++){
+   const rr=bar.getBoundingClientRect();
+   if(rr.width>=window.innerWidth*.70&&rr.height>=24&&rr.height<=95)break;
+   bar=bar.parentElement;
+  }
+  const box=bar.getBoundingClientRect(),ar=anchor.getBoundingClientRect();
+  const top=(box.height>20&&box.height<95?box.top:ar.top-8)+window.scrollY;
+  const height=box.height>20&&box.height<95?box.height:Math.max(ar.height+16,36);
+  if(!strip){
+   strip=document.createElement('div');strip.id='oz-four-strip-v3';
+   names.forEach(name=>{const x=document.createElement('span');x.textContent=name;strip.appendChild(x)});
+   document.body.appendChild(strip);
+  }
+  strip.style.setProperty('top',top+'px','important');
+  strip.style.setProperty('left','0','important');
+  strip.style.setProperty('width','100%','important');
+  strip.style.setProperty('height',height+'px','important');
+  if(left)left.style.setProperty('visibility','hidden','important');
+  if(right)right.style.setProperty('visibility','hidden','important');
+ };
+ const init=()=>{
+  render();setTimeout(render,250);setTimeout(render,900);setTimeout(render,2500);
+  window.addEventListener('resize',render,{passive:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 
 // Airier tracking for the two nursery location/tagline labels only.
