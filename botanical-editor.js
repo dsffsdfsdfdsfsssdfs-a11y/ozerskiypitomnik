@@ -14,7 +14,7 @@
    if(!n.nodeValue||!n.nodeValue.includes(query))continue;
    const el=n.parentElement;if(!el||el.closest('script,style,#oz-four-strip-v3'))continue;
    const rect=el.getBoundingClientRect();
-   if(rect.width>0&&rect.height>0&&rect.top>=-15&&rect.top<240)return el;
+   if(rect.width>0&&rect.height>0)return el;
   }
   return null;
  };
@@ -28,18 +28,16 @@
    if(rr.width>=window.innerWidth*.70&&rr.height>=24&&rr.height<=95)break;
    bar=bar.parentElement;
   }
-  const box=bar.getBoundingClientRect(),ar=anchor.getBoundingClientRect();
-  const top=(box.height>20&&box.height<95?box.top:ar.top-8)+window.scrollY;
-  const height=box.height>20&&box.height<95?box.height:Math.max(ar.height+16,36);
+  // Put the captions inside the existing bar so sticky scrolling carries them along.
   if(!strip){
    strip=document.createElement('div');strip.id='oz-four-strip-v3';
    names.forEach(name=>{const x=document.createElement('span');x.textContent=name;strip.appendChild(x)});
-   document.body.appendChild(strip);
   }
-  strip.style.setProperty('top',top+'px','important');
-  strip.style.setProperty('left','0','important');
+  if(strip.parentElement!==bar)bar.appendChild(strip);
+  if(getComputedStyle(bar).position==='static')bar.style.setProperty('position','relative','important');
+  strip.style.setProperty('inset','0','important');
   strip.style.setProperty('width','100%','important');
-  strip.style.setProperty('height',height+'px','important');
+  strip.style.setProperty('height','100%','important');
   if(left)left.style.setProperty('visibility','hidden','important');
   if(right)right.style.setProperty('visibility','hidden','important');
  };
