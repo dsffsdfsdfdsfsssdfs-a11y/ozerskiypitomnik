@@ -3,7 +3,7 @@
 // Homepage editor v2: inline font sizing and free drag for all hero items.
 (()=>{
  const KEY='ozHero50ControlsV2';
- const defaults={title:100,subtitle:100,eyebrow:100,buttons:100,showPrimary:true,showSecondary:true};
+ const defaults={title:100,subtitle:100,eyebrow:100,buttons:100,showPrimary:true,showSecondary:true,titleText:'Питомник, в который хочется вернуться.',subtitleText:'Создавайте цветущие уголки и зелёные пространства в своём ритме.',eyebrowText:'КРАСОТА КАЖДОГО СЕЗОНА',primaryText:'Открыть ассортимент',secondaryText:'О питомнике'};
  let state={...defaults};try{state={...state,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){}
  const css=document.createElement('style');css.id='oz50-edit-v2-css';
  css.textContent='#oz50EditToggle{position:fixed;bottom:22px;left:22px;z-index:2147483600;padding:12px 17px;border-radius:30px;border:1px solid #79b38b;background:#ebf7e6;color:#17412e;font:18px Neucha,cursive;cursor:pointer;box-shadow:0 5px 20px #0003}#oz50EditPanel{position:fixed;left:22px;bottom:78px;z-index:2147483600;box-sizing:border-box;width:min(355px,calc(100vw - 44px));max-height:68vh;overflow:auto;border-radius:16px;background:#fafff8;padding:18px;color:#153e2a;box-shadow:0 10px 40px #0005;font:17px Neucha,cursive}#oz50EditPanel label{display:flex;align-items:center;justify-content:space-between;margin:10px 0;gap:10px}#oz50EditPanel input[type=range]{width:135px;accent-color:#276842}#oz50EditPanel button{border:0;border-radius:9px;background:#24583b;color:white;padding:8px 13px;font:16px Neucha,cursive;cursor:pointer;margin:4px}#ozHomeLayout50.oz50-editing [data-oz50-drag]{cursor:move!important;touch-action:none!important;user-select:none!important;outline:1px dashed #f2ffca88;outline-offset:5px}';
@@ -14,6 +14,7 @@
  const apply=()=>{
   if(!hero)return;
   const el=items();
+  for(const key of ['title','subtitle','eyebrow','primary','secondary'])if(el[key])el[key].textContent=state[key+'Text']??defaults[key+'Text'];
   const bases={title:'clamp(55px,8vw,132px)',subtitle:'clamp(20px,1.8vw,29px)',eyebrow:'clamp(16px,1.4vw,22px)',primary:'21px',secondary:'21px'};
   for(const key of Object.keys(bases)){
    const n=el[key];if(!n)continue;
@@ -47,10 +48,11 @@
   const sync=()=>{
    panel.querySelectorAll('[data-size]').forEach(input=>{input.value=state[input.dataset.size];panel.querySelector('[data-out="'+input.dataset.size+'"]').textContent=input.value+'%'});
    panel.querySelectorAll('[data-check]').forEach(input=>input.checked=!!state[input.dataset.check]);
+   panel.querySelectorAll('[data-text]').forEach(input=>{if(document.activeElement!==input)input.value=state[input.dataset.text+'Text']??defaults[input.dataset.text+'Text']});
   };
   const toggle=on=>{panel.hidden=!on;hero.classList.toggle('oz50-editing',on);btn.textContent=on?'✕ Закрыть редактор':'✎ Редактор главной'};
   btn.onclick=()=>{toggle(panel.hidden);sync()};
-  panel.oninput=e=>{const t=e.target;if(t.dataset.size)state[t.dataset.size]=Number(t.value);if(t.dataset.check)state[t.dataset.check]=t.checked;apply();sync();save()};
+  panel.oninput=e=>{const t=e.target;if(t.dataset.size)state[t.dataset.size]=Number(t.value);if(t.dataset.check)state[t.dataset.check]=t.checked;if(t.dataset.text)state[t.dataset.text+'Text']=t.value;apply();sync();save()};
   panel.querySelector('[data-reset]').onclick=()=>{state={...defaults};apply();sync();save()};
   panel.querySelector('[data-save]').onclick=()=>{save();toggle(false)};
   sync();
