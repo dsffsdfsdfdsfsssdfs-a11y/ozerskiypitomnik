@@ -4,7 +4,7 @@
 (()=>{
  const css=document.createElement('style');css.id='oz-home-layout50-css';
  css.textContent=[
-  'html body #ozHomeLayout50{display:flex!important;position:relative!important;isolation:isolate!important;align-items:center!important;justify-content:center!important;min-height:calc(100svh - 105px)!important;width:100%!important;padding:100px 7vw 85px!important;box-sizing:border-box!important;overflow:hidden!important;background:#153e30 url("/hero-seedlings-22.jpg") center center/cover no-repeat!important;color:#fff!important;text-align:center!important}',
+  'html body #ozHomeLayout50{display:flex!important;position:relative!important;margin-top:-100px!important;isolation:isolate!important;align-items:center!important;justify-content:center!important;min-height:calc(100svh - 55px)!important;width:100%!important;padding:170px 7vw 85px!important;box-sizing:border-box!important;overflow:hidden!important;background:#153e30 url("/hero-seedlings-22.jpg") center center/cover no-repeat!important;color:#fff!important;text-align:center!important}',
   'html body #ozHomeLayout50::before{content:""!important;display:block!important;position:absolute!important;inset:0!important;background:linear-gradient(90deg,rgba(0,27,20,.77),rgba(23,70,49,.34)),linear-gradient(0deg,rgba(13,41,33,.66),transparent 50%)!important;z-index:0!important;pointer-events:none!important}',
   'html body #ozHomeLayout50 .oz50-content{position:relative!important;z-index:1!important;width:min(1100px,100%)!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}',
   'html body #ozHomeLayout50 .oz50-eyebrow{color:#f2f9ee!important;font:400 clamp(16px,1.4vw,22px)/1.25 "Neucha",cursive!important;letter-spacing:.19em!important;text-transform:uppercase!important;margin:0 0 22px!important}',
@@ -15,8 +15,9 @@
   'html body #ozHomeLayout50 .oz50-primary{background:#e1f1d7!important;color:#143929!important;border:1px solid #e1f1d7!important}',
   'html body #ozHomeLayout50 .oz50-secondary{background:transparent!important;color:#fff!important;border:1px solid rgba(255,255,255,.66)!important}',
   'html body #ozHomeLayout50 .oz50-bottom{position:absolute!important;bottom:24px!important;right:5vw!important;z-index:1!important;color:rgba(255,255,255,.78)!important;font:400 14px "Neucha",cursive!important;letter-spacing:.12em!important}',
+  'html body #ozCombinedHeader,html body header,html body .header{position:relative;z-index:5}',
   'html body .hero:not(#ozHomeLayout50){min-height:0!important;padding-top:0!important;padding-bottom:0!important;margin-top:0!important;margin-bottom:0!important}',
-  '@media(max-width:760px){html body #ozHomeLayout50{min-height:calc(100svh - 90px)!important;padding:90px 7% 70px!important}html body #ozHomeLayout50 h1{font-size:clamp(48px,12vw,82px)!important}html body #ozHomeLayout50 .oz50-summary{font-size:20px!important}html body #ozHomeLayout50 .oz50-bottom{display:none!important}}'
+  '@media(max-width:760px){html body #ozHomeLayout50{min-height:calc(100svh - 65px)!important;margin-top:-85px!important;padding:140px 7% 70px!important}html body #ozHomeLayout50 h1{font-size:clamp(48px,12vw,82px)!important}html body #ozHomeLayout50 .oz50-summary{font-size:20px!important}html body #ozHomeLayout50 .oz50-bottom{display:none!important}}'
  ].join('\n');
  document.head.appendChild(css);
  const mount=()=>{
