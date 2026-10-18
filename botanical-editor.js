@@ -1,5 +1,63 @@
 (()=>{'use strict';
 
+// Movable and resizable personal images on the first-screen hero.
+(()=>{
+ const KEY='ozHeroPersonalImagesV1';
+ const DB='ozHeroPersonalImageFilesV1';
+ let data=[];try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+ const css=document.createElement('style');css.id='oz-hero-image-editor-css';
+ css.textContent='#ozHeroImageUpload{display:block!important;margin:8px 0!important;width:100%!important;font:15px Neucha,cursive!important}#ozHeroImageList{display:flex;flex-direction:column;gap:8px;margin:10px 0}#ozHeroImageList button{margin:0 4px 0 0!important}#ozHomeLayout50 .ozhero-user-photo{position:absolute!important;z-index:3!important;touch-action:none!important;box-sizing:border-box!important;user-select:none!important;cursor:grab!important}#ozHomeLayout50 .ozhero-user-photo img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}#ozHomeLayout50.oz50-editing .ozhero-user-photo{outline:1px dashed #e8ffd1!important;cursor:move!important}#ozHomeLayout50 .ozhero-photo-handle{display:none;position:absolute;right:-9px;bottom:-9px;width:19px;height:19px;border-radius:5px;background:#f0ffdf;border:2px solid #235b3c;cursor:nwse-resize!important;z-index:3}#ozHomeLayout50.oz50-editing .ozhero-photo-handle{display:block}#ozHeroImageList .oz-photo-line{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:15px}';
+ document.head.appendChild(css);
+ let db;
+ const openDB=()=>new Promise((resolve,reject)=>{const q=indexedDB.open(DB,1);q.onupgradeneeded=()=>q.result.createObjectStore('photos',{keyPath:'id'});q.onsuccess=()=>{db=q.result;resolve(db)};q.onerror=()=>reject(q.error)});
+ const store=record=>new Promise((resolve,reject)=>{const q=db.transaction('photos','readwrite').objectStore('photos').put(record);q.onsuccess=resolve;q.onerror=()=>reject(q.error)});
+ const load=id=>new Promise((resolve,reject)=>{const q=db.transaction('photos','readonly').objectStore('photos').get(id);q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)});
+ const remove=id=>new Promise((resolve,reject)=>{const q=db.transaction('photos','readwrite').objectStore('photos').delete(id);q.onsuccess=resolve;q.onerror=()=>reject(q.error)});
+ const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
+ const init=async()=>{
+  const hero=document.getElementById('ozHomeLayout50'),panel=document.getElementById('oz50EditPanel');if(!hero||!panel||document.getElementById('ozHeroImageUpload'))return;
+  try{await openDB()}catch(e){return}
+  const area=document.createElement('div');area.innerHTML='<h3 style="font:22px Neucha,cursive;margin:15px 0 6px">Фотографии на главной</h3><div style="font-size:13px;margin-bottom:6px">Выбирай фото, затем в редакторе перетаскивай его и тяни за нижний угол для изменения размера.</div><input id="ozHeroImageUpload" type="file" accept="image/*" multiple><div id="ozHeroImageList"></div>';
+  panel.insertBefore(area,panel.querySelector('[data-reset]'));
+  const fileInput=area.querySelector('input'),list=area.querySelector('#ozHeroImageList');
+  const redrawList=()=>{list.replaceChildren();data.forEach((entry,i)=>{const line=document.createElement('div');line.className='oz-photo-line';const text=document.createElement('span');text.textContent='Фото '+(i+1);const btn=document.createElement('button');btn.textContent='Удалить';btn.type='button';btn.onclick=async()=>{document.getElementById('ozhero-photo-'+entry.id)?.remove();data=data.filter(t=>t.id!==entry.id);persist();await remove(entry.id);redrawList()};line.append(text,btn);list.appendChild(line)})};
+  const draw=async entry=>{
+   const record=await load(entry.id);if(!record)return;
+   let node=document.getElementById('ozhero-photo-'+entry.id);
+   if(node)return;
+   node=document.createElement('div');node.className='ozhero-user-photo';node.id='ozhero-photo-'+entry.id;node.innerHTML='<img alt="Добавленное фото"><span class="ozhero-photo-handle"></span>';
+   const url=URL.createObjectURL(record.file);node.querySelector('img').src=url;node.querySelector('img').onload=()=>URL.revokeObjectURL(url);
+   hero.appendChild(node);
+   const apply=()=>{node.style.setProperty('left',entry.x+'%','important');node.style.setProperty('top',entry.y+'%','important');node.style.setProperty('width',entry.w+'%','important');node.style.setProperty('height','auto','important');node.style.setProperty('aspect-ratio',String(record.width)+'/'+String(record.height),'important')};
+   apply();
+   node.addEventListener('pointerdown',e=>{
+    if(!hero.classList.contains('oz50-editing')||e.button!==0)return;
+    e.preventDefault();e.stopPropagation();
+    const rect=hero.getBoundingClientRect(),x=e.clientX,y=e.clientY,ox=entry.x,oy=entry.y,ow=entry.w;
+    const sizing=e.target.classList.contains('ozhero-photo-handle');
+    node.setPointerCapture(e.pointerId);
+    const move=ev=>{if(sizing)entry.w=Math.max(4,Math.min(90,ow+(ev.clientX-x)/rect.width*100));else{entry.x=Math.max(-40,Math.min(100,ox+(ev.clientX-x)/rect.width*100));entry.y=Math.max(-40,Math.min(100,oy+(ev.clientY-y)/rect.height*100))}apply()};
+    const end=()=>{node.removeEventListener('pointermove',move);node.removeEventListener('pointerup',end);node.removeEventListener('pointercancel',end);persist()};
+    node.addEventListener('pointermove',move);node.addEventListener('pointerup',end);node.addEventListener('pointercancel',end);
+   });
+  };
+  for(const entry of data)draw(entry).catch(()=>{});
+  redrawList();
+  fileInput.addEventListener('change',async()=>{
+   for(const file of [...fileInput.files]){
+    if(!file.type.startsWith('image/')||file.size>10*1024*1024)continue;
+    const id='p'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+    const bm=await createImageBitmap(file);const width=bm.width,height=bm.height;bm.close();
+    const entry={id,x:12+data.length*5,y:27+data.length*5,w:20};
+    await store({id,file,width,height});data.push(entry);persist();await draw(entry);
+   }
+   fileInput.value='';redrawList();
+  });
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,700)},{once:true});else{init();setTimeout(init,700)}
+})();
+
+
 // Homepage editor v2: inline font sizing and free drag for all hero items.
 (()=>{
  const KEY='ozHero50ControlsV2';
