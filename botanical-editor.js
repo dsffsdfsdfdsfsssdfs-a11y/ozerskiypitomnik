@@ -1,5 +1,30 @@
 (()=>{'use strict';
 
+// Airier tracking for the two nursery location/tagline labels only.
+(()=>{
+ const phrases=['Озерск · Челябинская область','Растения для сада и дома'];
+ const apply=()=>{
+  const nodes=document.querySelectorAll('p,span,div,small,strong,a,h1,h2,h3,h4');
+  for(const el of nodes){
+   if(el.children.length>0)continue;
+   const value=(el.textContent||'').replace(/\s+/g,' ').trim();
+   if(!phrases.includes(value))continue;
+   el.style.setProperty('letter-spacing','.095em','important');
+   el.style.setProperty('word-spacing','.16em','important');
+   el.style.setProperty('line-height','1.5','important');
+  }
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+ let pending=false;
+ const observer=new MutationObserver(()=>{
+  if(pending)return;
+  pending=true;requestAnimationFrame(()=>{pending=false;apply()});
+ });
+ const begin=()=>observer.observe(document.body,{subtree:true,childList:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',begin,{once:true});else begin();
+})();
+
+
 // Plain white homepage background, without changing navigation or other sections.
 (()=>{
  const st=document.createElement('style');st.id='oz-home-white-background';
