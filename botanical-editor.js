@@ -4,7 +4,8 @@
 (()=>{
  const KEY='ozHeroPersonalImagesV1';
  const DB='ozHeroPersonalImageFilesV1';
- let data=[];try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+ const publishedImages=[{"id":"p1792355844173-an8mt","x":5.579814698961048,"y":10.548821115130105,"w":20,"src":"/hero-decoration-left.png","width":1122,"height":1402},{"id":"p1792355910350-3spmh","x":73.37831793891058,"y":12.179096334305369,"w":17.778150770399307,"src":"/hero-decoration-right.png","width":1122,"height":1402}];
+ let data=publishedImages.map(x=>({...x}));try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(Array.isArray(saved)&&saved.length){data=publishedImages.map(x=>({...x,...(saved.find(y=>y.id===x.id)||{})}));for(const x of saved)if(!data.some(y=>y.id===x.id))data.push(x)}}catch(e){}
  const css=document.createElement('style');css.id='oz-hero-image-editor-css';
  css.textContent='#ozHeroImageUpload{display:block!important;margin:8px 0!important;width:100%!important;font:15px Neucha,cursive!important}#ozHeroImageList{display:flex;flex-direction:column;gap:8px;margin:10px 0}#ozHeroImageList button{margin:0 4px 0 0!important}#ozHomeLayout50 .ozhero-user-photo{position:absolute!important;z-index:3!important;touch-action:none!important;box-sizing:border-box!important;user-select:none!important;cursor:grab!important}#ozHomeLayout50 .ozhero-user-photo img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}#ozHomeLayout50.oz50-editing .ozhero-user-photo{outline:1px dashed #e8ffd1!important;cursor:move!important}#ozHomeLayout50 .ozhero-photo-handle{display:none;position:absolute;right:-9px;bottom:-9px;width:19px;height:19px;border-radius:5px;background:#f0ffdf;border:2px solid #235b3c;cursor:nwse-resize!important;z-index:3}#ozHomeLayout50.oz50-editing .ozhero-photo-handle{display:block}#ozHeroImageList .oz-photo-line{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:15px}';
  document.head.appendChild(css);
@@ -20,13 +21,13 @@
   const area=document.createElement('div');area.innerHTML='<h3 style="font:22px Neucha,cursive;margin:15px 0 6px">Фотографии на главной</h3><div style="font-size:13px;margin-bottom:6px">Выбирай фото, затем в редакторе перетаскивай его и тяни за нижний угол для изменения размера.</div><input id="ozHeroImageUpload" type="file" accept="image/*" multiple><div id="ozHeroImageList"></div>';
   panel.insertBefore(area,panel.querySelector('[data-reset]'));
   const fileInput=area.querySelector('input'),list=area.querySelector('#ozHeroImageList');
-  const redrawList=()=>{list.replaceChildren();data.forEach((entry,i)=>{const line=document.createElement('div');line.className='oz-photo-line';const text=document.createElement('span');text.textContent='Фото '+(i+1);const btn=document.createElement('button');btn.textContent='Удалить';btn.type='button';btn.onclick=async()=>{document.getElementById('ozhero-photo-'+entry.id)?.remove();data=data.filter(t=>t.id!==entry.id);persist();await remove(entry.id);redrawList()};line.append(text,btn);list.appendChild(line)})};
+  const redrawList=()=>{list.replaceChildren();data.forEach((entry,i)=>{const line=document.createElement('div');line.className='oz-photo-line';const text=document.createElement('span');text.textContent='Фото '+(i+1);const btn=document.createElement('button');btn.textContent='Удалить';btn.type='button';btn.onclick=async()=>{document.getElementById('ozhero-photo-'+entry.id)?.remove();data=data.filter(t=>t.id!==entry.id);persist();if(!entry.src)await remove(entry.id);redrawList()};line.append(text,btn);list.appendChild(line)})};
   const draw=async entry=>{
-   const record=await load(entry.id);if(!record)return;
+   const record=entry.src?{width:entry.width,height:entry.height}:await load(entry.id);if(!record)return;
    let node=document.getElementById('ozhero-photo-'+entry.id);
    if(node)return;
    node=document.createElement('div');node.className='ozhero-user-photo';node.id='ozhero-photo-'+entry.id;node.innerHTML='<img alt="Добавленное фото"><span class="ozhero-photo-handle"></span>';
-   const url=URL.createObjectURL(record.file);node.querySelector('img').src=url;node.querySelector('img').onload=()=>URL.revokeObjectURL(url);
+   if(entry.src){node.querySelector('img').src=entry.src}else{const url=URL.createObjectURL(record.file);node.querySelector('img').src=url;node.querySelector('img').onload=()=>URL.revokeObjectURL(url)}
    hero.appendChild(node);
    const apply=()=>{node.style.setProperty('left',entry.x+'%','important');node.style.setProperty('top',entry.y+'%','important');node.style.setProperty('width',entry.w+'%','important');node.style.setProperty('height','auto','important');node.style.setProperty('aspect-ratio',String(record.width)+'/'+String(record.height),'important')};
    apply();
@@ -61,7 +62,7 @@
 // Homepage editor v2: inline font sizing and free drag for all hero items.
 (()=>{
  const KEY='ozHero50ControlsV2';
- const defaults={title:100,subtitle:100,eyebrow:100,buttons:100,primaryWidth:100,primaryHeight:100,secondaryWidth:100,secondaryHeight:100,showPrimary:true,showSecondary:true,titleText:'Питомник, в который хочется вернуться.',subtitleText:'Здесь начинается ваш сад — место, где каждое растение становится частью чего-то прекрасного.',eyebrowText:'КРАСОТА КАЖДОГО СЕЗОНА',primaryText:'Открыть ассортимент',secondaryText:'О питомнике'};
+ const defaults={"title":70,"subtitle":115,"eyebrow":110,"buttons":95,"primaryWidth":50,"primaryHeight":50,"secondaryWidth":110,"secondaryHeight":125,"showPrimary":true,"showSecondary":false,"titleText":"Питомник, в который хочется вернуться.","subtitleText":"Здесь начинается ваш сад — место, где каждое растение становится частью чего-то прекрасного.","eyebrowText":"КРАСОТА КАЖДОГО СЕЗОНА","primaryText":"В наличии","secondaryText":"О питомнике","eyebrowX":-25,"eyebrowY":-1,"titleX":-4,"titleY":-4,"subtitleX":-5,"subtitleY":0,"primaryX":-8,"primaryY":-2};
  let state={...defaults};try{state={...state,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){}
  if(state.subtitleText==="Создавайте цветущие уголки и зелёные пространства в своём ритме.")state.subtitleText=defaults.subtitleText;
  const css=document.createElement('style');css.id='oz50-edit-v2-css';
