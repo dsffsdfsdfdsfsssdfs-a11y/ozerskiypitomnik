@@ -87,7 +87,7 @@
   const hero=document.querySelector('.hero,.home-hero,.hero-section,#home');
   if(!hero)return;
   const section=document.createElement('section');section.id='ozHomeLayout50';
-  section.innerHTML='<div class="oz50-content"><div class="oz50-eyebrow">КРАСОТА КАЖДОГО СЕЗОНА</div><h1>Питомник, в который хочется вернуться.</h1><p class="oz50-summary">Здесь начинается ваш сад — место, где каждое растение становится частью чего-то прекрасного.</p><div class="oz50-actions"><a class="oz50-primary" href="#catalog">Открыть ассортимент</a><a class="oz50-secondary" href="#about">О питомнике</a></div></div><div class="oz50-bottom">ОЗЕРСК · ЧЕЛЯБИНСКАЯ ОБЛАСТЬ</div>';
+  section.innerHTML='<div class="oz50-content"><div class="oz50-eyebrow">КРАСОТА КАЖДОГО СЕЗОНА</div><h1>Питомник, в который хочется вернуться.</h1><p class="oz50-summary">Здесь начинается ваш сад — место, где каждое растение становится частью чего-то прекрасного.</p><div class="oz50-actions"><a class="oz50-primary" href="#catalog">Открыть ассортимент</a><a class="oz50-secondary" href="#about">О питомнике</a></div></div>';
   hero.insertAdjacentElement('afterend',section);
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
