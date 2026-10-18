@@ -1,22 +1,34 @@
 (()=>{'use strict';
 
-// Intentionally empty home hero; preserve the navigation/header untouched.
+// Keep navigation, remove the entire original home hero (including old collage).
 (()=>{
- const st=document.createElement('style');st.id='oz-empty-home-hero';
+ const st=document.createElement('style');
+ st.id='oz-empty-home-hero';
  st.textContent=[
- 'html body .hero,html body .home-hero,html body .hero-section{background:none!important;background-image:none!important;filter:none!important;box-shadow:none!important;animation:none!important;transition:none!important;min-height:72vh!important;position:relative!important}',
- 'html body .hero::before,html body .hero::after{display:none!important;content:none!important}',
- 'html body .hero > :not(#ozCombinedHeader):not(.header),html body .home-hero > :not(#ozCombinedHeader):not(.header){display:none!important}',
- 'html body #ozHero22Continuous,html body #ozHeroText45{display:none!important}',
- 'html body #ozCombinedHeader,html body #ozCombinedHeader *{visibility:visible!important}'
- ].join('\\n');
+  'html body .hero,html body .home-hero,html body .hero-section,html body #home{background:none!important;background-image:none!important;box-shadow:none!important;filter:none!important;animation:none!important;transition:none!important;min-height:0!important}',
+  'html body .hero::before,html body .hero::after,html body #home::before,html body #home::after{content:none!important;display:none!important}',
+  'html body .hero > :not(#ozCombinedHeader):not(.header),html body .home-hero > :not(#ozCombinedHeader):not(.header),html body #home > :not(#ozCombinedHeader):not(.header){display:none!important}',
+  'html body #ozHero22Continuous,html body #ozHeroText45{display:none!important}'
+ ].join('\n');
  document.head.appendChild(st);
- document.addEventListener('DOMContentLoaded',()=>{
+ const clean=()=>{
   document.getElementById('ozHero22Continuous')?.remove();
   document.getElementById('ozHeroText45')?.remove();
- },{once:true});
+  for(const h of document.querySelectorAll('h1,h2')){
+   if(!/Ваш сад|Ваше место силы/i.test(h.textContent||''))continue;
+   let p=h;
+   for(let i=0;i<9&&p?.parentElement;i++){
+    if(p.matches('section,.hero,.home-hero,.hero-section,#home,[class*="hero"]'))break;
+    p=p.parentElement;
+   }
+   if(p&&!p.contains(document.getElementById('ozCombinedHeader'))){p.style.setProperty('display','none','important');}
+  }
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();
+ window.addEventListener('load',clean,{once:true});
+ setTimeout(clean,450);
+ setTimeout(clean,1400);
 })();
-
 
 // Restore the helper's original UI typography while keeping Neucha on social-service tiles.
 (()=>{
