@@ -1,5 +1,39 @@
 (()=>{'use strict';
 
+// Four concise, evenly spaced captions in the top green information strip.
+(()=>{
+ const id='ozTopFourCaptions';
+ const labels=['Озерск · Челябинская область','Выращено с заботой о вашем саде','Питомник Елены Ершовой','Товары для сада · Посадочный материал'];
+ const style=document.createElement('style');style.id='ozTopFourCaptionsCSS';
+ style.textContent='#'+id+'{position:absolute;display:flex;align-items:center;justify-content:space-between;gap:16px;pointer-events:none;z-index:30;color:#d8e8dc;font-family:"Neucha",cursive!important;font-size:clamp(12px,1.1vw,17px);letter-spacing:.065em;line-height:1.2;white-space:nowrap}#'+id+' span{font-family:"Neucha",cursive!important;letter-spacing:.065em!important} @media(max-width:900px){#'+id+'{font-size:11px;gap:8px;white-space:normal}#'+id+' span{max-width:24%;text-align:center}}';
+ document.head.appendChild(style);
+ const getLeaf=(value)=>[...document.querySelectorAll('span,p,small,div')].find(e=>e.children.length===0&&(e.textContent||'').replace(/\s+/g,' ').trim()===value);
+ const render=()=>{
+  const left=getLeaf(labels[0]),right=getLeaf('Растения для сада и дома');
+  if(!left||!right)return;
+  const a=left.getBoundingClientRect(),b=right.getBoundingClientRect();
+  if(a.width<2||b.width<2)return;
+  let strip=left.parentElement;
+  while(strip&&strip!==document.body){
+   const box=strip.getBoundingClientRect();
+   if(box.width>window.innerWidth*.75&&box.height>18&&box.height<100)break;
+   strip=strip.parentElement;
+  }
+  const br=(strip&&strip!==document.body)?strip.getBoundingClientRect():{top:Math.min(a.top,b.top)-10,height:Math.max(a.height,b.height)+20,left:0,width:window.innerWidth};
+  left.style.setProperty('visibility','hidden','important');
+  right.style.setProperty('visibility','hidden','important');
+  let overlay=document.getElementById(id);
+  if(!overlay){overlay=document.createElement('div');overlay.id=id;overlay.innerHTML=labels.map(t=>'<span>'+t+'</span>').join('');document.body.appendChild(overlay);}
+  overlay.style.left=(br.left+window.scrollX+Math.max(24,a.left-br.left))+'px';
+  overlay.style.top=(br.top+window.scrollY)+'px';
+  overlay.style.width=Math.max(0,br.width-Math.max(24,a.left-br.left)-Math.max(24,br.right-b.right))+'px';
+  overlay.style.height=br.height+'px';
+ };
+ const start=()=>{render();setTimeout(render,700);setTimeout(render,2000);window.addEventListener('resize',render,{passive:true});};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
 // Airier tracking for the two nursery location/tagline labels only.
 (()=>{
  const phrases=['Озерск · Челябинская область','Растения для сада и дома'];
