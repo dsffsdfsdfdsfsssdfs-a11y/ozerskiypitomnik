@@ -1,5 +1,23 @@
 (()=>{'use strict';
 
+// Intentionally empty home hero; preserve the navigation/header untouched.
+(()=>{
+ const st=document.createElement('style');st.id='oz-empty-home-hero';
+ st.textContent=[
+ 'html body .hero,html body .home-hero,html body .hero-section{background:none!important;background-image:none!important;filter:none!important;box-shadow:none!important;animation:none!important;transition:none!important;min-height:72vh!important;position:relative!important}',
+ 'html body .hero::before,html body .hero::after{display:none!important;content:none!important}',
+ 'html body .hero > :not(#ozCombinedHeader):not(.header),html body .home-hero > :not(#ozCombinedHeader):not(.header){display:none!important}',
+ 'html body #ozHero22Continuous,html body #ozHeroText45{display:none!important}',
+ 'html body #ozCombinedHeader,html body #ozCombinedHeader *{visibility:visible!important}'
+ ].join('\\n');
+ document.head.appendChild(st);
+ document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('ozHero22Continuous')?.remove();
+  document.getElementById('ozHeroText45')?.remove();
+ },{once:true});
+})();
+
+
 // Restore the helper's original UI typography while keeping Neucha on social-service tiles.
 (()=>{
  const st=document.createElement('style');
@@ -71,143 +89,17 @@
  ].join('\n');document.head.appendChild(st);
 })();
 
-// Homepage typography concept 45 — Wide horizon.
-(()=>{
- const fontLink=document.createElement('link');fontLink.rel='stylesheet';fontLink.href='https://fonts.googleapis.com/css2?family=Neucha&display=swap';document.head.appendChild(fontLink);
- const css=document.createElement('style');
- css.id='ozHeroText45Styles';
- css.textContent=[
-  '.hero.oz-hero-text45{position:relative!important;min-height:690px!important;isolation:isolate!important}',
-  '.hero.oz-hero-text45 .wrap{visibility:hidden!important}',
-  '.hero.oz-hero-text45 #ozHeroText45{visibility:visible!important}',
-  '#ozHeroText45{position:absolute!important;left:7%!important;top:17%!important;width:48%!important;max-width:720px;min-height:400px;box-sizing:border-box;padding:42px 44px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;z-index:90!important;color:#184332;background:#edf4ea!important;opacity:1!important;border-radius:28px;border:1px solid rgba(96,133,101,.12);box-shadow:0 18px 45px rgba(34,74,50,.08);backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate}',
-  '#ozHeroText45::before,#ozHeroText45::after{content:none!important;display:none!important}',
-  '#ozHeroText45 .oz45-kicker{font:400 16px/1.4 "Neucha",cursive;letter-spacing:.23em;text-transform:uppercase;color:#65836b;margin-bottom:21px}',
-  '#ozHeroText45 h1{font-family:"Neucha",cursive!important;font-weight:500!important;font-size:clamp(43px,4.5vw,68px)!important;letter-spacing:-.055em!important;line-height:1.06!important;max-width:100%;overflow-wrap:normal;margin:0!important;color:#184332!important;text-align:left!important}',
-  '#ozHeroText45 p{font-family:\"Neucha\",cursive!important;font-size:23px!important;line-height:1.35!important;max-width:520px!important;color:#53705d!important;margin:22px 0 0!important;text-align:left!important}',
-  '#ozHeroText45 a{display:inline-flex;align-items:center;justify-content:center;margin-top:28px;padding:14px 26px;border:0;border-radius:999px;background:#194b39;color:white;text-decoration:none;font-size:14px;font-weight:700;min-height:48px}',
-  '@media(max-width:760px){.hero.oz-hero-text45{min-height:620px!important}#ozHeroText45{left:5%!important;top:12%!important;width:90%!important;max-width:none;min-height:0;padding:32px 22px}#ozHeroText45 h1{font-size:clamp(37px,9vw,53px)!important}#ozHeroText45 p{font-size:15px!important}}'
- ].join('\n');
- document.head.appendChild(css);
- const mount=()=>{
-  const hero=document.querySelector('.hero');
-  if(!hero||document.getElementById('ozHeroText45'))return;
-  hero.classList.add('oz-hero-text45');
-  const panel=document.createElement('section');
-  panel.id='ozHeroText45';
-  panel.innerHTML='<div class="oz45-kicker">Озерский питомник растений</div><h1>Место для вашего сада.</h1><p>Плодовые деревья, декоративные культуры и цветы для сада, который радует каждый сезон.</p><a href="#catalog">Открыть ассортимент</a>';
-  hero.appendChild(panel);
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
- setTimeout(mount,900);
-})();
 
 
 
-// Full-bleed hero photo: remove the former pale-green background and edge fades.
-(()=>{
- const css=document.createElement('style');css.id='oz-full-bleed-hero-photo';
- css.textContent=[
-  'html body .hero.oz-hero-text45,html body .hero.oz-hero-text45::before,html body .hero.oz-hero-text45::after{background:transparent!important;background-image:none!important}',
-  'html body #ozHero22Continuous{background-image:url("/hero-seedlings-22.jpg")!important;background-size:cover!important;background-position:center center!important;opacity:1!important;filter:none!important;-webkit-mask-image:none!important;mask-image:none!important}',
-  'html body .hero.oz-hero-text45 #ozHeroText45{background:rgba(237,244,234,.95)!important;backdrop-filter:blur(5px)!important;-webkit-backdrop-filter:blur(5px)!important}',
-  '@media(max-width:760px){html body #ozHero22Continuous{opacity:1!important;-webkit-mask-image:none!important;mask-image:none!important}}'
- ].join('\\n');document.head.appendChild(css);
- const apply=()=>{
-  const photo=document.getElementById('ozHero22Continuous');
-  const hero=document.querySelector('.hero.oz-hero-text45');
-  const header=document.getElementById('ozCombinedHeader');
-  if(!photo||!hero)return;
-  const hr=hero.getBoundingClientRect(),hd=header?.getBoundingClientRect();
-  const top=hd?Math.min(hd.top,hr.top):hr.top;
-  photo.style.setProperty('left','0px');
-  photo.style.setProperty('width',document.documentElement.clientWidth+'px');
-  photo.style.setProperty('top',(window.scrollY+top)+'px');
-  photo.style.setProperty('height',Math.max(0,hr.bottom-top)+'px');
- };
- const tick=()=>requestAnimationFrame(apply);
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{tick();setTimeout(apply,1000)});else{tick();setTimeout(apply,1000)}
- window.addEventListener('resize',tick,{passive:true});
- setInterval(apply,1200);
-})();
 
-// Clean full-size greenhouse photograph without fog, masks or color overlays.
-(()=>{
- const st=document.createElement('style');st.id='oz-clean-hero-no-fog';
- st.textContent=[
- 'html body .hero.oz-hero-text45{background:#294a30 url("/hero-seedlings-22.jpg") center center / cover no-repeat!important;filter:none!important;opacity:1!important;-webkit-mask-image:none!important;mask-image:none!important}',
- 'html body .hero.oz-hero-text45::before,html body .hero.oz-hero-text45::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important;filter:none!important}',
- 'html body #ozHero22Continuous{display:none!important}',
- 'html body .hero.oz-hero-text45 #ozHeroText45{background:#edf4ea!important;opacity:1!important;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 18px 45px rgba(34,74,50,.12)!important}',
- 'html body .hero.oz-hero-text45 #ozHeroText45::before,html body .hero.oz-hero-text45 #ozHeroText45::after{display:none!important;content:none!important}',
- 'html body .hero.oz-hero-text45 .wrap{visibility:hidden!important}'
- ].join('\\n');document.head.appendChild(st);
-})();
 
-// Hero photograph variant 39: one uninterrupted layer across header and hero.
-(()=>{
- const style=document.createElement('style');
- style.id='oz-hero-photo-39-css';
- style.textContent=[
-  '#ozHero22Continuous{position:absolute;z-index:12;pointer-events:none;background:url("/hero-seedlings-22.jpg") center 54%/cover no-repeat;opacity:.97;filter:saturate(.92);-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.2) 12%,#000 38%),linear-gradient(180deg,transparent 0%,#000 12%,#000 72%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.2) 12%,#000 38%),linear-gradient(180deg,transparent 0%,#000 12%,#000 72%,transparent 100%);-webkit-mask-composite:source-in;mask-composite:intersect}',
-  '@media(max-width:760px){#ozHero22Continuous{opacity:.72;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 55%),linear-gradient(180deg,transparent 0%,#000 15%,#000 65%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,#000 55%),linear-gradient(180deg,transparent 0%,#000 15%,#000 65%,transparent 100%)}}',
-  '#ozCombinedHeader{position:relative!important;z-index:15!important;background:transparent!important}',
-  '#ozCombinedHeader .header{background:transparent!important}',
-  '#ozCombinedHeader::before{content:none!important;display:none!important}',
-  '.hero .wrap,.hero .hero-content,.hero .hero-copy,.hero h1,.hero p,.hero .hero-actions{position:relative;z-index:14}'
- ].join('\n');document.head.appendChild(style);
- const layer=document.createElement('div');
- layer.id='ozHero22Continuous';
- layer.setAttribute('aria-hidden','true');
- let watched=false,frame=0;
- const update=()=>{
-  frame=0;
-  const hero=document.querySelector('.hero, .home-hero, .hero-section, #home');
-  const header=document.getElementById('ozCombinedHeader')||document.querySelector('.header');
-  if(!hero)return;
-  if(!layer.isConnected)document.body.appendChild(layer);
-  const hr=hero.getBoundingClientRect();
-  const nr=header?.getBoundingClientRect();
-  const top=nr?Math.min(nr.top,hr.top):hr.top;
-  const bottom=hr.bottom;
-  const left=hr.left;
-  layer.style.cssText+=';top:'+(top+window.scrollY)+'px;left:'+(left+hr.width*.35)+'px;width:'+(hr.width*.65)+'px;height:'+Math.max(0,bottom-top)+'px';
- };
- const schedule=()=>{if(!frame)frame=requestAnimationFrame(update)};
- const init=()=>{
-  update();
-  window.addEventListener('resize',schedule,{passive:true});
-  window.addEventListener('load',schedule,{once:true});
-  if('ResizeObserver'in window){const ro=new ResizeObserver(schedule);[document.querySelector('.hero'),document.getElementById('ozCombinedHeader')].filter(Boolean).forEach(el=>ro.observe(el))}
-  setTimeout(update,850);setTimeout(update,2200);
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-})();
 
-// Remove the original three-photo collage and floating catalog teaser from home.
-(()=>{
- const style=document.createElement('style');style.id='oz-remove-home-collage';
- style.textContent='.oz-home-collage-removed{display:none!important}.hero .hero-in,.hero .hero-inner,.hero .hero-grid{grid-template-columns:1fr!important}.hero .hero-content,.hero .hero-copy{max-width:900px!important}';
- document.head.appendChild(style);
- const fix=()=>{
-  const hero=document.querySelector('.hero')||document.querySelector('main');
-  if(!hero)return;
-  const imgs=[...hero.querySelectorAll('img')];
-  const candidates=new Set();
-  imgs.forEach(img=>{
-   for(let p=img.parentElement,d=0;p&&p!==hero&&d<8;p=p.parentElement,d++){
-    if(p.querySelectorAll('img').length>=3&&!p.querySelector('h1')){candidates.add(p);break}
-   }
-  });
-  const valid=[...candidates].filter(p=>{const r=p.getBoundingClientRect();return r.width>300&&r.height>150&&!p.closest('#catalog,[id*="catalog"],.catalog,[class*="catalog-grid"]')});
-  valid.sort((x,y)=>x.querySelectorAll('img').length-y.querySelectorAll('img').length);
-  if(valid[0])valid[0].classList.add('oz-home-collage-removed');
-  const teaser=[...hero.querySelectorAll('div,a,span')].find(el=>el.children.length<4&&el.textContent.trim()==='Загляните в наш каталог');
-  if(teaser){let p=teaser;for(let i=0;i<3&&p.parentElement&&p.parentElement!==hero;i++){if(p.parentElement.querySelectorAll('img').length>2)break;p=p.parentElement}p.classList.add('oz-home-collage-removed')}
- };
- const start=()=>{fix();let scheduled=false;const ob=new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;ob.disconnect();fix();ob.observe(document.body,{childList:true,subtree:true})})});ob.observe(document.body,{childList:true,subtree:true})};
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
+
+
+
+
+
 
 // Independent central cart v2. Does not reuse, move, or modify the old drawer.
 (()=>{
