@@ -1,5 +1,21 @@
 (()=>{'use strict';
 
+// Improve readability: modest tracking across all visible website text.
+(()=>{
+ const style=document.createElement('style');
+ style.id='oz-site-wide-letter-spacing';
+ style.textContent=[
+ 'html body,html body *:not(svg):not(svg *):not([class*="icon"]):not(i){letter-spacing:.035em!important}',
+ 'html body h1,html body h2,html body h3,html body h4{letter-spacing:.025em!important}',
+ 'html body :is(button,input,textarea,select){letter-spacing:.025em!important}',
+ 'html body #ozCombinedHeader a,html body #mainNav a{letter-spacing:.055em!important}',
+ 'html body #ozHelper13,html body #ozHelper13 *:not(svg):not(svg *){letter-spacing:.015em!important}',
+ 'html body #ozHelper13 .oz-vk-title{letter-spacing:.025em!important}'
+ ].join('\n');
+ document.head.appendChild(style);
+})();
+
+
 // Keep navigation, remove the entire original home hero (including old collage).
 (()=>{
  const st=document.createElement('style');
