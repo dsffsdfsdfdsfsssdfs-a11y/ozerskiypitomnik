@@ -1,6 +1,25 @@
 (()=>{'use strict';
 
 
+// Avoid showing unconfigured header, legacy cart counters and missing logo during initialization.
+(()=>{
+ const css=document.createElement('style');css.id='oz-header-boot-guard';
+ css.textContent='#ozCombinedHeader:not(.oz-header-boot-ready){visibility:hidden!important}#ozV13Cart .oz-new-count-badge,#ozV13Cart .oz-old-number-hidden{display:none!important}';
+ document.head.appendChild(css);
+ let layoutReady=false,logoReady=false,revealed=false;
+ const finish=()=>{
+  if(revealed||!layoutReady||!logoReady)return;
+  revealed=true;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   document.getElementById('ozCombinedHeader')?.classList.add('oz-header-boot-ready');
+   css.textContent='#ozV13Cart .oz-new-count-badge,#ozV13Cart .oz-old-number-hidden{display:none!important}';
+  }));
+ };
+ window.addEventListener('oz-header-settings-ready',()=>{layoutReady=true;finish()});
+ window.addEventListener('oz-logo-settings-ready',()=>{logoReady=true;finish()});
+ setTimeout(()=>{layoutReady=true;logoReady=true;finish()},7000);
+})();
+
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
