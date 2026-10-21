@@ -20,6 +20,22 @@
  setTimeout(()=>{layoutReady=true;logoReady=true;finish()},7000);
 })();
 
+// A stable initial typography rule prevents legacy inline and readable-font rules from resizing navigation mid-load.
+(()=>{
+ const st=document.createElement('style');st.id='oz-header-font-stable';
+ st.textContent=`
+ @media(min-width:901px){
+  html body #ozCombinedHeader #mainNav a,
+  html body #ozCombinedHeader #mainNav a span,
+  html body #ozCombinedHeader .header .header-in #mainNav a{
+   font-size:21px!important;line-height:1.2!important;
+   transition:none!important;animation:none!important;
+  }
+ }
+ `;
+ document.head.appendChild(st);
+})();
+
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
