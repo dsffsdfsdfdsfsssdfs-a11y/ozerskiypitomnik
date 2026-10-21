@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const endpoint='/api/header-layout';
-const defs={phone:62,helper:62,cart:62,menu:62,nav0:21,nav1:21,nav2:21,nav3:21,nav4:21};
+const defs={phone:62,helper:62,cart:62,menu:62,nav0:21,nav1:21,nav2:21,nav3:21,nav4:21,nav5:21};
 let items={},active=false,targets={};
 const css=document.createElement('style');css.id='oz-header-layout-editor-css';
 css.textContent=`
@@ -18,7 +18,7 @@ css.textContent=`
 `;
 document.head.appendChild(css);
 const map=()=>{
- const nav=[...document.querySelectorAll('#ozCombinedHeader #mainNav a')].filter(e=>e.offsetParent!==null).slice(0,5);
+ const nav=[...document.querySelectorAll('#ozCombinedHeader #mainNav a')].filter(e=>e.offsetParent!==null).slice(0,6);
  return {phone:document.querySelector('#ozCombinedHeader .header a[href^="tel:"]')||document.querySelector('#ozDottedActions [href^="tel:"]'),helper:document.getElementById('ozHelperToggle'),cart:document.getElementById('ozV13Cart'),menu:document.querySelector('#ozDottedActions .oz-v13-btn')||document.querySelector('#ozDottedActions button'),...Object.fromEntries(nav.map((e,i)=>['nav'+i,e]))};
 };
 function apply(){
@@ -58,7 +58,7 @@ function setup(){
   panel=document.createElement('div');panel.id='ozHeaderEditorPanel';
   panel.innerHTML='<strong style="font-size:20px">Элементы шапки</strong><p style="font-size:13px">Открой редактор, зажми и перемещай элементы шапки. Размер регулируется ниже.</p><div id="ozHeaderSliders"></div><button type="button" id="ozHeaderPublish">Опубликовать шапку для всех</button><button type="button" id="ozHeaderReset">Сбросить расположение</button><p id="ozHeaderStatus" style="font-size:12px"></p>';
   main.appendChild(panel);
-  const labels={phone:'Звонок',helper:'Помощник',cart:'Корзина',menu:'Меню',nav0:'Надпись 1',nav1:'Надпись 2',nav2:'Надпись 3',nav3:'Надпись 4',nav4:'Надпись 5'};
+  const labels={phone:'Звонок',helper:'Помощник',cart:'Корзина',menu:'Меню',nav0:'Надпись 1',nav1:'Надпись 2',nav2:'Надпись 3',nav3:'Надпись 4',nav4:'Контакты',nav5:'Отзывы'};
   const sliders=panel.querySelector('#ozHeaderSliders');
   for(const [id,label] of Object.entries(labels)){
    const row=document.createElement('label');row.textContent=label+' ';
