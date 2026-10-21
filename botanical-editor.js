@@ -20,22 +20,6 @@
  setTimeout(()=>{layoutReady=true;logoReady=true;finish()},7000);
 })();
 
-// A stable initial typography rule prevents legacy inline and readable-font rules from resizing navigation mid-load.
-(()=>{
- const st=document.createElement('style');st.id='oz-header-font-stable';
- st.textContent=`
- @media(min-width:901px){
-  html body #ozCombinedHeader #mainNav a,
-  html body #ozCombinedHeader #mainNav a span,
-  html body #ozCombinedHeader .header .header-in #mainNav a{
-   font-size:21px!important;line-height:1.2!important;
-   transition:none!important;animation:none!important;
-  }
- }
- `;
- document.head.appendChild(st);
-})();
-
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
@@ -534,9 +518,8 @@
   const n=items.reduce((sum,x)=>sum+x.qty,0);
   const count=overlay.querySelector('#ozNewCartCount');if(count)count.textContent='('+n+')';
   const trigger=document.getElementById('ozV13Cart');if(!trigger)return;
-  let badge=trigger.querySelector('.oz-new-count-badge');
-  if(!badge){badge=document.createElement('span');badge.className='oz-new-count-badge';trigger.appendChild(badge)}
-  badge.textContent=String(n);badge.style.display=n?'block':'none';
+  // Keep the header cart icon badge-free. Quantity remains visible in the cart dialog.
+  trigger.querySelectorAll('.oz-new-count-badge').forEach(badge=>badge.remove());
   [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
    if(el===badge||el.closest('.oz-new-count-badge'))return;
    if(el.children.length===0&&/^\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
