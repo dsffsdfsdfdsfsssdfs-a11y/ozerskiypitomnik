@@ -85,7 +85,7 @@
     if(!file.type.startsWith('image/')||file.size>10*1024*1024)continue;
     const id='p'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
     const bm=await createImageBitmap(file);const width=bm.width,height=bm.height;bm.close();
-    const entry={id,x:12+data.length*5,y:27+data.length*5,w:20};
+    const entry={id,x:12+data.length*5,y:27+data.length*5,w:20,width,height};
     await store({id,file,width,height});data.push(entry);persist();await draw(entry);
    }
    fileInput.value='';redrawList();
