@@ -92,6 +92,51 @@ document.addEventListener('pointerdown',e=>{
  window.addEventListener('pointerup',stop,true);
  window.addEventListener('pointercancel',stop,true);
 },true);
+
+// Dedicated drag hit area directly over "Отзывы" while the editor is open.
+// This remains clickable even when the header has other pointer/click handlers.
+const reviewHandle=document.createElement('div');
+reviewHandle.id='ozReviewsDragHandle';
+reviewHandle.setAttribute('aria-label','Перетащить Отзывы');
+Object.assign(reviewHandle.style,{position:'fixed',display:'none',zIndex:'2147483601',cursor:'move',touchAction:'none',background:'transparent'});
+document.body.appendChild(reviewHandle);
+let movingReview=false;
+function positionReviewHandle(){
+ const panel=document.getElementById('oz50EditPanel');
+ const link=[...document.querySelectorAll('#mainNav a')].find(a=>a.textContent.trim()==='Отзывы');
+ if(!panel||panel.hidden||!link||!link.getClientRects().length){
+  if(!movingReview)reviewHandle.style.display='none';
+  return;
+ }
+ if(movingReview)return;
+ const b=link.getBoundingClientRect();
+ reviewHandle.style.cssText+=';display:block;left:'+b.left+'px;top:'+b.top+'px;width:'+b.width+'px;height:'+b.height+'px';
+}
+reviewHandle.addEventListener('pointerdown',e=>{
+ if(e.button!==0)return;
+ const link=[...document.querySelectorAll('#mainNav a')].find(a=>a.textContent.trim()==='Отзывы');
+ if(!link)return;
+ e.preventDefault();e.stopPropagation();movingReview=true;
+ const start={x:0,y:0,size:defs.nav5,...(items.nav5||{})},sx=e.clientX,sy=e.clientY;
+ const move=ev=>{
+  ev.preventDefault();
+  items.nav5={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(ev.clientX-sx))),y:Math.max(-200,Math.min(200,start.y+Math.round(ev.clientY-sy)))};
+  link.style.setProperty('translate',items.nav5.x+'px '+items.nav5.y+'px','important');
+  const b=link.getBoundingClientRect();
+  reviewHandle.style.left=b.left+'px';reviewHandle.style.top=b.top+'px';
+ };
+ const done=()=>{
+  movingReview=false;
+  window.removeEventListener('pointermove',move,true);
+  window.removeEventListener('pointerup',done,true);
+  window.removeEventListener('pointercancel',done,true);
+  apply();positionReviewHandle();
+ };
+ window.addEventListener('pointermove',move,{capture:true,passive:false});
+ window.addEventListener('pointerup',done,true);
+ window.addEventListener('pointercancel',done,true);
+},true);
+setInterval(positionReviewHandle,250);
 function setup(){
  const main=document.getElementById('oz50EditPanel');if(!main)return false;
  let panel=document.getElementById('ozHeaderEditorPanel');
