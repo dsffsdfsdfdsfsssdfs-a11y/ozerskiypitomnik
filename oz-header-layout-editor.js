@@ -64,6 +64,34 @@ function apply(){
   }
  }
 }
+
+// Delegated handler: the header may be recreated by the main site editor.
+// Catch the actual Reviews link before its navigation handler can consume the drag.
+document.addEventListener('pointerdown',e=>{
+ if(e.button!==0)return;
+ const link=e.target.closest?.('a');
+ if(!link||link.textContent.trim()!=='Отзывы'||!link.closest('#mainNav'))return;
+ const panel=document.getElementById('oz50EditPanel');
+ if(!panel||!panel.getClientRects().length)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ const id='nav5',start={x:0,y:0,size:defs[id],...(items[id]||{})};
+ const originX=e.clientX,originY=e.clientY;
+ link.style.setProperty('position','relative','important');
+ const move=ev=>{
+  ev.preventDefault();
+  items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(ev.clientX-originX))),y:Math.max(-200,Math.min(200,start.y+Math.round(ev.clientY-originY)))};
+  link.style.setProperty('translate',items[id].x+'px '+items[id].y+'px','important');
+ };
+ const stop=()=>{
+  window.removeEventListener('pointermove',move,true);
+  window.removeEventListener('pointerup',stop,true);
+  window.removeEventListener('pointercancel',stop,true);
+  apply();
+ };
+ window.addEventListener('pointermove',move,{capture:true,passive:false});
+ window.addEventListener('pointerup',stop,true);
+ window.addEventListener('pointercancel',stop,true);
+},true);
 function setup(){
  const main=document.getElementById('oz50EditPanel');if(!main)return false;
  let panel=document.getElementById('ozHeaderEditorPanel');
