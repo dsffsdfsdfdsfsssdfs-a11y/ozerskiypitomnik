@@ -51,7 +51,7 @@ function sync(){
  p.querySelector('#ozLogoSizeValue').textContent=state.width+' px';
  p.querySelector('#ozLogoMobileSizeValue').textContent=state.mobileWidth+' px';
 }
-function update(){window.OZ_EDITOR_LOGO=state.src;window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();}
+function update(){window.OZ_EDITOR_LOGO=state.src;window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();window.dispatchEvent(new Event('oz-logo-settings-ready'));window.dispatchEvent(new Event('oz-logo-settings-ready'));}
 function pointer(e){
  if(!editing||e.button!==0)return;
  const el=document.getElementById('ozFreeLogo'),target=e.target;
