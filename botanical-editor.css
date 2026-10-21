@@ -2,8 +2,7 @@
 html:not(.oz-public-ready) body{opacity:0!important;pointer-events:none!important}
 html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidden!important}
 #ozV13Cart .oz-old-number-hidden,
-#ozV13Cart [data-cart-count],
-#ozV13Cart [class*="count-badge"]{display:none!important}
+#ozV13Cart [data-cart-count]{display:none!important}
 
 /* The new cart owns this live badge; no badge for an empty cart. */
 #ozV13Cart{position:relative!important}
