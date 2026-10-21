@@ -933,7 +933,7 @@ const applyLogo=()=>{window.OZ_PUBLIC_LOGO_OVERRIDE=logoAsset;const e=document.q
  e.style.removeProperty('display');
  const src=window.OZ_EDITOR_LOGO||window.OZ_PUBLISHED_LOGO?.src||logoAsset;
  if(src&&im.getAttribute('src')!==src)im.src=src;
- else if(!src){im.removeAttribute('src');}
+ // Preserve the image until the independently published logo is loaded.
  window.ozApplyLogoLayout?.();
 };
 
