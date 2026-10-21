@@ -1138,7 +1138,7 @@ const installMobileCss=(doc,data,id='ozPublishedMobileOverrides')=>{
   normalizeMobileLogo(doc);applyMobileDirect(doc,data);
  }catch(e){console.warn('Mobile overrides:',e)}
 };
-const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.startsWith('mobile::')){if(innerWidth<=900){if(d.text!=null){const e=document.querySelector(key);if(e&&!e.children.length)e.textContent=d.text}}else applyOne(key,d)}applyLogo();installMobileCss(document,records)};
+const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.startsWith('mobile::')){if(/^#mainNav(?:\s|\b)|^#ozV13Cart\b|^#ozHelperToggle\b|^#ozDottedActions\b/.test(key))continue;if(innerWidth<=900){if(d.text!=null){const e=document.querySelector(key);if(e&&!e.children.length)e.textContent=d.text}}else applyOne(key,d)}applyLogo();installMobileCss(document,records)};
 // Read published layout and logos; there are no editor controls on the public site.
 (async()=>{
  try {
