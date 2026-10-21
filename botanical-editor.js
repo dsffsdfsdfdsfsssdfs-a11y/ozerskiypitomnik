@@ -511,10 +511,12 @@
   const trigger=document.getElementById('ozV13Cart');if(!trigger)return;
   // Show only the new cart's live quantity; zero stays hidden.
   let badge=trigger.querySelector('.oz-new-count-badge');
-  if(!badge){badge=document.createElement('span');badge.className='oz-new-count-badge';trigger.appendChild(badge)}
-  badge.textContent=String(n);
-  badge.hidden=n===0;
-  badge.style.setProperty('display',n>0?'flex':'none','important');
+  if(n>0){
+   if(!badge){badge=document.createElement('span');badge.className='oz-new-count-badge';trigger.appendChild(badge)}
+   badge.textContent=String(n);
+   badge.hidden=false;
+   badge.style.setProperty('display','flex','important');
+  }else if(badge){badge.remove()}
   [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
    if(el.closest('.oz-new-count-badge'))return;
    if(el.children.length===0&&/^\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
