@@ -10,35 +10,5 @@ html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidd
 #ozV13Cart .oz-new-count-badge[hidden]{display:none!important}
 
 
-/* The decorative white ring is FIXED and independent from the editor image width. */
-@media (min-width:901px){
- html body #ozFreeLogo{
-  position:relative;
-  background:transparent!important;
-  padding:0!important;
-  outline:none!important;
-  box-shadow:none!important;
-  isolation:isolate!important;
-  overflow:visible!important;
- }
- html body #ozFreeLogo::before{
-  content:""!important;
-  display:block!important;
-  position:absolute!important;
-  width:170px!important;
-  height:170px!important;
-  box-sizing:border-box!important;
-  left:50%!important;
-  top:50%!important;
-  transform:translate(-50%,-50%)!important;
-  border:3px solid #124c2b!important;
-  border-radius:50%!important;
-  background:#fff!important;
-  z-index:-1!important;
-  pointer-events:none!important;
- }
- html body #ozFreeLogo > img{
-  position:relative!important;
-  z-index:1!important;
- }
-}
+/* Remove the extra fixed white/green circle; preserve the logo itself. */
+#ozFreeLogo::before{content:none!important;display:none!important}
