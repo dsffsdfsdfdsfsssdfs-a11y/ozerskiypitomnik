@@ -512,7 +512,7 @@
   // Keep the header cart icon badge-free. Quantity remains visible in the cart dialog.
   trigger.querySelectorAll('.oz-new-count-badge').forEach(badge=>badge.remove());
   [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
-   if(el===badge||el.closest('.oz-new-count-badge'))return;
+   if(el.closest('.oz-new-count-badge'))return;
    if(el.children.length===0&&/^\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
   });
  };
