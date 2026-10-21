@@ -1,7 +1,11 @@
 /* Keep the initial paint hidden until published settings have been applied. */
 html:not(.oz-public-ready) body{opacity:0!important;pointer-events:none!important}
 html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidden!important}
-#ozV13Cart .oz-new-count-badge,
 #ozV13Cart .oz-old-number-hidden,
 #ozV13Cart [data-cart-count],
 #ozV13Cart [class*="count-badge"]{display:none!important}
+
+/* The new cart owns this live badge; no badge for an empty cart. */
+#ozV13Cart{position:relative!important}
+#ozV13Cart .oz-new-count-badge{position:absolute!important;top:-6px;right:-7px;z-index:10;min-width:21px;height:21px;padding:0 4px;border-radius:999px;background:#327c53;color:#fff;font:700 12px/1 Arial,sans-serif;align-items:center;justify-content:center;box-sizing:border-box;pointer-events:none}
+#ozV13Cart .oz-new-count-badge[hidden]{display:none!important}
