@@ -37,7 +37,7 @@
   html body #ozV13Cart{width:62px!important;height:62px!important;min-width:62px!important;min-height:62px!important}
   html body #ozDottedActions svg,html body #ozHelperToggle svg{width:27px!important;height:27px!important}
  }
- #ozV13Cart .oz-new-count-badge,#ozV13Cart .oz-old-number-hidden{display:none!important}
+ #ozV13Cart .oz-old-number-hidden{display:none!important}
  `;
  document.head.appendChild(style);
 })();
