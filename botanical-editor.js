@@ -521,7 +521,7 @@
   trigger.querySelectorAll('[data-cart-count],.oz-old-number-hidden').forEach(el=>el.remove());
   [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
    if(el===badge||el.closest('.oz-new-count-badge'))return;
-   if(el.children.length===0&&/^\\d+$/.test(el.textContent.trim()))el.remove();
+   if(el.children.length===0&&/^\d+$/.test(el.textContent.trim()))el.remove();
   });
  };
  const render=()=>{
