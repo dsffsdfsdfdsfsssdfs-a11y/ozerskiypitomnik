@@ -31,10 +31,9 @@ html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidd
   left:50%!important;
   top:50%!important;
   transform:translate(-50%,-50%)!important;
-  border:1px solid #f0f2ed!important;
+  border:3px solid #124c2b!important;
   border-radius:50%!important;
-  background:linear-gradient(180deg,#fff 70%,#f1f4ee)!important;
-  box-shadow:0 -3px 14px #ffffffab,0 10px 24px #0f30252e!important;
+  background:#fff!important;
   z-index:-1!important;
   pointer-events:none!important;
  }
