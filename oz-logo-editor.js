@@ -121,7 +121,7 @@ async function load(){
  try{const r=await fetch(endpoint+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('server');const v=await r.json();
  state={...defaultState,...v};
  // Prefer unsaved changes made in the current tab, if any.
- window.OZ_PUBLISHED_LOGO=state;visual();sync();
+ window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();
  }catch(e){console.warn('Published logo settings unavailable',e);window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();}
 }
 const boot=()=>{load();if(setup())return;let i=0;const t=setInterval(()=>{if(setup()||++i>60)clearInterval(t)},400)};
