@@ -51,7 +51,7 @@ function sync(){
  p.querySelector('#ozLogoSizeValue').textContent=state.width+' px';
  p.querySelector('#ozLogoMobileSizeValue').textContent=state.mobileWidth+' px';
 }
-function update(){window.OZ_EDITOR_LOGO=state.src;window.OZ_PUBLISHED_LOGO=state;visual();sync();}
+function update(){window.OZ_EDITOR_LOGO=state.src;window.OZ_PUBLISHED_LOGO=state;visual();sync();document.getElementById('oz-logo-no-flash')?.remove();}
 function pointer(e){
  if(!editing||e.button!==0)return;
  const el=document.getElementById('ozFreeLogo'),target=e.target;
@@ -122,7 +122,7 @@ async function load(){
  state={...defaultState,...v};
  // Prefer unsaved changes made in the current tab, if any.
  window.OZ_PUBLISHED_LOGO=state;visual();sync();
- }catch(e){console.warn('Published logo settings unavailable',e)}
+ }catch(e){console.warn('Published logo settings unavailable',e);document.getElementById('oz-logo-no-flash')?.remove();}
 }
 const boot=()=>{load();if(setup())return;let i=0;const t=setInterval(()=>{if(setup()||++i>60)clearInterval(t)},400)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
