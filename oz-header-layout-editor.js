@@ -110,17 +110,36 @@ function setup(){
   const status=t=>panel.querySelector('#ozHeaderStatus').textContent=t;
   panel.querySelector('#ozHeaderReset').onclick=()=>{items={};apply();for(const input of sliders.querySelectorAll('input'))input.value=defs[Object.keys(labels)[[...sliders.querySelectorAll('input')].indexOf(input)]];status('Расположение сброшено локально. Нажми публикацию.')};
   const publishHeader=async()=>{
-   const pass=sessionStorage.getItem('ozLogoEditorPass')||prompt('Пароль публикации:');if(!pass)return;
-   try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','x-editor-password':pass},body:JSON.stringify({items})});const result=await r.json();if(!r.ok)throw Error(result.error||'Ошибка');
-   const check=await fetch(endpoint+'?verify='+Date.now(),{cache:'no-store'});
-   if(!check.ok)throw Error('Не удалось проверить сохранение');
-   const saved=(await check.json()).items||{};
+   const button=panel.querySelector('#ozHeaderPublish');
+   const snapshot={};
    for(const [key,value] of Object.entries(items)){
     if(!value)continue;
-    if(!saved[key]||Math.round(saved[key].x)!==Math.round(value.x||0)||Math.round(saved[key].y)!==Math.round(value.y||0)||Math.round(saved[key].size)!==Math.round(value.size||defs[key]))throw Error('Сервер не сохранил '+key);
+    snapshot[key]={x:Number(value.x)||0,y:Number(value.y)||0,size:Number(value.size)||defs[key]};
    }
-   sessionStorage.setItem('ozLogoEditorPass',pass);status('Проверено: положение и размеры сохранены на сервере')}
-   catch(e){status('Ошибка публикации: '+e.message)}
+   let pass=sessionStorage.getItem('ozLogoEditorPass')||'';
+   if(!pass)pass=prompt('Пароль для публикации настроек шапки:')||'';
+   if(!pass){status('Публикация отменена: не указан пароль');return}
+   button.disabled=true;status('Сохраняю настройки на сервере…');
+   try{
+    let response=await fetch(endpoint,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json','x-editor-password':pass},body:JSON.stringify({items:snapshot})});
+    if(response.status===401){
+     sessionStorage.removeItem('ozLogoEditorPass');
+     pass=prompt('Сервер отклонил пароль. Введи пароль редактора заново:')||'';
+     if(!pass)throw Error('Сервер отклонил пароль');
+     response=await fetch(endpoint,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json','x-editor-password':pass},body:JSON.stringify({items:snapshot})});
+    }
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||!result.ok)throw Error(result.error||'HTTP '+response.status);
+    const accepted=result.items||{};
+    for(const [key,value] of Object.entries(snapshot)){
+     const saved=accepted[key];
+     if(!saved||saved.x!==value.x||saved.y!==value.y||saved.size!==value.size)
+      throw Error('Сервер не подтвердил '+key);
+    }
+    sessionStorage.setItem('ozLogoEditorPass',pass);
+    status('✓ Сохранено на сервере. Обнови страницу, чтобы проверить.');
+   }catch(error){status('❌ НЕ СОХРАНЕНО: '+error.message);alert('Не удалось опубликовать шапку: '+error.message)}
+   finally{button.disabled=false}
   };
   panel.querySelector('#ozHeaderPublish').onclick=publishHeader;
   const mainSave=main.querySelector('[data-save]');
