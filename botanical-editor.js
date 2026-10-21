@@ -3,22 +3,6 @@
 
 // Header and page use the same visibility lifecycle (oz-public-ready).
 // No separate header-ready delay.
-// Suppress the legacy zero badge before the page becomes visible.
-(()=>{
- const clean=()=>{
-  const cart=document.getElementById('ozV13Cart');if(!cart)return;
-  cart.querySelectorAll('span,b,strong,[data-cart-count]').forEach(el=>{
-   if(el.classList.contains('oz-new-count-badge')||el.closest('.oz-new-count-badge'))return;
-   if(el.children.length===0&&/^\s*0\s*$/.test(el.textContent||'')){
-    if(!el.classList.contains('oz-old-number-hidden'))el.classList.add('oz-old-number-hidden');
-   }
-  });
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();
- const obs=new MutationObserver(clean);
- obs.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
-})();
-
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
@@ -533,9 +517,11 @@
    badge.hidden=false;
    badge.style.setProperty('display','flex','important');
   }else if(badge){badge.remove()}
+  // Remove pre-existing legacy counters; the new badge is the sole counter.
+  trigger.querySelectorAll('[data-cart-count],.oz-old-number-hidden').forEach(el=>el.remove());
   [...trigger.querySelectorAll('span,b,strong')].forEach(el=>{
-   if(el.closest('.oz-new-count-badge'))return;
-   if(el.children.length===0&&/^\d+$/.test(el.textContent.trim()))el.classList.add('oz-old-number-hidden');
+   if(el===badge||el.closest('.oz-new-count-badge'))return;
+   if(el.children.length===0&&/^\\d+$/.test(el.textContent.trim()))el.remove();
   });
  };
  const render=()=>{
