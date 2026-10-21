@@ -75,6 +75,21 @@
  let hero,panel,btn;
  const items=()=>({title:hero?.querySelector('h1'),subtitle:hero?.querySelector('.oz50-summary'),eyebrow:hero?.querySelector('.oz50-eyebrow'),primary:hero?.querySelector('.oz50-primary'),secondary:hero?.querySelector('.oz50-secondary')});
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
+ const publish=async()=>{
+  let pass=sessionStorage.getItem('ozLogoEditorPass')||'';
+  if(!pass)pass=prompt('Пароль для публикации изменений на сайте:')||'';
+  if(!pass)return false;
+  const btn=panel?.querySelector('[data-save]'),old=btn?.textContent;
+  if(btn){btn.disabled=true;btn.textContent='Публикуем...'}
+  try{
+   const res=await fetch('/api/home-editor',{method:'POST',headers:{'Content-Type':'application/json','x-editor-password':pass},body:JSON.stringify({home:state})});
+   const data=await res.json();if(!res.ok)throw Error(data.error||'Ошибка публикации');
+   sessionStorage.setItem('ozLogoEditorPass',pass);
+   if(btn)btn.textContent='Опубликовано!';
+   return true;
+  }catch(e){sessionStorage.removeItem('ozLogoEditorPass');alert('Не удалось опубликовать: '+e.message);return false}
+  finally{if(btn){btn.disabled=false;setTimeout(()=>{btn.textContent=old},1500)}}
+ };
  const apply=()=>{
   if(!hero)return;
   const el=items();
@@ -119,8 +134,11 @@
   btn.onclick=()=>{toggle(panel.hidden);sync()};
   panel.oninput=e=>{const t=e.target;if(t.dataset.size)state[t.dataset.size]=Number(t.value);if(t.dataset.check)state[t.dataset.check]=t.checked;if(t.dataset.text)state[t.dataset.text+'Text']=t.value;apply();sync();save()};
   panel.querySelector('[data-reset]').onclick=()=>{state={...defaults};apply();sync();save()};
-  panel.querySelector('[data-save]').onclick=()=>{save();toggle(false)};
+  panel.querySelector('[data-save]').onclick=async()=>{save();if(await publish())toggle(false)};
   sync();
+  fetch('/api/home-editor?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{
+   if(data?.home){state={...defaults,...data.home};apply();sync()}
+  }).catch(e=>console.warn('Homepage settings unavailable',e));
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();setTimeout(init,500)},{once:true});else{init();setTimeout(init,500)}
 })();
