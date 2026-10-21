@@ -19,11 +19,39 @@
  const load=id=>new Promise((resolve,reject)=>{const q=db.transaction('photos','readonly').objectStore('photos').get(id);q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)});
  const remove=id=>new Promise((resolve,reject)=>{const q=db.transaction('photos','readwrite').objectStore('photos').delete(id);q.onsuccess=resolve;q.onerror=()=>reject(q.error)});
  const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
+ const publishPhotos=async()=>{
+  let password=sessionStorage.getItem('ozLogoEditorPass')||'';
+  if(!password)password=prompt('Пароль публикации фотографий:')||'';
+  if(!password)return false;
+  const images=[];
+  for(const photo of data){
+   let src=photo.src;
+   if(!src){
+    const record=await load(photo.id);
+    if(!record?.file)throw Error('Не найден файл фотографии '+photo.id);
+    const bitmap=await createImageBitmap(record.file);
+    const scale=Math.min(1,1000/Math.max(bitmap.width,bitmap.height));
+    const canvas=document.createElement('canvas');
+    canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+    canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+    src=canvas.toDataURL('image/webp',.73);
+   }
+   images.push({...photo,src});
+  }
+  const response=await fetch('/api/hero-images',{method:'POST',headers:{'Content-Type':'application/json','x-editor-password':password},body:JSON.stringify({images})});
+  const result=await response.json();
+  if(!response.ok){sessionStorage.removeItem('ozLogoEditorPass');throw Error(result.error||'Не удалось сохранить фотографии')}
+  sessionStorage.setItem('ozLogoEditorPass',password);return true;
+ };
+ window.ozPublishHeroPhotos=publishPhotos;
  const init=async()=>{
   const hero=document.getElementById('ozHomeLayout50'),panel=document.getElementById('oz50EditPanel');if(!hero||!panel||document.getElementById('ozHeroImageUpload'))return;
   try{await openDB()}catch(e){return}
   const area=document.createElement('div');area.innerHTML='<h3 style="font:22px Neucha,cursive;margin:15px 0 6px">Фотографии на главной</h3><div style="font-size:13px;margin-bottom:6px">Выбирай фото, затем в редакторе перетаскивай его и тяни за нижний угол для изменения размера.</div><input id="ozHeroImageUpload" type="file" accept="image/*" multiple><div id="ozHeroImageList"></div>';
   panel.insertBefore(area,panel.querySelector('[data-reset]'));
+  const photoPublish=document.createElement('button');photoPublish.type='button';photoPublish.textContent='Опубликовать фотографии для всех';
+  photoPublish.onclick=async()=>{photoPublish.disabled=true;photoPublish.textContent='Публикуем фотографии...';try{await publishPhotos();photoPublish.textContent='Фотографии опубликованы!'}catch(e){alert(e.message);photoPublish.textContent='Ошибка. Попробовать ещё'}finally{photoPublish.disabled=false}};
+  area.appendChild(photoPublish);
   const fileInput=area.querySelector('input'),list=area.querySelector('#ozHeroImageList');
   const redrawList=()=>{list.replaceChildren();data.forEach((entry,i)=>{const line=document.createElement('div');line.className='oz-photo-line';const text=document.createElement('span');text.textContent='Фото '+(i+1);const btn=document.createElement('button');btn.textContent='Удалить';btn.type='button';btn.onclick=async()=>{document.getElementById('ozhero-photo-'+entry.id)?.remove();data=data.filter(t=>t.id!==entry.id);persist();if(!entry.src)await remove(entry.id);redrawList()};line.append(text,btn);list.appendChild(line)})};
   const draw=async entry=>{
@@ -46,6 +74,10 @@
     node.addEventListener('pointermove',move);node.addEventListener('pointerup',end);node.addEventListener('pointercancel',end);
    });
   };
+  try{
+   const response=await fetch('/api/hero-images?fresh='+Date.now(),{cache:'no-store'});
+   if(response.ok){const remote=await response.json();if(Array.isArray(remote.images))data=remote.images}
+  }catch(e){console.warn('Published photos unavailable',e)}
   for(const entry of data)draw(entry).catch(()=>{});
   redrawList();
   fileInput.addEventListener('change',async()=>{
@@ -134,7 +166,7 @@
   btn.onclick=()=>{toggle(panel.hidden);sync()};
   panel.oninput=e=>{const t=e.target;if(t.dataset.size)state[t.dataset.size]=Number(t.value);if(t.dataset.check)state[t.dataset.check]=t.checked;if(t.dataset.text)state[t.dataset.text+'Text']=t.value;apply();sync();save()};
   panel.querySelector('[data-reset]').onclick=()=>{state={...defaults};apply();sync();save()};
-  panel.querySelector('[data-save]').onclick=async()=>{save();if(await publish())toggle(false)};
+  panel.querySelector('[data-save]').onclick=async()=>{save();if(await publish()){try{if(window.ozPublishHeroPhotos)await window.ozPublishHeroPhotos();toggle(false)}catch(e){alert('Тексты опубликованы, но фотографии нет: '+e.message)}}};
   sync();
   fetch('/api/home-editor?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{
    if(data?.home){state={...defaults,...data.home};apply();sync()}
