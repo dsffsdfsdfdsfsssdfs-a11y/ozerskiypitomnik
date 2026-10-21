@@ -1168,4 +1168,34 @@ const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.sta
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
 })();
 
+// Rounded header surface is drawn independently so overflow never clips the logo.
+(()=>{
+ const st=document.createElement('style');st.id='oz-header-clean-edges-20261021';
+ st.textContent=`
+ @media(min-width:901px){
+  html body #ozCombinedHeader .header{
+   position:relative!important;overflow:visible!important;
+   border-radius:42px!important;background:transparent!important;
+  }
+  html body #ozCombinedHeader .header .header-in{
+   position:relative!important;isolation:isolate!important;
+   height:84px!important;min-height:84px!important;
+   border-radius:42px!important;background:#fff!important;
+   padding-top:0!important;padding-bottom:0!important;
+   overflow:visible!important;clip-path:none!important;
+   -webkit-mask:none!important;mask:none!important;
+   border:0!important;box-shadow:none!important;
+  }
+  html body #ozCombinedHeader .header .header-in::before,
+  html body #ozCombinedHeader .header .header-in::after{
+   content:none!important;display:none!important;
+  }
+  html body #ozCombinedHeader .header .header-in #ozFreeLogo{
+   z-index:190!important;
+  }
+ }
+ `;
+ document.head.appendChild(st);
+})();
+
 })();
