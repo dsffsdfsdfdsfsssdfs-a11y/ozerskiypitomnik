@@ -921,6 +921,7 @@ const logoWaitingStyle=document.createElement('style');
 logoWaitingStyle.id='oz-logo-no-flash';
 logoWaitingStyle.textContent='#ozFreeLogo{visibility:hidden!important}';
 document.head.appendChild(logoWaitingStyle);
+if(window.OZ_LOGO_SETTINGS_READY)logoWaitingStyle.remove();
 
 let records={},logoAsset=null,mobileLogoAsset=null;
 const isAction=e=>!!e?.matches('#ozDottedActions .oz-v13-btn,#ozHelperToggle');
