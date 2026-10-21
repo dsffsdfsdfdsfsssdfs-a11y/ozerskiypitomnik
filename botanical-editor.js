@@ -662,6 +662,10 @@
 
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open')){e.stopPropagation();close()}},true);
  document.addEventListener('click',e=>{
+  // Intercept the basket itself, including clicks on its SVG and nested elements.
+  if(e.target.closest('#ozV13Cart')){
+   e.preventDefault();e.stopImmediatePropagation();open();return;
+  }
   if(e.target.closest('#ozNewCartOverlay'))return;
   const b=e.target.closest('button,a,[role="button"],input[type="button"]');if(!b)return;
   const name=(b.textContent||'').trim().toLowerCase();
