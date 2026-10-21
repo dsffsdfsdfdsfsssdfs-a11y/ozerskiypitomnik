@@ -465,7 +465,15 @@
  // Cart is deliberately kept in memory only: fresh visit starts empty.
  const key='oz-new-cart-v2';
  let items=[];
- try{localStorage.removeItem(key)}catch{}
+ // Remove abandoned persisted carts once per page load; this basket never persists.
+ try{
+  for(const storage of [localStorage,sessionStorage]){
+   for(let i=storage.length-1;i>=0;i--){
+    const name=storage.key(i);
+    if(name && /(?:^|[-_])(cart|basket|корзин)(?:[-_]|$)/i.test(name))storage.removeItem(name);
+   }
+  }
+ }catch(e){console.warn('Cart reset:',e)}
  const save=()=>{};
  const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const style=document.createElement('style');style.id='oz-new-cart-css';
