@@ -7,35 +7,37 @@
 // Editable header icons and navigation — desktop editor.
 (()=>{const js=document.createElement('script');js.src='/oz-header-layout-editor.js';js.defer=true;document.head.appendChild(js)})();
 
-// Single canonical desktop header style. Hold the header until published layout and logo finish.
+// Current compact header, replacing outdated header layout.
 (()=>{
- const st=document.createElement('style');st.id='oz-stable-header';
- st.textContent=`
- html:not(.oz-header-fully-ready) #ozCombinedHeader .header{visibility:hidden!important}
+ const style=document.createElement('style');style.id='oz-current-compact-header';
+ style.textContent=`
  @media(min-width:901px){
-  html body #ozCombinedHeader .header{position:relative!important;background:transparent!important;overflow:visible!important;border-radius:42px!important}
+  html body #ozCombinedHeader .header{overflow:visible!important;position:relative!important;border-radius:42px!important}
   html body #ozCombinedHeader .header .header-in{
-   position:relative!important;box-sizing:border-box!important;
    height:84px!important;min-height:84px!important;
-   border-radius:42px!important;background:#fff!important;
-   overflow:visible!important;clip-path:none!important;mask:none!important;
-   padding-top:0!important;padding-bottom:0!important;border:0!important;
+   border-radius:42px!important;background:#fff!important;box-sizing:border-box!important;
+   position:relative!important;overflow:visible!important;
+   padding-top:0!important;padding-bottom:0!important;
   }
   html body #ozCombinedHeader .header .header-in::before,
-  html body #ozCombinedHeader .header .header-in::after{display:none!important;content:none!important}
-  html body #ozCombinedHeader #mainNav a{line-height:1.2!important}
-  html body #ozCombinedHeader #ozFreeLogo{z-index:190!important}
+  html body #ozCombinedHeader .header .header-in::after{content:none!important;display:none!important}
+  html body #ozCombinedHeader #ozFreeLogo{
+   position:absolute!important;top:50%!important;left:50%!important;
+   transform:translate(-50%,-50%)!important;border-radius:50%!important;
+   background:#fff!important;padding:5px!important;box-sizing:content-box!important;
+   z-index:190!important;overflow:visible!important;
+  }
+  html body #ozCombinedHeader #ozFreeLogo img{width:100%!important;height:auto!important;display:block!important;object-fit:contain!important}
+  html body #ozCombinedHeader #mainNav a{font-size:clamp(19px,1.35vw,23px)!important;line-height:1.2!important}
+  html body #ozDottedActions .oz-v13-wrap{flex-basis:62px!important}
+  html body #ozDottedActions .oz-v13-btn,
+  html body #ozHelperToggle,
+  html body #ozV13Cart{width:62px!important;height:62px!important;min-width:62px!important;min-height:62px!important}
+  html body #ozDottedActions svg,html body #ozHelperToggle svg{width:27px!important;height:27px!important}
  }
- #ozV13Cart .oz-new-count-badge,
- #ozV13Cart .oz-old-number-hidden{display:none!important}
+ #ozV13Cart .oz-new-count-badge,#ozV13Cart .oz-old-number-hidden{display:none!important}
  `;
- document.head.appendChild(st);
- let headerReady=false,logoReady=false;
- const reveal=()=>{if(headerReady&&logoReady)document.documentElement.classList.add('oz-header-fully-ready')};
- window.addEventListener('oz-header-settings-ready',()=>{headerReady=true;reveal()});
- window.addEventListener('oz-logo-settings-ready',()=>{logoReady=true;reveal()});
- // Show the layout rather than an indefinitely blank header when a remote service fails.
- setTimeout(()=>{headerReady=true;logoReady=true;reveal()},5500);
+ document.head.appendChild(style);
 })();
 
 // Movable and resizable personal images on the first-screen hero.
