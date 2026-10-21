@@ -26,7 +26,7 @@
   html body #ozCombinedHeader #ozFreeLogo{
    position:absolute!important;top:50%!important;left:50%!important;
    transform:translate(-50%,-50%)!important;border-radius:50%!important;
-   background:#fff!important;padding:5px!important;box-sizing:content-box!important;outline:4px solid #124c2b!important;outline-offset:0!important;box-shadow:0 0 0 4px #124c2b!important;
+   background:#fff!important;padding:5px!important;box-sizing:content-box!important;outline:1px solid #124c2b!important;outline-offset:0!important;box-shadow:none!important;
    z-index:190!important;overflow:visible!important;
   }
   html body #ozCombinedHeader #ozFreeLogo img{width:100%!important;height:auto!important;display:block!important;object-fit:contain!important}
