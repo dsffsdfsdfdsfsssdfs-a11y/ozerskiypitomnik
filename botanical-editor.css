@@ -11,5 +11,5 @@ html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidd
 
 /* Thin green outline around the outer white logo circle, without shifting layout. */
 @media(min-width:901px){
- #ozCombinedHeader #ozFreeLogo{border-radius:50%!important;box-shadow:0 0 0 3px #124c2b!important}
+ #ozCombinedHeader #ozFreeLogo{border-radius:50%!important;outline:4px solid #124c2b!important;outline-offset:0!important;box-shadow:0 0 0 4px #124c2b!important}
 }
