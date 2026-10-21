@@ -1,7 +1,6 @@
 /* Keep the initial paint hidden until published settings have been applied. */
 html:not(.oz-public-ready) body{opacity:0!important;pointer-events:none!important}
 html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidden!important}
-#ozCombinedHeader:not(.oz-header-boot-ready){visibility:hidden!important;opacity:0!important}
 #ozV13Cart .oz-new-count-badge,
 #ozV13Cart .oz-old-number-hidden,
 #ozV13Cart [data-cart-count],
