@@ -4,6 +4,9 @@
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
+// Editable header icons and navigation — desktop editor.
+(()=>{const js=document.createElement('script');js.src='/oz-header-layout-editor.js';js.defer=true;document.head.appendChild(js)})();
+
 // Header concept #11 — strict, balanced compact layout (112px pill, 28px menu, 78px actions).
 (()=>{
  const style=document.createElement('style');
