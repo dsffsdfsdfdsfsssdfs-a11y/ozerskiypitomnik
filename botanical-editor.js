@@ -1123,6 +1123,18 @@ const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.sta
   console.warn('Published settings unavailable:',err);
   applyRecords();
  } finally {
+  // One reveal for the whole site, after header data and basket UI initialize.
+  const waitFor=(event,ready)=>new Promise(resolve=>{
+   if(ready())return resolve();
+   window.addEventListener(event,resolve,{once:true});
+  });
+  await Promise.race([
+   Promise.all([
+    waitFor('oz-logo-settings-ready',()=>window.OZ_LOGO_SETTINGS_READY===true),
+    waitFor('oz-header-settings-ready',()=>window.OZ_HEADER_SETTINGS_READY===true)
+   ]),
+   new Promise(resolve=>setTimeout(resolve,5500))
+  ]);
   requestAnimationFrame(()=>requestAnimationFrame(finishLoading));
  }
 })();
