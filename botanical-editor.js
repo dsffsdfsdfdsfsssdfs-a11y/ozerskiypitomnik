@@ -915,12 +915,12 @@ let finished=false;
 const finishLoading=()=>{if(finished)return;finished=true;document.documentElement.classList.add('oz-public-ready')};
 // The original full nursery logo (with the name) is bundled in the page.
 // The former pinned file contained only the greenhouse pictogram.
-const fullNurseryLogo=window.EMBEDDED_ASSETS?.['logo.webp'];
-if(fullNurseryLogo){
- window.OZ_LOGO=fullNurseryLogo;
- const current=document.querySelector('#ozFreeLogo img');
- if(current && !window.OZ_PUBLIC_LOGO_OVERRIDE) current.src=fullNurseryLogo;
-}
+// Never restore the outdated embedded logo while published settings load.
+const fullNurseryLogo=null;
+const logoWaitingStyle=document.createElement('style');
+logoWaitingStyle.id='oz-logo-no-flash';
+logoWaitingStyle.textContent='#ozFreeLogo{visibility:hidden!important}';
+document.head.appendChild(logoWaitingStyle);
 
 let records={},logoAsset=null,mobileLogoAsset=null;
 const isAction=e=>!!e?.matches('#ozDottedActions .oz-v13-btn,#ozHelperToggle');
@@ -931,7 +931,10 @@ const applyOne=(key,d)=>{try{let e=document.querySelector(key);if(!e)return;setP
 const applyLogo=()=>{window.OZ_PUBLIC_LOGO_OVERRIDE=logoAsset;const e=document.querySelector('#ozFreeLogo'),im=e?.querySelector('img');if(!e||!im)return;
  if(logoAsset==='hidden'){e.style.setProperty('display','none','important');return;}
  e.style.removeProperty('display');
- const src=window.OZ_EDITOR_LOGO||window.OZ_PUBLISHED_LOGO?.src||logoAsset||(fullNurseryLogo||'/ozerskiy-header-logo.png');if(im.getAttribute('src')!==src)im.src=src;window.ozApplyLogoLayout?.();
+ const src=window.OZ_EDITOR_LOGO||window.OZ_PUBLISHED_LOGO?.src||logoAsset;
+ if(src&&im.getAttribute('src')!==src)im.src=src;
+ else if(!src){im.removeAttribute('src');}
+ window.ozApplyLogoLayout?.();
 };
 
 const normalizeMobileLogo=()=>{};
