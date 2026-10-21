@@ -1166,7 +1166,10 @@ const applyRecords=()=>{for(const [key,d] of Object.entries(records))if(!key.sta
    ]),
    new Promise(resolve=>setTimeout(resolve,5500))
   ]);
-  requestAnimationFrame(()=>requestAnimationFrame(finishLoading));
+  // Apply all saved header sizes and positions one final time before the first visible frame.
+  window.OZ_APPLY_HEADER_LAYOUT?.();
+  try{if(document.fonts?.ready)await document.fonts.ready}catch{}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{window.OZ_APPLY_HEADER_LAYOUT?.();finishLoading()}));
  }
 })();
 
