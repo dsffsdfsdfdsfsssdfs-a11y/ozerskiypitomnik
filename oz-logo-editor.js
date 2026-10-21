@@ -19,7 +19,7 @@ function visual(){
   el.style.setProperty('width',state.width+'px','important');
   el.style.setProperty('max-width','none','important');
   el.style.setProperty('translate',state.x+'px '+state.y+'px','important');
-  if(img){img.style.setProperty('width','100%','important');img.style.setProperty('height','auto','important');}
+  if(img){img.style.setProperty('width','100%','important');img.style.setProperty('height',state.width+'px','important');img.style.setProperty('aspect-ratio','1 / 1','important');img.style.setProperty('object-fit','contain','important');}
  }
  if(innerWidth<=900){
   let mobile=document.getElementById('ozCustomMobileLogo');
