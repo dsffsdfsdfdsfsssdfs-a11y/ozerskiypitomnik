@@ -41,36 +41,56 @@ function apply(){
  }
 }
 
-// One capture-phase drag handler for ALL six menu links.
-document.addEventListener('pointerdown',e=>{
- if(e.button!==0)return;
+// Overlay handles for ALL navigation links during editing. They sit above page overlays.
+const handles=new Map();
+let dragged=null;
+function syncHandles(){
  const panel=document.getElementById('oz50EditPanel');
- if(!panel||panel.hidden||!panel.getClientRects().length)return;
- const link=e.target.closest?.('#mainNav a');
- if(!link)return;
- const links=[...document.querySelectorAll('#mainNav a')];
- const index=links.indexOf(link);
- if(index<0||index>5)return;
- e.preventDefault();e.stopImmediatePropagation();
- const id='nav'+index;
- const old=items[id]||{};
- const start={x:Number(old.x)||0,y:Number(old.y)||0,size:Number(old.size)||defs[id]};
- const sx=e.clientX,sy=e.clientY;
- const move=ev=>{
-  ev.preventDefault();
-  items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(ev.clientX-sx))),y:Math.max(-200,Math.min(200,start.y+Math.round(ev.clientY-sy)))};
-  link.style.setProperty('translate',items[id].x+'px '+items[id].y+'px','important');
- };
- const done=()=>{
-  window.removeEventListener('pointermove',move,true);
-  window.removeEventListener('pointerup',done,true);
-  window.removeEventListener('pointercancel',done,true);
-  apply();
- };
- window.addEventListener('pointermove',move,{capture:true,passive:false});
- window.addEventListener('pointerup',done,true);
- window.addEventListener('pointercancel',done,true);
-},true);
+ const editing=!!(panel&&!panel.hidden&&panel.getClientRects().length);
+ const links=[...document.querySelectorAll('#mainNav a')].slice(0,6);
+ for(let i=0;i<6;i++){
+  let handle=handles.get(i);
+  if(!handle){
+   handle=document.createElement('div');
+   handle.className='ozNavDragHandle';
+   Object.assign(handle.style,{position:'fixed',zIndex:'2147483640',display:'none',touchAction:'none',cursor:'grab',background:'transparent',boxSizing:'border-box'});
+   document.body.appendChild(handle);
+   handles.set(i,handle);
+   handle.addEventListener('pointerdown',e=>{
+    if(e.button!==0)return;
+    const link=[...document.querySelectorAll('#mainNav a')][i];if(!link)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const id='nav'+i,old=items[id]||{};
+    const start={x:Number(old.x)||0,y:Number(old.y)||0,size:Number(old.size)||defs[id]};
+    const sx=e.clientX,sy=e.clientY;
+    dragged=i;
+    handle.setPointerCapture(e.pointerId);
+    const move=v=>{
+     v.preventDefault();
+     items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(v.clientX-sx))),y:Math.max(-200,Math.min(200,start.y+Math.round(v.clientY-sy)))};
+     link.style.setProperty('translate',items[id].x+'px '+items[id].y+'px','important');
+     const box=link.getBoundingClientRect();
+     handle.style.left=box.left+'px';handle.style.top=box.top+'px';
+    };
+    const done=()=>{
+     handle.removeEventListener('pointermove',move);
+     handle.removeEventListener('pointerup',done);
+     handle.removeEventListener('pointercancel',done);
+     dragged=null;apply();syncHandles();
+    };
+    handle.addEventListener('pointermove',move);
+    handle.addEventListener('pointerup',done);
+    handle.addEventListener('pointercancel',done);
+   });
+  }
+  const link=links[i];
+  if(!editing||!link||!link.getClientRects().length){if(dragged!==i)handle.style.display='none';continue}
+  if(dragged===i)continue;
+  const box=link.getBoundingClientRect();
+  Object.assign(handle.style,{display:'block',left:box.left+'px',top:box.top+'px',width:box.width+'px',height:box.height+'px'});
+ }
+}
+setInterval(syncHandles,180);
 function setup(){
  const main=document.getElementById('oz50EditPanel');if(!main)return false;
  let panel=document.getElementById('ozHeaderEditorPanel');
@@ -89,7 +109,7 @@ function setup(){
   }
   const status=t=>panel.querySelector('#ozHeaderStatus').textContent=t;
   panel.querySelector('#ozHeaderReset').onclick=()=>{items={};apply();for(const input of sliders.querySelectorAll('input'))input.value=defs[Object.keys(labels)[[...sliders.querySelectorAll('input')].indexOf(input)]];status('Расположение сброшено локально. Нажми публикацию.')};
-  panel.querySelector('#ozHeaderPublish').onclick=async()=>{
+  const publishHeader=async()=>{
    const pass=sessionStorage.getItem('ozLogoEditorPass')||prompt('Пароль публикации:');if(!pass)return;
    try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','x-editor-password':pass},body:JSON.stringify({items})});const result=await r.json();if(!r.ok)throw Error(result.error||'Ошибка');
    const check=await fetch(endpoint+'?verify='+Date.now(),{cache:'no-store'});
@@ -102,6 +122,12 @@ function setup(){
    sessionStorage.setItem('ozLogoEditorPass',pass);status('Проверено: положение и размеры сохранены на сервере')}
    catch(e){status('Ошибка публикации: '+e.message)}
   };
+  panel.querySelector('#ozHeaderPublish').onclick=publishHeader;
+  const mainSave=main.querySelector('[data-save]');
+  if(mainSave&&!mainSave.dataset.ozHeaderSaveAttached){
+   mainSave.dataset.ozHeaderSaveAttached='1';
+   mainSave.addEventListener('click',()=>{if(Object.keys(items).some(k=>k.startsWith('nav')))publishHeader()},true);
+  }
  }
  const obs=new MutationObserver(()=>{active=main.getClientRects().length>0;apply()});obs.observe(main,{attributes:true,attributeFilter:['hidden']});active=!main.hidden;apply();
  return true;
