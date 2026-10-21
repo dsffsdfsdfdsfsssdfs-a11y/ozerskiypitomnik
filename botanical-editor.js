@@ -1,25 +1,8 @@
 (()=>{'use strict';
 
 
-// Avoid showing unconfigured header, legacy cart counters and missing logo during initialization.
-(()=>{
- const css=document.createElement('style');css.id='oz-header-boot-guard';
- css.textContent='#ozCombinedHeader:not(.oz-header-boot-ready){visibility:hidden!important}#ozV13Cart .oz-new-count-badge,#ozV13Cart .oz-old-number-hidden{display:none!important}';
- document.head.appendChild(css);
- let layoutReady=false,logoReady=false,revealed=false;
- const finish=()=>{
-  if(revealed||!layoutReady||!logoReady)return;
-  revealed=true;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-   document.getElementById('ozCombinedHeader')?.classList.add('oz-header-boot-ready');
-   css.textContent='#ozV13Cart .oz-new-count-badge,#ozV13Cart .oz-old-number-hidden{display:none!important}';
-  }));
- };
- window.addEventListener('oz-header-settings-ready',()=>{layoutReady=true;finish()});
- window.addEventListener('oz-logo-settings-ready',()=>{logoReady=true;finish()});
- setTimeout(()=>{layoutReady=true;logoReady=true;finish()},7000);
-})();
-
+// Header and page use the same visibility lifecycle (oz-public-ready).
+// No separate header-ready delay.
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
@@ -698,8 +681,7 @@
   }
 
  },true);
- const syncBadge=()=>{const t=document.getElementById('ozV13Cart');if(t&&(!t.querySelector('.oz-new-count-badge')||[...t.querySelectorAll('span,b,strong')].some(e=>e.classList.contains('oz-old-number-hidden')===false&&e.classList.contains('oz-new-count-badge')===false&&/^\d+$/.test(e.textContent.trim())&&e.children.length===0)))updateCount()};
- setInterval(syncBadge,1200);
+ // Legacy cart badges are not synchronized. Cart contents are held in memory only.
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{mount();render()},{once:true});else{mount();render()}
 })();
 
