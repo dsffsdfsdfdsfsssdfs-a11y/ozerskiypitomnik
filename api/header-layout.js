@@ -19,6 +19,6 @@ module.exports=async(req,res)=>{
   const number=(v,def,min,max)=>Number.isFinite(Number(v))?Math.min(max,Math.max(min,Number(v))):def;
   accepted[key]={x:number(o.x,0,-500,500),y:number(o.y,0,-200,200),size:number(o.size,key.startsWith('nav')?20:62,12,160)};
  }
- try{await put(FILE,JSON.stringify({items:accepted}),{access:'private',addRandomSuffix:false,allowOverwrite:true,contentType:'application/json'});return res.status(200).json({ok:true})}
+ try{await put(FILE,JSON.stringify({items:accepted}),{access:'private',addRandomSuffix:false,allowOverwrite:true,contentType:'application/json'});return res.status(200).json({ok:true,items:accepted})}
  catch(e){console.error(e);return res.status(503).json({error:'Сохранение не удалось'})}
 };
