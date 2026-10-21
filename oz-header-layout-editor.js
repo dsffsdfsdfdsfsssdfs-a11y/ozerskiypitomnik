@@ -37,106 +37,40 @@ function apply(){
    el.style.setProperty('min-height',o.size+'px','important');
   }
   el.classList.add('oz-header-draggable');el.classList.toggle('oz-edit-active',active);
-  if(!el.dataset.ozHeadMove){
-   el.dataset.ozHeadMove='1';
-   el.addEventListener('pointerdown',e=>{
-    if(e.button!==0)return;
-    const editor=document.getElementById('oz50EditPanel');
-    const editorOpen=editor && editor.getClientRects().length>0;
-    if(!editorOpen)return;
-    e.preventDefault();e.stopPropagation();
-    const original=items[id]||{x:0,y:0,size:defs[id]};
-    const start={...original},x=e.clientX,y=e.clientY;
-    const move=v=>{
-     v.preventDefault();
-     items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(v.clientX-x))),y:Math.max(-200,Math.min(200,start.y+Math.round(v.clientY-y)))};
-     apply();
-    };
-    const finish=()=>{
-     window.removeEventListener('pointermove',move,true);
-     window.removeEventListener('pointerup',finish,true);
-     window.removeEventListener('pointercancel',finish,true);
-    };
-    window.addEventListener('pointermove',move,{capture:true,passive:false});
-    window.addEventListener('pointerup',finish,true);
-    window.addEventListener('pointercancel',finish,true);
-   },true);
-  }
+
  }
 }
 
-// Delegated handler: the header may be recreated by the main site editor.
-// Catch the actual Reviews link before its navigation handler can consume the drag.
+// One capture-phase drag handler for ALL six menu links.
 document.addEventListener('pointerdown',e=>{
  if(e.button!==0)return;
- const link=e.target.closest?.('a');
- if(!link||link.textContent.trim()!=='Отзывы'||!link.closest('#mainNav'))return;
  const panel=document.getElementById('oz50EditPanel');
- if(!panel||!panel.getClientRects().length)return;
+ if(!panel||panel.hidden||!panel.getClientRects().length)return;
+ const link=e.target.closest?.('#mainNav a');
+ if(!link)return;
+ const links=[...document.querySelectorAll('#mainNav a')];
+ const index=links.indexOf(link);
+ if(index<0||index>5)return;
  e.preventDefault();e.stopImmediatePropagation();
- const id='nav5',start={x:0,y:0,size:defs[id],...(items[id]||{})};
- const originX=e.clientX,originY=e.clientY;
- link.style.setProperty('position','relative','important');
+ const id='nav'+index;
+ const old=items[id]||{};
+ const start={x:Number(old.x)||0,y:Number(old.y)||0,size:Number(old.size)||defs[id]};
+ const sx=e.clientX,sy=e.clientY;
  const move=ev=>{
   ev.preventDefault();
-  items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(ev.clientX-originX))),y:Math.max(-200,Math.min(200,start.y+Math.round(ev.clientY-originY)))};
+  items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(ev.clientX-sx))),y:Math.max(-200,Math.min(200,start.y+Math.round(ev.clientY-sy)))};
   link.style.setProperty('translate',items[id].x+'px '+items[id].y+'px','important');
  };
- const stop=()=>{
-  window.removeEventListener('pointermove',move,true);
-  window.removeEventListener('pointerup',stop,true);
-  window.removeEventListener('pointercancel',stop,true);
-  apply();
- };
- window.addEventListener('pointermove',move,{capture:true,passive:false});
- window.addEventListener('pointerup',stop,true);
- window.addEventListener('pointercancel',stop,true);
-},true);
-
-// Dedicated drag hit area directly over "Отзывы" while the editor is open.
-// This remains clickable even when the header has other pointer/click handlers.
-const reviewHandle=document.createElement('div');
-reviewHandle.id='ozReviewsDragHandle';
-reviewHandle.setAttribute('aria-label','Перетащить Отзывы');
-Object.assign(reviewHandle.style,{position:'fixed',display:'none',zIndex:'2147483601',cursor:'move',touchAction:'none',background:'transparent'});
-document.body.appendChild(reviewHandle);
-let movingReview=false;
-function positionReviewHandle(){
- const panel=document.getElementById('oz50EditPanel');
- const link=[...document.querySelectorAll('#mainNav a')].find(a=>a.textContent.trim()==='Отзывы');
- if(!panel||panel.hidden||!link||!link.getClientRects().length){
-  if(!movingReview)reviewHandle.style.display='none';
-  return;
- }
- if(movingReview)return;
- const b=link.getBoundingClientRect();
- reviewHandle.style.cssText+=';display:block;left:'+b.left+'px;top:'+b.top+'px;width:'+b.width+'px;height:'+b.height+'px';
-}
-reviewHandle.addEventListener('pointerdown',e=>{
- if(e.button!==0)return;
- const link=[...document.querySelectorAll('#mainNav a')].find(a=>a.textContent.trim()==='Отзывы');
- if(!link)return;
- e.preventDefault();e.stopPropagation();movingReview=true;
- const start={x:0,y:0,size:defs.nav5,...(items.nav5||{})},sx=e.clientX,sy=e.clientY;
- const move=ev=>{
-  ev.preventDefault();
-  items.nav5={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(ev.clientX-sx))),y:Math.max(-200,Math.min(200,start.y+Math.round(ev.clientY-sy)))};
-  link.style.setProperty('translate',items.nav5.x+'px '+items.nav5.y+'px','important');
-  const b=link.getBoundingClientRect();
-  reviewHandle.style.left=b.left+'px';reviewHandle.style.top=b.top+'px';
- };
  const done=()=>{
-  movingReview=false;
   window.removeEventListener('pointermove',move,true);
   window.removeEventListener('pointerup',done,true);
   window.removeEventListener('pointercancel',done,true);
-  apply();positionReviewHandle();
+  apply();
  };
  window.addEventListener('pointermove',move,{capture:true,passive:false});
  window.addEventListener('pointerup',done,true);
  window.addEventListener('pointercancel',done,true);
 },true);
-setInterval(positionReviewHandle,250);
 function setup(){
  const main=document.getElementById('oz50EditPanel');if(!main)return false;
  let panel=document.getElementById('ozHeaderEditorPanel');
@@ -158,7 +92,14 @@ function setup(){
   panel.querySelector('#ozHeaderPublish').onclick=async()=>{
    const pass=sessionStorage.getItem('ozLogoEditorPass')||prompt('Пароль публикации:');if(!pass)return;
    try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','x-editor-password':pass},body:JSON.stringify({items})});const result=await r.json();if(!r.ok)throw Error(result.error||'Ошибка');
-   sessionStorage.setItem('ozLogoEditorPass',pass);status('Настройки опубликованы для всех браузеров')}
+   const check=await fetch(endpoint+'?verify='+Date.now(),{cache:'no-store'});
+   if(!check.ok)throw Error('Не удалось проверить сохранение');
+   const saved=(await check.json()).items||{};
+   for(const [key,value] of Object.entries(items)){
+    if(!value)continue;
+    if(!saved[key]||Math.round(saved[key].x)!==Math.round(value.x||0)||Math.round(saved[key].y)!==Math.round(value.y||0)||Math.round(saved[key].size)!==Math.round(value.size||defs[key]))throw Error('Сервер не сохранил '+key);
+   }
+   sessionStorage.setItem('ozLogoEditorPass',pass);status('Проверено: положение и размеры сохранены на сервере')}
    catch(e){status('Ошибка публикации: '+e.message)}
   };
  }
