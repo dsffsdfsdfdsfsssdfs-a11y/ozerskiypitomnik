@@ -40,13 +40,26 @@ function apply(){
   if(!el.dataset.ozHeadMove){
    el.dataset.ozHeadMove='1';
    el.addEventListener('pointerdown',e=>{
-    if(!active||e.button!==0)return;
+    if(e.button!==0)return;
+    const editor=document.getElementById('oz50EditPanel');
+    const editorOpen=editor&&!editor.hidden&&getComputedStyle(editor).display!=='none';
+    if(!editorOpen)return;
     e.preventDefault();e.stopPropagation();
-    const start={...(items[id]||{x:0,y:0,size:defs[id]})},x=e.clientX,y=e.clientY;
-    el.setPointerCapture(e.pointerId);
-    const move=v=>{items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(v.clientX-x))),y:Math.max(-200,Math.min(200,start.y+Math.round(v.clientY-y)))};apply()};
-    const finish=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',finish);el.removeEventListener('pointercancel',finish)};
-    el.addEventListener('pointermove',move);el.addEventListener('pointerup',finish);el.addEventListener('pointercancel',finish);
+    const original=items[id]||{x:0,y:0,size:defs[id]};
+    const start={...original},x=e.clientX,y=e.clientY;
+    const move=v=>{
+     v.preventDefault();
+     items[id]={...start,x:Math.max(-500,Math.min(500,start.x+Math.round(v.clientX-x))),y:Math.max(-200,Math.min(200,start.y+Math.round(v.clientY-y)))};
+     apply();
+    };
+    const finish=()=>{
+     window.removeEventListener('pointermove',move,true);
+     window.removeEventListener('pointerup',finish,true);
+     window.removeEventListener('pointercancel',finish,true);
+    };
+    window.addEventListener('pointermove',move,{capture:true,passive:false});
+    window.addEventListener('pointerup',finish,true);
+    window.addEventListener('pointercancel',finish,true);
    },true);
   }
  }
