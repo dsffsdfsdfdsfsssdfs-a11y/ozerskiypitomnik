@@ -81,7 +81,7 @@ function setup(){
 }
 const init=async()=>{
  try{const r=await fetch(endpoint+'?t='+Date.now(),{cache:'no-store'});if(r.ok){const data=await r.json();items=data.items||{}}}catch(e){console.warn(e)}
- apply();window.dispatchEvent(new Event('oz-header-settings-ready'));let tries=0;const timer=setInterval(()=>{apply();if(setup()||++tries>35)clearInterval(timer)},400);
+ apply();window.OZ_HEADER_SETTINGS_READY=true;window.dispatchEvent(new Event('oz-header-settings-ready'));let tries=0;const timer=setInterval(()=>{apply();if(setup()||++tries>35)clearInterval(timer)},400);
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
