@@ -1,62 +1,8 @@
 (()=>{'use strict';
 
 
-// Custom logo picker for the existing home-page editor.
-// Preview is stored only in this browser; public publication remains disabled.
-(()=>{
- const KEY='oz-editor-custom-logo-preview-v1';
- let current=null;
- try{current=localStorage.getItem(KEY)||null}catch(e){}
- window.OZ_EDITOR_LOGO=current;
- const apply=()=>{
-   const img=document.querySelector('#ozFreeLogo img');
-   if(img&&current&&img.getAttribute('src')!==current)img.src=current;
-   const mobile=document.getElementById('ozCustomMobileLogo');
-   if(mobile&&current)mobile.src=current;
- };
- const create=()=>{
-   const panel=document.getElementById('oz50EditPanel');
-   if(!panel||document.getElementById('ozEditorLogoArea'))return !!panel;
-   const area=document.createElement('section');
-   area.id='ozEditorLogoArea';
-   area.style.cssText='padding:14px;margin:14px 0;border:1px solid #c7ddc6;border-radius:12px;background:#fff';
-   area.innerHTML='<strong style="display:block;font-size:20px;margin-bottom:8px">Логотип сайта</strong><label style="display:block;margin-bottom:8px">Загрузить свой логотип (PNG, JPG, WebP)<input id="ozEditorLogoFile" type="file" accept="image/png,image/jpeg,image/webp" style="display:block;width:100%;margin-top:6px"></label><img id="ozEditorLogoPreview" alt="Предпросмотр логотипа" style="display:block;width:110px;max-height:110px;object-fit:contain;margin:8px auto"><button type="button" id="ozEditorLogoReset">Вернуть исходный логотип</button><p id="ozEditorLogoStatus" style="font-size:12px;line-height:1.4;margin:8px 0 0">Предпросмотр сохраняется только в этом браузере. Для публикации всем посетителям требуется обновить файл сайта.</p>';
-   panel.insertBefore(area,panel.firstChild.nextSibling);
-   const input=area.querySelector('#ozEditorLogoFile'),preview=area.querySelector('#ozEditorLogoPreview'),status=area.querySelector('#ozEditorLogoStatus');
-   const refresh=()=>{preview.src=current||'/ozerskiy-header-logo.png';apply()};
-   refresh();
-   input.addEventListener('change',async()=>{
-     const file=input.files?.[0];if(!file)return;
-     if(!['image/png','image/jpeg','image/webp'].includes(file.type)){status.textContent='Выберите PNG, JPG или WebP';return}
-     if(file.size>10*1024*1024){status.textContent='Максимальный размер файла — 10 МБ';return}
-     try{
-       const bitmap=await createImageBitmap(file);
-       const scale=Math.min(1,900/Math.max(bitmap.width,bitmap.height));
-       const canvas=document.createElement('canvas');
-       canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-       canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
-       bitmap.close();
-       current=canvas.toDataURL('image/png');localStorage.setItem(KEY,current);
-       window.OZ_EDITOR_LOGO=current;window.OZ_PUBLIC_LOGO_OVERRIDE=current;
-       refresh();status.textContent='Логотип заменён в предпросмотре этого браузера.';
-     }catch(err){status.textContent='Не удалось сохранить изображение. Попробуйте файл меньшего размера.'}
-   });
-   area.querySelector('#ozEditorLogoReset').onclick=()=>{
-     try{localStorage.removeItem(KEY)}catch(e){}
-     current=null;window.OZ_EDITOR_LOGO=null;window.OZ_PUBLIC_LOGO_OVERRIDE=null;
-     const img=document.querySelector('#ozFreeLogo img');if(img)img.src='/ozerskiy-header-logo.png';
-     const mobile=document.getElementById('ozCustomMobileLogo');if(mobile)mobile.src='/ozerskiy-header-logo.png';
-     status.textContent='Исходный логотип восстановлен в этом браузере.';refresh();
-   };
-   return true;
- };
- const initialize=()=>{
-   if(create())return;
-   let tries=0;const retry=setInterval(()=>{if(create()||++tries>=30)clearInterval(retry)},500);
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize,{once:true});
- else initialize();
-})();
+// Load logo editor and published settings without exposing publication to visitors.
+(()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
 // Movable and resizable personal images on the first-screen hero.
 (()=>{
@@ -985,7 +931,7 @@ const applyOne=(key,d)=>{try{let e=document.querySelector(key);if(!e)return;setP
 const applyLogo=()=>{window.OZ_PUBLIC_LOGO_OVERRIDE=logoAsset;const e=document.querySelector('#ozFreeLogo'),im=e?.querySelector('img');if(!e||!im)return;
  if(logoAsset==='hidden'){e.style.setProperty('display','none','important');return;}
  e.style.removeProperty('display');
- const src=window.OZ_EDITOR_LOGO||logoAsset||(fullNurseryLogo||'/ozerskiy-header-logo.png');if(im.getAttribute('src')!==src)im.src=src;
+ const src=window.OZ_EDITOR_LOGO||window.OZ_PUBLISHED_LOGO?.src||logoAsset||(fullNurseryLogo||'/ozerskiy-header-logo.png');if(im.getAttribute('src')!==src)im.src=src;window.ozApplyLogoLayout?.();
 };
 
 const normalizeMobileLogo=()=>{};
