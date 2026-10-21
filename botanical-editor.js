@@ -4,6 +4,31 @@
 // Load logo editor and published settings without exposing publication to visitors.
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
+// Header layout concept #1: compact white pill and a clean centered circular logo mount.
+(()=>{
+ const style=document.createElement('style');
+ style.id='oz-header-concept-one';
+ style.textContent=`
+ @media(min-width:901px){
+  #ozCombinedHeader .header{overflow:visible!important;position:relative!important}
+  #ozCombinedHeader .header .header-in{
+    min-height:108px!important;height:108px!important;
+    border-radius:38px!important;overflow:visible!important;
+    background:#fff!important;position:relative!important;
+  }
+  #ozCombinedHeader #ozFreeLogo{
+    position:absolute!important;left:50%!important;top:50%!important;
+    transform:translate(-50%,-50%)!important;
+    border-radius:50%!important;background:white!important;
+    padding:5px!important;box-sizing:content-box!important;
+    z-index:190!important;overflow:visible!important;
+  }
+  #ozCombinedHeader #ozFreeLogo img{display:block!important;max-width:none!important;width:100%!important;height:auto!important;object-fit:contain!important}
+ }
+ `;
+ document.head.appendChild(style);
+})();
+
 // Movable and resizable personal images on the first-screen hero.
 (()=>{
  const KEY='ozHeroPersonalImagesV1';
