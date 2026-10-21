@@ -9,7 +9,7 @@
   const cart=document.getElementById('ozV13Cart');if(!cart)return;
   cart.querySelectorAll('span,b,strong,[data-cart-count]').forEach(el=>{
    if(el.classList.contains('oz-new-count-badge')||el.closest('.oz-new-count-badge'))return;
-   if(el.children.length===0&&/^\\s*0\\s*$/.test(el.textContent||'')){
+   if(el.children.length===0&&/^\s*0\s*$/.test(el.textContent||'')){
     if(!el.classList.contains('oz-old-number-hidden'))el.classList.add('oz-old-number-hidden');
    }
   });
