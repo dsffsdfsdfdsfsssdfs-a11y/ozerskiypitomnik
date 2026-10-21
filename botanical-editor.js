@@ -30,7 +30,7 @@
    z-index:190!important;overflow:visible!important;
   }
   html body #ozCombinedHeader #ozFreeLogo img{width:100%!important;height:auto!important;display:block!important;object-fit:contain!important}
-  html body #ozCombinedHeader #mainNav a{font-size:clamp(19px,1.35vw,23px)!important;line-height:1.2!important}
+  html body #ozCombinedHeader #mainNav a{line-height:1.2!important}
   html body #ozDottedActions .oz-v13-wrap{flex-basis:62px!important}
   html body #ozDottedActions .oz-v13-btn,
   html body #ozHelperToggle,
@@ -427,18 +427,10 @@
 
 
 
-// Make the five main header menu labels more legible.
-(()=>{
- const st=document.createElement('style');st.id='oz-header-links-larger';
- st.textContent='html body #ozCombinedHeader a[href*="#catalog"],html body #ozCombinedHeader a[href*="#about"],html body #ozCombinedHeader a[href*="#gallery"],html body #ozCombinedHeader a[href*="#video"],html body #ozCombinedHeader a[href*="#contacts"],html body #mainNav a[href*="#catalog"],html body #mainNav a[href*="#about"],html body #mainNav a[href*="#gallery"],html body #mainNav a[href*="#video"],html body #mainNav a[href*="#contacts"]{font-family:"Neucha",cursive!important;font-size:19px!important;letter-spacing:.055em!important;font-stretch:expanded!important;line-height:1.2!important;white-space:nowrap!important}';
- document.head.appendChild(st);
-})();
-
 // Increase readability of Neucha outside the main hero copy and helper dialogue.
 (()=>{
  const st=document.createElement('style');st.id='oz-neucha-readable';
  st.textContent=[
-  '#ozCombinedHeader #mainNav a,#ozCombinedHeader .header a,#mainNav a{font-size:17px!important}',
   'body :is(#catalog,#catalogue,.catalog,.products,.product-grid,.catalog-grid,footer,.footer) :is(p,li,span,a,label,small,button){font-size:max(16px,1em)!important;line-height:1.45!important}',
   'body :is(#catalog,#catalogue,.catalog,.products,.product-grid,.catalog-grid) :is(h2,h3,h4){font-size:clamp(23px,2.15vw,32px)!important;line-height:1.18!important}',
   'body :is(#ozNewCartDialog,#ozCheckoutForm,.oz-checkout-modal) :is(p,li,span,a,label,small,button,input,textarea,select){font-size:17px!important;line-height:1.35!important}',
