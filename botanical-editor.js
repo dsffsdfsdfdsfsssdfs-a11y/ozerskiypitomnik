@@ -477,6 +477,7 @@
  '#ozNewCartHead{background:#173e30;color:#fff;padding:19px 22px;display:flex;align-items:center;justify-content:space-between;flex:none}',
  '#ozNewCartHead strong{font-size:19px}',
  '#ozNewCartClose{background:#f0f5ee;border:0;border-radius:50%;width:48px;height:48px;min-width:48px;color:#1a4e35;font-size:34px!important;line-height:1;cursor:pointer;display:grid;place-items:center}',
+ '#ozNewCartClose svg{display:block!important;width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:none!important;max-height:none!important;flex:none!important;opacity:1!important;visibility:visible!important}',
  '#ozNewCartItems{overflow-y:auto;min-height:0;flex:1;padding:15px 20px}',
  '.oz-new-line{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e1eae2;align-items:center}',
  '.oz-new-line img{width:75px;height:75px;object-fit:cover;border-radius:12px;background:#edf2eb;flex:none}',
@@ -494,7 +495,7 @@
  'body.oz-new-cart-active [class*="cart-drawer" i],body.oz-new-cart-active [id*="cart-drawer" i]{display:none!important}'
  ].join('\n');document.head.appendChild(style);
  const overlay=document.createElement('div');overlay.id='ozNewCartOverlay';
- overlay.innerHTML='<section id="ozNewCartDialog" role="dialog" aria-modal="true" aria-label="Ваша корзина"><header id="ozNewCartHead"><strong>Ваша корзина <span id="ozNewCartCount"></span></strong><button id="ozNewCartClose" aria-label="Закрыть">×</button></header><div id="ozNewCartItems"></div><footer id="ozNewCartFoot"><p>Добавленные товары не резервируются автоматически. Отправьте заявку питомнику для уточнения наличия и стоимости.</p><div class="oz-cart-footer-actions"><button id="ozNewCartClear" type="button">Очистить корзину</button><button id="ozNewCartOrder">Оформить заказ</button></div></footer></section>';
+ overlay.innerHTML='<section id="ozNewCartDialog" role="dialog" aria-modal="true" aria-label="Ваша корзина"><header id="ozNewCartHead"><strong>Ваша корзина <span id="ozNewCartCount"></span></strong><button id="ozNewCartClose" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M5 5L19 19M19 5L5 19" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button></header><div id="ozNewCartItems"></div><footer id="ozNewCartFoot"><p>Добавленные товары не резервируются автоматически. Отправьте заявку питомнику для уточнения наличия и стоимости.</p><div class="oz-cart-footer-actions"><button id="ozNewCartClear" type="button">Очистить корзину</button><button id="ozNewCartOrder">Оформить заказ</button></div></footer></section>';
  const mount=()=>{if(!overlay.isConnected)document.body.append(overlay)};
  let previousFocus=null;
  const updateCount=()=>{
