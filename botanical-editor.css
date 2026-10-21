@@ -25,8 +25,8 @@ html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidd
   content:""!important;
   display:block!important;
   position:absolute!important;
-  width:190px!important;
-  height:190px!important;
+  width:170px!important;
+  height:170px!important;
   box-sizing:border-box!important;
   left:50%!important;
   top:50%!important;
