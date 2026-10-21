@@ -136,8 +136,17 @@ function setup(){
      if(!saved||saved.x!==value.x||saved.y!==value.y||saved.size!==value.size)
       throw Error('Сервер не подтвердил '+key);
     }
+    // A successful POST is not enough: fetch the persisted version as a real visitor.
+    const check=await fetch(endpoint+'?verify='+Date.now(),{cache:'no-store'});
+    if(!check.ok)throw Error('Не удалось проверить сохранённые данные: HTTP '+check.status);
+    const persisted=(await check.json()).items||{};
+    for(const [key,value] of Object.entries(snapshot)){
+     const saved=persisted[key];
+     if(!saved||saved.x!==value.x||saved.y!==value.y||saved.size!==value.size)
+      throw Error('После сохранения сервер вернул старое положение '+key);
+    }
     sessionStorage.setItem('ozLogoEditorPass',pass);
-    status('✓ Сохранено на сервере. Обнови страницу, чтобы проверить.');
+    status('✓ Сохранено и проверено повторным чтением с сервера.');
    }catch(error){status('❌ НЕ СОХРАНЕНО: '+error.message);alert('Не удалось опубликовать шапку: '+error.message)}
    finally{button.disabled=false}
   };
@@ -145,7 +154,7 @@ function setup(){
   const mainSave=main.querySelector('[data-save]');
   if(mainSave&&!mainSave.dataset.ozHeaderSaveAttached){
    mainSave.dataset.ozHeaderSaveAttached='1';
-   mainSave.addEventListener('click',()=>{if(Object.keys(items).some(k=>k.startsWith('nav')))publishHeader()},true);
+   mainSave.addEventListener('click',()=>{if(Object.keys(items).length)publishHeader()},true);
   }
  }
  const obs=new MutationObserver(()=>{active=main.getClientRects().length>0;apply()});obs.observe(main,{attributes:true,attributeFilter:['hidden']});active=!main.hidden;apply();

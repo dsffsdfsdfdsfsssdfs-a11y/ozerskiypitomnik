@@ -7,7 +7,7 @@
 (()=>{const script=document.createElement('script');script.src='/oz-logo-editor.js';script.defer=true;document.head.appendChild(script)})();
 
 // Editable header icons and navigation — desktop editor.
-(()=>{const js=document.createElement('script');js.src='/oz-header-layout-editor.js?v=header-save-20261021-5';js.defer=true;document.head.appendChild(js)})();
+(()=>{const js=document.createElement('script');js.src='/oz-header-layout-editor.js?v=header-save-20261021-6';js.defer=true;document.head.appendChild(js)})();
 
 // Current compact header, replacing outdated header layout.
 (()=>{
