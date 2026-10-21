@@ -14,4 +14,4 @@ html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidd
 #ozFreeLogo::before{content:none!important;display:none!important}
 
 /* Thin green rim on the real floating logo, no additional large circle. */
-@media(min-width:901px){html body #ozFreeLogo{border-radius:50%!important;outline:2px solid #124c2b!important;outline-offset:0!important;box-shadow:none!important}}
+@media(min-width:901px){html body #ozFreeLogo{border-radius:50%!important;outline:1px solid #124c2b!important;outline-offset:0!important;box-shadow:none!important}}
