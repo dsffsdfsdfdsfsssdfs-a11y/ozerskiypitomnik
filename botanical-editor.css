@@ -9,7 +9,15 @@ html:not(.oz-public-ready) #ozCombinedHeader{opacity:0!important;visibility:hidd
 #ozV13Cart .oz-new-count-badge{position:absolute!important;top:-6px;right:-7px;z-index:10;min-width:21px;height:21px;padding:0 4px;border-radius:999px;background:#327c53;color:#fff;font:700 12px/1 Arial,sans-serif;align-items:center;justify-content:center;box-sizing:border-box;pointer-events:none}
 #ozV13Cart .oz-new-count-badge[hidden]{display:none!important}
 
-/* Thin green outline around the outer white logo circle, without shifting layout. */
+
+/* Outer white ring of the separately mounted floating logo. */
 @media(min-width:901px){
- #ozCombinedHeader #ozFreeLogo{border-radius:50%!important;outline:4px solid #124c2b!important;outline-offset:0!important;box-shadow:0 0 0 4px #124c2b!important}
+ html body #ozFreeLogo{
+  border-radius:50%!important;
+  background:#fff!important;
+  padding:5px!important;
+  box-sizing:content-box!important;
+  box-shadow:0 0 0 3px #124c2b!important;
+  overflow:visible!important;
+ }
 }
