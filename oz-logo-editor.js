@@ -51,7 +51,7 @@ function sync(){
  p.querySelector('#ozLogoSizeValue').textContent=state.width+' px';
  p.querySelector('#ozLogoMobileSizeValue').textContent=state.mobileWidth+' px';
 }
-function update(){window.OZ_EDITOR_LOGO=state.src;window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();window.dispatchEvent(new Event('oz-logo-settings-ready'));window.dispatchEvent(new Event('oz-logo-settings-ready'));}
+function update(){window.OZ_EDITOR_LOGO=state.src;window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();window.dispatchEvent(new Event('oz-logo-settings-ready'));window.dispatchEvent(new Event('oz-logo-settings-ready'));window.dispatchEvent(new Event('oz-logo-settings-ready'));}
 function pointer(e){
  if(!editing||e.button!==0)return;
  const el=document.getElementById('ozFreeLogo'),target=e.target;
@@ -121,8 +121,8 @@ async function load(){
  try{const r=await fetch(endpoint+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('server');const v=await r.json();
  state={...defaultState,...v};
  // Prefer unsaved changes made in the current tab, if any.
- window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();
- }catch(e){console.warn('Published logo settings unavailable',e);window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();}
+ window.OZ_PUBLISHED_LOGO=state;visual();sync();window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();window.dispatchEvent(new Event('oz-logo-settings-ready'));
+ }catch(e){console.warn('Published logo settings unavailable',e);window.OZ_LOGO_SETTINGS_READY=true;document.getElementById('oz-logo-no-flash')?.remove();window.dispatchEvent(new Event('oz-logo-settings-ready'));}
 }
 const boot=()=>{load();if(setup())return;let i=0;const t=setInterval(()=>{if(setup()||++i>60)clearInterval(t)},400)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
