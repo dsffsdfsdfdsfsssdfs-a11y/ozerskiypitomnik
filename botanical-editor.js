@@ -532,6 +532,21 @@
   requestAnimationFrame(()=>requestAnimationFrame(()=>toast.classList.add('oz-toast-show')));
   toastTimeout=setTimeout(()=>toast.classList.remove('oz-toast-show'),4400);
  };
+ // Ensure the actual basket control can receive pointer events, not only its visual icon.
+ const cartClickStyle=document.createElement('style');
+ cartClickStyle.id='oz-cart-click-fix';
+ cartClickStyle.textContent='#ozDottedActions,#ozDottedActions .oz-v13-wrap,#ozV13Cart,#ozV13Cart *{pointer-events:auto!important}#ozV13Cart{cursor:pointer!important;position:relative!important;z-index:500!important}';
+ document.head.appendChild(cartClickStyle);
+ const bindCartButton=()=>{
+  const trigger=document.getElementById('ozV13Cart');
+  if(!trigger||trigger.dataset.ozNewCartDirectClick)return;
+  trigger.dataset.ozNewCartDirectClick='1';
+  trigger.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();open()},true);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindCartButton,{once:true});
+ else bindCartButton();
+ const cartBinder=new MutationObserver(bindCartButton);
+ cartBinder.observe(document.documentElement,{childList:true,subtree:true});
  const open=()=>{mount();previousFocus=document.activeElement;render();overlay.classList.add('open');document.body.classList.add('oz-new-cart-active');overlay.querySelector('#ozNewCartClose').focus()};
  const close=()=>{const f=overlay.querySelector('#ozCheckoutStep');if(f)f.hidden=true;overlay.querySelector('#ozNewCartDialog')?.classList.remove('oz-checkout-mode');overlay.classList.remove('open');document.body.classList.remove('oz-new-cart-active');if(previousFocus?.focus)previousFocus.focus()};
  const findProduct=(button)=>{
